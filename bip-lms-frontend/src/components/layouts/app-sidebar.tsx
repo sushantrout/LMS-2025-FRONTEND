@@ -3,11 +3,13 @@
 import * as React from "react"
 import {
   AudioWaveform,
+  BookAIcon,
   BookOpen,
   Bot,
   Command,
   Frame,
   GalleryVerticalEnd,
+  LayoutDashboard,
   Map,
   PieChart,
   Settings2,
@@ -52,9 +54,9 @@ const data = {
   ],
   navMain: [
     {
-      title: "Playground",
-      url: "/dashboard",
-      icon: SquareTerminal,
+      title: "Dashboard",
+      url: "/",
+      icon: LayoutDashboard,
       isActive: true,
       items: [
         {
@@ -72,9 +74,9 @@ const data = {
       ],
     },
     {
-      title: "Models",
-      url: "#",
-      icon: Bot,
+      title: "Courses",
+      url: "/courses",
+      icon: BookAIcon,
       items: [
         {
           title: "Genesis",
@@ -114,8 +116,8 @@ const data = {
       ],
     },
     {
-      title: "Settings",
-      url: "#",
+      title: "Configuration",
+      url: "/configuration",
       icon: Settings2,
       items: [
         {
@@ -164,7 +166,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
