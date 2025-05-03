@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Search, SlidersHorizontal, Bell, Clock } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -10,73 +10,30 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import Link from "next/link"
-
-interface Course {
-    id: string
-    title: string
-    description: string
-    category: string
-    duration: string
-    lessons: number
-    rating: number
-    image: string
-}
-
-const initialCourses: Course[] = [
-    {
-        id: "1",
-        title: "Effective Leadership Skills",
-        description: "Learn key leadership skills to inspire and motivate your team for success.",
-        category: "Leadership",
-        duration: "3h 45m",
-        lessons: 12,
-        rating: 4.8,
-        image: "/images/course/course-cover.avif",
-    },
-    {
-        id: "2",
-        title: "Advanced Excel for Professionals",
-        description: "Master advanced Excel features to analyze data and create powerful reports.",
-        category: "Technical Skills",
-        duration: "5h 20m",
-        lessons: 18,
-        rating: 4.5,
-        image: "/images/course/course-cover.avif",
-    },
-    {
-        id: "3",
-        title: "Communication Mastery",
-        description: "Enhance your communication skills for better workplace relationships.",
-        category: "Soft Skills",
-        duration: "2h 55m",
-        lessons: 9,
-        rating: 4.7,
-        image: "/images/course/course-cover.avif",
-    },
-    {
-        id: "4",
-        title: "Cybersecurity Essentials",
-        description: "Learn essential cybersecurity practices to protect company data.",
-        category: "Technical Skills",
-        duration: "4h 10m",
-        lessons: 14,
-        rating: 4.6,
-        image: "/images/course/course-cover.avif",
-    },
-]
+import { courseService } from "@/http/course-service"
+import { Course } from "@/types/model/course-model"
+ 
 
 export default function CourseCatalog() {
-    const [courses, setCourses] = useState<Course[]>(initialCourses)
+    const [courses, setCourses] = useState<Course[]>([])
     const [formVisible, setFormVisible] = useState(false)
     const [formData, setFormData] = useState({
         title: "",
         description: "",
-        category: "",
+        category: null,
         duration: "",
         lessons: "",
         rating: "",
         image: "",
-    })
+    });
+
+    useEffect(() => {
+        courseService.getCourseList().then((res) => {
+          console.log(res);
+          setCourses(res?.data?.data)
+        })
+        console.log('sdfs');
+      }, [])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
@@ -92,8 +49,6 @@ export default function CourseCatalog() {
         const newCourse: Course = {
             id: Date.now().toString(),
             ...formData,
-            lessons: Number(formData.lessons),
-            rating: Number(formData.rating),
         }
         setCourses((prev) => [newCourse, ...prev])
         setFormVisible(false)
@@ -204,24 +159,24 @@ function CourseCard({ course }: { course: Course }) {
       <div className="flex flex-col overflow-hidden rounded-lg border bg-card text-card-foreground">
         <div className="relative">
           <img
-            src={course.image || "/placeholder.svg"}
-            alt={course.title}
+            src="/images/course/course-cover.avif"
+            alt={course.name}
             className="aspect-video w-full object-cover"
           />
-          <Badge className="absolute left-3 top-3">{course.category}</Badge>
+          <Badge className="absolute left-3 top-3">{course.category?.name}</Badge>
         </div>
         <div className="flex flex-col space-y-1.5 p-4">
-          <h3 className="text-xl font-semibold">{course.title}</h3>
+          <h3 className="text-xl font-semibold">{course.name}</h3>
           <p className="text-sm text-muted-foreground line-clamp-2">{course.description}</p>
         </div>
         <div className="mt-auto p-4 pt-0">
           <div className="flex items-center justify-between mb-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <Clock className="h-4 w-4" />
-              <span>{course.duration}</span>
+              <span>{course.name}</span>
             </div>
-            <div>{course.lessons} lessons</div>
-            <div className="text-yellow-500 font-medium">{course.rating}</div>
+            <div>{course.name} lessons</div>
+            <div className="text-yellow-500 font-medium">{course.maxRating}</div>
           </div>
           <div className="flex gap-2">
             <Link href={`/courses/${course.id}`} className="flex-1">

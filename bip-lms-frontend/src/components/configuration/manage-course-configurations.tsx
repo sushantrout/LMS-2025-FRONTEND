@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -10,13 +10,14 @@ import { SessionDialog } from "./module/session-dialog"
 import { ModuleDialog } from "./module/module-dialog"
 import { Paperclip } from "lucide-react"
 import { UploadNotesModal } from "./module/upload-notes"
+import { courseService } from "@/http/course-service"
 
 export default function ManageCoursePage({ params }: { params: { id: string } }) {
   const courseId = params.id
   const [isModuleDialogOpen, setModuleDialogOpen] = useState(false)
   const [isSessionDialogOpen, setSessionDialogOpen] = useState(false)
   const [isUploadNotesModalOpen, setUploadNotesModalOpen] = useState(false)
-  const [selectedSession, setSelectedSession] = useState<string | null>(null)
+  const [selectedSession, setSelectedSession] = useState<string | null>(null);
 
   const handleSaveModule = (data: { name: string; description: string }) => {
     console.log("Module Saved", data)

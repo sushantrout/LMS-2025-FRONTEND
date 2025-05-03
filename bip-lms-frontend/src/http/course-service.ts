@@ -1,21 +1,22 @@
 import { httpClient } from "./http-service";
+import { lmsService } from "./lms-service";
 
-const BASE_URL = "course";
+const BASE_URL = "v1/course";
 
 export const courseService = {
-  getCourseList(params: any) {
-    return httpClient.get(`${BASE_URL}`, { params });
+  getCourseList() {
+    return lmsService.get(`${BASE_URL}`);
   },
   getCourseDetail(id: string) {
-    return httpClient.get(`${BASE_URL}/detail/${id}`);
+    return lmsService.get(`${BASE_URL}/detail/${id}`);
   },
   createCourse(data: any) {
-    return httpClient.post(`${BASE_URL}/create`, data);
+    return lmsService.post(`${BASE_URL}/create`, data);
   },
   updateCourse(id: string, data: any) {
-    return httpClient.put(`${BASE_URL}/update/${id}`, data);
+    return lmsService.put(`${BASE_URL}/update/${id}`, data);
   },
   deleteCourse(id: string) {
-    return httpClient.delete(`${BASE_URL}/delete/${id}`);
+    return lmsService.delete(`${BASE_URL}/delete/${id}`);
   },
 };
