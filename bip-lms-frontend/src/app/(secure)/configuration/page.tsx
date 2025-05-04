@@ -22,33 +22,39 @@ import { courseCategoryService } from "@/http/course-category-service";
 import { Category } from "@/types/model/category-model";
 import { toast } from "sonner";
 
+const initialFormData: Course = {
+  name: "",
+  description: "",
+  category: null,
+  courseType: "FREE",
+  maxRating: 0,
+  duration: "",
+  lessons: "",
+  pricing: null,
+}
+
+
 export default function CourseCatalog() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [courseCategories, setCourseCategories] = useState<Category[]>([]);
   const [formVisible, setFormVisible] = useState(false);
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    category: null as Category | null,
-    duration: "",
-    lessons: "",
-    rating: "",
-    image: "",
-  });
+  const [formData, setFormData] = useState<Course>(initialFormData);
 
-  useEffect(() => {
+  const getCourses = ()=> {
     courseService.getCourseList().then((res) => {
       setCourses(res?.data?.data);
     });
-    console.log("Courses List exe");
-  }, []);
+  };
 
-  // to get course category list
-  useEffect(() => {
+  const getCourseCategory = () => {
     courseCategoryService.getCourseCategoryList().then((res) => {
       setCourseCategories(res?.data?.data);
     });
-    console.log("Course Category List exe");
+  };
+
+  useEffect(() => {
+    getCourses();
+    getCourseCategory();
   }, []);
 
   const handleChange = (
@@ -59,54 +65,24 @@ export default function CourseCatalog() {
   };
 
   const handleCategoryChange = (value: string) => {
-    const selectedCategory = courseCategories.find(cat => cat.id === value);
-    setFormData((prev) => ({ ...prev, category: selectedCategory || null }));
+    const category = value? {id: value} : null;
+    setFormData((prev) => ({ ...prev, category: category}));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    debugger
     e.preventDefault();
-    const newCourse: Course = {
-      id: Date.now().toString(),
-      ...formData,
-    };
-
-    // call api to create course
-    // debugger;
-    // const courseRequestBody = generateCourseRequestBody();  
-    // courseService.createCourse(courseRequestBody).then((res) => {
-    //   console.log(res);
-    //   toast.success("Course created successfully!");
-    // }).catch(error => {
-    //   console.error("Error creating course:", error);
-    //   toast.error("Failed to create course. Please try again.");
-    // });
-
-    setCourses((prev) => [newCourse, ...prev]);
-    setFormVisible(false);
-    setFormData({
-      title: "",
-      description: "",
-      category: null,
-      duration: "",
-      lessons: "",
-      rating: "",
-      image: "",
+    console.log("Form Data:", formData);
+    courseService.createCourse(formData).then((res) => {
+      console.log(res);
+      toast.success("Course created successfully!");
+      setCourses((prev) => [formData, ...prev]);
+      setFormVisible(false);
+      setFormData(initialFormData);
+    }).catch(error => {
+      console.error("Error creating course:", error);
+      toast.error("Failed to create course. Please try again.");
     });
   };
-
-//   function generateCourseRequestBody() : Course {
-//     return {
-//         name: formData.title,
-//         description: formData.description,
-//         category: {
-//           id: formData.category?.id,
-//           name: formData.category?.name
-//         },
-//         courseType: "FREE",
-//         maxRating: parseFloat(formData.rating) || 0
-//       };
-//   }
 
   return (
     <div className="min-h-screen bg-background">
@@ -136,9 +112,9 @@ export default function CourseCatalog() {
               <div className="space-y-2">
                 <Label htmlFor="title">Title</Label>
                 <Input
-                  id="title"
-                  name="title"
-                  value={formData.title}
+                  id="name"
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
                   required
                 />
@@ -154,24 +130,13 @@ export default function CourseCatalog() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lessons">Lessons</Label>
-                <Input
-                  id="lessons"
-                  name="lessons"
-                  type="number"
-                  value={formData.lessons}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="rating">Rating</Label>
                 <Input
-                  id="rating"
-                  name="rating"
+                  id="maxRating"
+                  name="maxRating"
                   type="number"
                   step="0.1"
-                  value={formData.rating}
+                  value={formData.maxRating}
                   onChange={handleChange}
                   required
                 />
@@ -203,7 +168,7 @@ export default function CourseCatalog() {
                   onChange={handleChange}
                 />
               </div>
-            </div>
+            </div>x
 
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>

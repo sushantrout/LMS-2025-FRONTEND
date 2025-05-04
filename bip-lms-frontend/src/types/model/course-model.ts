@@ -6,4 +6,11 @@ export type Course = MasterData &  {
     courseType ?: string,
     noOfModule?: number,
     maxRating ?: number
+    duration ?: string,
+    lessons ?: string,
+    modules?: any[],
+    assgnments?: any[],
+    pricing?: any,
+    comments?: any[],
+    image?: string,
 }
