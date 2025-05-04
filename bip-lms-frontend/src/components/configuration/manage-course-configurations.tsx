@@ -143,7 +143,7 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
                   key={module.id}
                   module={module}
                   index={index}
-                  onEdit={(module: Module) => {
+                  onEdit={() => {
                     moduleDialogRef.current.onOpen(module);
                   }}
                 />
