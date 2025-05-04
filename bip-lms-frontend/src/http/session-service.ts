@@ -1,16 +1,16 @@
+import { httpClient } from "./http-service";
 import { lmsService } from "./lms-service";
 
-const BASE_URL = "v1/course";
+const BASE_URL = "v1/sessions";
 
-export const courseService = {
-  getCourseList() {
+export const sessionService = {
+  getSessionListByCourseId() {
     return lmsService.get(`${BASE_URL}`);
   },
-  getCourseDetail(id: string) {
-    return lmsService.get(`${BASE_URL}/${id}`);
+  getSessionListByModuleId(id: string) {
+    return lmsService.get(`${BASE_URL}/module/${id}`);
   },
-  createCourse(data: any) {
-    debugger
+  createSession(data: any) {
     return lmsService.post(`${BASE_URL}`, data);
   },
   updateCourse(id: string, data: any) {
@@ -19,4 +19,5 @@ export const courseService = {
   deleteCourse(id: string) {
     return lmsService.delete(`${BASE_URL}/delete/${id}`);
   },
+
 };

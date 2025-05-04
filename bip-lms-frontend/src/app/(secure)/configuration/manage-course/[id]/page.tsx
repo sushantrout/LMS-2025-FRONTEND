@@ -3,6 +3,7 @@ import React from 'react'
 
 export default function page({ params }: { params: { id: string } }) {
   return (
-    <ManageCoursePage params={params} />
+  
+    <ManageCoursePage courseId={params.id} />
   )
 }

@@ -11,21 +11,103 @@ import { ModuleDialog } from "./module/module-dialog"
 import { Paperclip } from "lucide-react"
 import { UploadNotesModal } from "./module/upload-notes"
 import { courseService } from "@/http/course-service"
-
-export default function ManageCoursePage({ params }: { params: { id: string } }) {
-  const courseId = params.id
+import { courseCategoryService } from "@/http/course-catagory-service"
+import { useSearchParams } from "next/navigation"
+import { Course } from "@/types/model/course-model"
+import { Module } from "@/types/model/module-model"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select"
+import { moduleService } from "@/http/module-service"
+import { sessionService } from "@/http/session-service"
+import { Event } from "@/types/model/session-model"
+export default function ManageCoursePage({ courseId }: { courseId:  string  }) {
+  //const searchParams = params.id;
+  console.log(courseId)
+  
+  // const courseId = 
   const [isModuleDialogOpen, setModuleDialogOpen] = useState(false)
   const [isSessionDialogOpen, setSessionDialogOpen] = useState(false)
   const [isUploadNotesModalOpen, setUploadNotesModalOpen] = useState(false)
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
+  const [courseTitle, setCourseTitle] = useState("");
+ const [courseDescription, setCourseDescription] = useState("");
+  const [course, setCourse] = useState<Course >({
+    description: "",
+    category : null,
+    courseType : "",
+    noOfModule: 0,
+    maxRating : 0
+  });
+  const [modules, setModules] = useState<Module[]>([]);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  useEffect(() => {
+    courseService.getCourseDetail(courseId).then((course) => {
+      setCourse(course.data.data);
+      setCourseTitle(course.data.data.name || "");
+      setCourseDescription(course.data.data.description || "");
+      setSelectedCategory(course.data.data.category?.id || "");
+    });
+    courseCategoryService.getCourseCategoryList().then((categories) => {
+      setCategories(categories.data.data)
+    })
+    moduleService.getCourseList(courseId).then(async (modules) => {
+      const moduleList = modules.data.data;
+    
+      // Fetch sessions for each module in parallel
+      const modulesWithSessions = await Promise.all(
+        moduleList.map(async (module: Module) => {
+          try {
+            const sessionRes = await sessionService.getSessionListByModuleId(module.id);
+            const sessions = sessionRes.data.data || [];
+            return {
+              ...module,
+              sessions: sessions.map((session: Event) => ({
+                ...session,
+                // Add transformation if needed
+              })),
+            };
+          } catch (error) {
+            console.error(`Error fetching sessions for module ${module.id}`, error);
+            return {
+              ...module,
+              sessions: [],
+            };
+          }
+        })
+      );
+      console.log("modulesWithSessions===>", modulesWithSessions)
+      setModules(modulesWithSessions);
+    });
+
+  }, [courseId])
+
 
   const handleSaveModule = (data: { name: string; description: string }) => {
-    console.log("Module Saved", data)
-    // Save module logic here (e.g., API call)
+    const module = { 
+      name: data.name,
+      description: data.description,
+      course: course
+    }
+    moduleService.createModule( module).then((module) => {
+    })
   }
 
-  const handleSaveSession = (data: { title: string; duration: string; videoUrl: string }) => {
-    console.log("Session Saved", data)
+  const handleSaveSession = (module: Module) => (data: { title: string; duration: string; videoUrl: string }) => {
+    const session = { 
+      title: data.title,
+      duration: data.duration,
+      videoUrl: data.videoUrl,
+      moduleId: module.id,
+      moduleName: module.name
+    }
+    sessionService.createSession(session).then((session) => {
+    })
     // Save session logic here (e.g., API call)
   }
 
@@ -37,10 +119,16 @@ export default function ManageCoursePage({ params }: { params: { id: string } })
     }
     setUploadNotesModalOpen(false)
   }
+  const handleSaveCourse = (course: Course) => {
+    console.log("Course Saved", course)
+    courseService.updateCourse(course.id, course).then((course) => {
+      console.log("course ====>>>"+course)
+    })
+  }
 
   return (
     <div className="container py-4 px-4">
-      <h1 className="text-2xl font-bold mb-4">Manage Course: {courseId}</h1>
+      <h1 className="text-2xl font-bold mb-4">Manage Course: {course.name}</h1>
 
       <Tabs defaultValue="course" className="w-full">
         <TabsList>
@@ -54,88 +142,102 @@ export default function ManageCoursePage({ params }: { params: { id: string } })
             <CardContent className="space-y-4 pt-6">
               <div>
                 <Label>Course Title</Label>
-                <Input placeholder="Enter course title" />
+                <Input placeholder="Enter course title" onChange={(e) =>
+      setCourse((prevCourse) => ({
+        ...prevCourse,
+        name: e.target.value,
+      }))} value={course.name} />
               </div>
               <div>
                 <Label>Description</Label>
-                <Input placeholder="Enter course description" />
+                <Input placeholder="Enter course description" onChange={(e) =>
+      setCourse((prevCourse) => ({
+        ...prevCourse,
+        description: e.target.value,
+      }))
+    } value={course.description} />
               </div>
-              <div>
-                <Label>Category</Label>
-                <Input placeholder="e.g., Technical Skills, Leadership" />
-              </div>
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <Label>Duration</Label>
-                  <Input placeholder="e.g., 4h 30m" />
-                </div>
-                <div className="flex-1">
-                  <Label>Lessons</Label>
-                  <Input type="number" placeholder="e.g., 10" />
-                </div>
-              </div>
-              <Button>Save Changes</Button>
+              <Label>Category</Label>
+              <Select value={selectedCategory} onValueChange={(value) => setSelectedCategory(value)}>
+                <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                   <SelectItem key={cat.id} value={cat.id}>
+                             {cat.name}
+                   </SelectItem>
+               ))}
+              </SelectContent>
+             </Select>
+            
+              <Button onClick={() => handleSaveCourse(course)}>Save Changes</Button>
             </CardContent>
           </Card>
         </TabsContent>
 
         {/* --- Manage Modules Tab --- */}
         <TabsContent value="modules">
-          <Card className="mt-4">
-            <CardContent className="pt-6 space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold">Modules</h2>
-                <Button onClick={() => setModuleDialogOpen(true)} variant="default" className="">
-                  Add New Module
-                </Button>
-                <ModuleDialog
-                  open={isModuleDialogOpen}
-                  onClose={() => setModuleDialogOpen(false)}
-                  onSave={handleSaveModule}
-                />
-              </div>
+  <Card className="mt-4">
+    <CardContent className="pt-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold">Modules</h2>
+        <Button onClick={() => setModuleDialogOpen(true)} variant="default">
+          Add New Module
+        </Button>
+        <ModuleDialog
+          open={isModuleDialogOpen}
+          onClose={() => setModuleDialogOpen(false)}
+          onSave={handleSaveModule}
+        />
+      </div>
 
-              {/* Example module block */}
-              <div className="border rounded p-4 space-y-3">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-medium">Module 1: Introduction</h3>
-                  <Button onClick={() => setSessionDialogOpen(true)} variant="default" className="">
-                    Add New Session
-                  </Button>
-                  <SessionDialog
-                    open={isSessionDialogOpen}
-                    onClose={() => setSessionDialogOpen(false)}
-                    onSave={handleSaveSession}
+      {/* Render each module and its sessions */}
+      {modules.map((module,index) => (
+        <div key={index} className="border rounded p-4 space-y-3">
+          <div className="flex justify-between items-center">
+            <h3 className="font-medium"> Module {index + 1}: {module.name}</h3>
+            <Button
+              onClick={() => {
+                setSessionDialogOpen(true);
+              }}
+              variant="default"
+            >
+              Add New Session
+            </Button>
+            <SessionDialog
+              open={isSessionDialogOpen}
+              onClose={() => setSessionDialogOpen(false)}
+              onSave={handleSaveSession(module)}
+            />
+          </div>
+
+          {Array.isArray(module.sessions) && module.sessions.length > 0 ? (
+            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+              {module.sessions.map((session) => (
+                <li
+                  key={session.id}
+                  className="flex justify-between items-center"
+                >
+                  <span>{session.name}</span>
+                  <Paperclip
+                    className="cursor-pointer text-muted-foreground"
+                    onClick={() => {
+                      setSelectedSession(session.name);
+                      setUploadNotesModalOpen(true);
+                    }}
                   />
-                </div>
-
-                {/* Sessions with icon to upload notes */}
-                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                  <li className="flex justify-between items-center">
-                    <span>Session 1: Welcome</span>
-                    <Paperclip
-                      className="cursor-pointer text-muted-foreground"
-                      onClick={() => {
-                        setSelectedSession("Session 1: Welcome")
-                        setUploadNotesModalOpen(true)
-                      }}
-                    />
-                  </li>
-                  <li className="flex justify-between items-center">
-                    <span>Session 2: Course Overview</span>
-                    <Paperclip
-                      className="cursor-pointer text-muted-foreground"
-                      onClick={() => {
-                        setSelectedSession("Session 2: Course Overview")
-                        setUploadNotesModalOpen(true)
-                      }}
-                    />
-                  </li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">No sessions yet.</p>
+          )}
+        </div>
+      ))}
+    </CardContent>
+  </Card>
+</TabsContent>
       </Tabs>
 
       {/* Upload Notes Modal */}
