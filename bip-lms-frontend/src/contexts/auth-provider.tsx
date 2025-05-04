@@ -4,6 +4,7 @@ import Keycloak from 'keycloak-js';
 import { createContext, useContext, useEffect, useState } from "react";
 import { useClientIdProvider } from './client-id-provider';
 import { clearAllCookies, setCookie } from '@/util/helpers/cookie-helper';
+import { useRouter } from 'next/navigation';
 
 
 type AuthContextType = {
@@ -18,11 +19,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { clientId } = useClientIdProvider(); 
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [keycloak, setKeycloak] = useState<any>(null);
+    const router = useRouter();
     const handleLogOut = () => {
         if (keycloak) {
             keycloak?.logout();
             setIsAuthenticated(false);
             clearAllCookies();
+            router.replace('/'); // Redirect to the home page after logout
         }
     }
     useEffect(() => {
