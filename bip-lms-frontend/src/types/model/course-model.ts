@@ -14,3 +14,14 @@ export type Course = MasterData &  {
     comments?: any[],
     image?: string,
 }
+
+export const initialFormData: Course = {
+    name: "",
+    description: "",
+    category: null,
+    courseType: "FREE",
+    maxRating: 0,
+    duration: "",
+    lessons: "",
+    pricing: null,
+  }

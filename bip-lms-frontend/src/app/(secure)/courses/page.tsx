@@ -1,11 +1,29 @@
+"use client";
 import { Search, SlidersHorizontal, Bell, Clock } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
+import { useEffect, useState } from "react"
+import { courseService } from "@/http/course-service"
+import { Course } from "@/types/model/course-model";
 
 export default function CourseCatalog() {
+
+  const [courseList, setCourseList] = useState<Course[]>([]);
+
+  const getCourses = ()=> {
+    courseService.getCourseList().then((res) => {
+      console.log(res?.data?.data);
+      setCourseList(res?.data?.data);
+    });
+  };
+
+  useEffect(() => {
+    getCourses();
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Main Content */}
@@ -36,15 +54,15 @@ export default function CourseCatalog() {
           </TabsList>
           <TabsContent value="all">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-              {courses.map((course) => (
+              {courseList.map((course) => (
                 <CourseCard key={course.id} course={course} />
               ))}
             </div>
           </TabsContent>
           <TabsContent value="popular">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-              {courses
-                .filter((c) => c.rating > 4.5)
+              {courseList
+                .filter((c) => c.maxRating > 4.5)
                 .map((course) => (
                   <CourseCard key={course.id} course={course} />
                 ))}
@@ -52,7 +70,7 @@ export default function CourseCatalog() {
           </TabsContent>
           <TabsContent value="newest">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-              {courses.slice(0, 2).map((course) => (
+              {courseList.slice(0, 2).map((course) => (
                 <CourseCard key={course.id} course={course} />
               ))}
             </div>
@@ -63,36 +81,31 @@ export default function CourseCatalog() {
   )
 }
 
-interface Course {
-  id: string
-  title: string
-  description: string
-  category: string
-  duration: string
-  lessons: number
-  rating: number
-  image: string
-}
 
 function CourseCard({ course }: { course: Course }) {
+  console.log(course);
   return (
+    // <div>
+
+    // </div>
+
     <div className="flex flex-col overflow-hidden rounded-lg border bg-card text-card-foreground">
       <div className="relative">
-        <img src={course.image || "/placeholder.svg"} alt={course.title} className="aspect-video w-full object-cover" />
+        <img src={course?.image || "/images/course/course-cover.avif"} alt={course?.name} className="aspect-video w-full object-cover" />
         <Badge
           className={`absolute left-3 top-3 ${
-            course.category === "Leadership"
+            course.category?.name === "Leadership"
               ? " "
-              : course.category === "Technical Skills"
+              : course.category?.name === "Technical Skills"
                 ? " "
                 : " "
           }`}
         >
-          {course.category}
+          {course.category?.name}
         </Badge>
       </div>
       <div className="flex flex-col space-y-1.5 p-4">
-        <h3 className="text-xl font-semibold">{course.title}</h3>
+        <h3 className="text-xl font-semibold">{course?.name}</h3>
         <p className="text-sm text-muted-foreground line-clamp-2">{course.description}</p>
       </div>
       <div className="mt-auto p-4 pt-0">
@@ -131,7 +144,7 @@ function CourseCard({ course }: { course: Course }) {
             >
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
             </svg>
-            <span className="text-sm font-medium">{course.rating}</span>
+            <span className="text-sm font-medium">{course?.maxRating}</span>
           </div>
         </div>
         <Link href={`/courses/${course.id}`}>
@@ -142,45 +155,45 @@ function CourseCard({ course }: { course: Course }) {
   )
 }
 
-const courses: Course[] = [
-  {
-    id: "1",
-    title: "Effective Leadership Skills",
-    description: "Learn key leadership skills to inspire and motivate your team for success.",
-    category: "Leadership",
-    duration: "3h 45m",
-    lessons: 12,
-    rating: 4.8,
-    image: "/images/course/course-cover.avif",
-  },
-  {
-    id: "2",
-    title: "Advanced Excel for Professionals",
-    description: "Master advanced Excel features to analyze data and create powerful reports.",
-    category: "Technical Skills",
-    duration: "5h 20m",
-    lessons: 18,
-    rating: 4.5,
-    image: "/images/course/course-cover.avif",
-  },
-  {
-    id: "3",
-    title: "Communication Mastery",
-    description: "Enhance your communication skills for better workplace relationships.",
-    category: "Soft Skills",
-    duration: "2h 55m",
-    lessons: 9,
-    rating: 4.7,
-    image: "/images/course/course-cover.avif",
-  },
-  {
-    id: "4",
-    title: "Cybersecurity Essentials",
-    description: "Learn essential cybersecurity practices to protect company data.",
-    category: "Technical Skills",
-    duration: "4h 10m",
-    lessons: 14,
-    rating: 4.6,
-    image: "/images/course/course-cover.avif",
-  },
-]
+// const courses: Course[] = [
+//   {
+//     id: "1",
+//     title: "Effective Leadership Skills",
+//     description: "Learn key leadership skills to inspire and motivate your team for success.",
+//     category: "Leadership",
+//     duration: "3h 45m",
+//     lessons: 12,
+//     rating: 4.8,
+//     image: "/images/course/course-cover.avif",
+//   },
+//   {
+//     id: "2",
+//     title: "Advanced Excel for Professionals",
+//     description: "Master advanced Excel features to analyze data and create powerful reports.",
+//     category: "Technical Skills",
+//     duration: "5h 20m",
+//     lessons: 18,
+//     rating: 4.5,
+//     image: "/images/course/course-cover.avif",
+//   },
+//   {
+//     id: "3",
+//     title: "Communication Mastery",
+//     description: "Enhance your communication skills for better workplace relationships.",
+//     category: "Soft Skills",
+//     duration: "2h 55m",
+//     lessons: 9,
+//     rating: 4.7,
+//     image: "/images/course/course-cover.avif",
+//   },
+//   {
+//     id: "4",
+//     title: "Cybersecurity Essentials",
+//     description: "Learn essential cybersecurity practices to protect company data.",
+//     category: "Technical Skills",
+//     duration: "4h 10m",
+//     lessons: 14,
+//     rating: 4.6,
+//     image: "/images/course/course-cover.avif",
+//   },
+// ]

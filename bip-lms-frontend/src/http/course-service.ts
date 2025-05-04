@@ -19,4 +19,7 @@ export const courseService = {
   deleteCourse(id: string) {
     return lmsService.delete(`${BASE_URL}/delete/${id}`);
   },
+  getCourseOverView(id: string) {
+    return lmsService.get(`${BASE_URL}/overview/${id}`);
+  }
 };

@@ -17,21 +17,10 @@ import {
 } from "@/components/ui/select";
 import Link from "next/link";
 import { courseService } from "@/http/course-service";
-import { Course } from "@/types/model/course-model";
+import { Course, initialFormData } from "@/types/model/course-model";
 import { courseCategoryService } from "@/http/course-category-service";
 import { Category } from "@/types/model/category-model";
 import { toast } from "sonner";
-
-const initialFormData: Course = {
-  name: "",
-  description: "",
-  category: null,
-  courseType: "FREE",
-  maxRating: 0,
-  duration: "",
-  lessons: "",
-  pricing: null,
-}
 
 
 export default function CourseCatalog() {
@@ -168,7 +157,7 @@ export default function CourseCatalog() {
                   onChange={handleChange}
                 />
               </div>
-            </div>x
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
