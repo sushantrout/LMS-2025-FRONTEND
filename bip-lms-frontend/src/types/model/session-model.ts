@@ -1,8 +1,6 @@
 import { Attachment } from "./attachment-model";
 
-export type Event = {
-    id: string;
-    name: string;
+export type Session = MasterData & {
     description: string;
     mode: 'ONLINE' | 'OFFLINE' | string;
     startTime: string;
