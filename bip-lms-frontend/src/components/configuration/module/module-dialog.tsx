@@ -25,8 +25,10 @@ function ModuleDialog(props: ModuleDialogProps, ref: React.Ref<any>) {
     onOpen: (data?: Module) => {
       if (data) {
         setFormData(data)
+      } else {
+        setFormData({ ...initialModule });
       }
-      setFormData({ ...initialModule })
+      setModuleDialogOpen(true);
     },
     onClose: () => {
       setModuleDialogOpen(false);
@@ -79,7 +81,10 @@ function ModuleDialog(props: ModuleDialogProps, ref: React.Ref<any>) {
 
         <DialogFooter className="mt-6">
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline" onClick={() => {
+              setModuleDialogOpen(false);
+              setFormData({ ...initialModule })
+            }}>Cancel</Button>
           </DialogClose>
           <Button onClick={handleSubmit}>{formdata?.id ? "Update" : "Save"}</Button>
         </DialogFooter>
