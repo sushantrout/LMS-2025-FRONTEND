@@ -34,7 +34,6 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
   });
   const [modules, setModules] = useState<Module[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const moduleDialogRef = useRef<any>(null);
 
   useEffect(() => {
@@ -99,7 +98,14 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
                 } value={course.description} />
               </div>
               <Label>Category</Label>
-              <Select value={selectedCategory} onValueChange={(value) => setSelectedCategory(value)}>
+              <Select value={course?.category?.id} onValueChange={(value) => {
+                setCourse((prevCourse) => ({
+                  ...prevCourse,
+                  category: {
+                    id:value
+                  },
+                }))
+              }}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
