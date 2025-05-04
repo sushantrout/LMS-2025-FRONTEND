@@ -1,14 +1,14 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SessionDialog } from "./module/session-dialog"
-import { ModuleDialog } from "./module/module-dialog"
-import { Paperclip } from "lucide-react"
+import ModuleDialog from "./module/module-dialog"
+import { Edit, Paperclip } from "lucide-react"
 import { UploadNotesModal } from "./module/upload-notes"
 import { courseService } from "@/http/course-service"
 import { courseCategoryService } from "@/http/course-catagory-service"
@@ -25,10 +25,6 @@ import { moduleService } from "@/http/module-service"
 import { sessionService } from "@/http/session-service"
 import { Session } from "@/types/model/session-model"
 export default function ManageCoursePage({ courseId }: { courseId: string }) {
-  const [isModuleDialogOpen, setModuleDialogOpen] = useState(false)
-  const [isSessionDialogOpen, setSessionDialogOpen] = useState(false)
-  const [isUploadNotesModalOpen, setUploadNotesModalOpen] = useState(false)
-  const [selectedSession, setSelectedSession] = useState<string | null>(null);
   const [course, setCourse] = useState<Course>({
     description: "",
     category: null,
@@ -39,8 +35,10 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [modules, setModules] = useState<Module[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const moduleDialogRef = useRef<any>(null);
+
   useEffect(() => {
-    if(courseId) {
+    if (courseId) {
       courseService.getCourseDetail(courseId).then((course) => {
         setCourse(course.data.data);
       });
@@ -48,69 +46,20 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
         setCategories(categories.data.data)
       })
       moduleService.getCourseList(courseId).then(async (modules) => {
-        const moduleList = modules.data.data;
-  
-        // Fetch sessions for each module in parallel
-        const modulesWithSessions = await Promise.all(
-          moduleList.map(async (module: Module) => {
-            try {
-              const sessionRes = await sessionService.getSessionListByModuleId(module.id);
-              const sessions = sessionRes.data.data || [];
-              return {
-                ...module,
-                sessions: sessions.map((session: Session) => ({
-                  ...session,
-                  // Add transformation if needed
-                })),
-              };
-            } catch (error) {
-              console.error(`Error fetching sessions for module ${module.id}`, error);
-              return {
-                ...module,
-                sessions: [],
-              };
-            }
-          })
-        );
-        console.log("modulesWithSessions===>", modulesWithSessions)
-        setModules(modulesWithSessions);
+        const moduleList = modules.data?.data || [];
+        setModules(moduleList);
       });
-    }
-
+    };
   }, [courseId])
 
 
-  const handleSaveModule = (data: { name: string; description: string }) => {
-    const module = {
-      name: data.name,
-      description: data.description,
-      course: course
-    }
+  const handleSaveModule = (data: Module) => {
+    data.course = course
     moduleService.createModule(module).then((module) => {
+      moduleDialogRef.current.onClose()
     })
   }
 
-  const handleSaveSession = (module: Module) => (data: { title: string; duration: string; videoUrl: string }) => {
-    const session = {
-      title: data.title,
-      duration: data.duration,
-      videoUrl: data.videoUrl,
-      moduleId: module.id,
-      moduleName: module.name
-    }
-    sessionService.createSession(session).then((session) => {
-    })
-    // Save session logic here (e.g., API call)
-  }
-
-  const handleUploadNotes = (file: File | null) => {
-    if (file) {
-      console.log("Notes Uploaded for session:", selectedSession, file)
-    } else {
-      console.log("Notes removed for session:", selectedSession)
-    }
-    setUploadNotesModalOpen(false)
-  }
   const handleSaveCourse = (course: Course) => {
     console.log("Course Saved", course)
     courseService.updateCourse(course.id, course).then((course) => {
@@ -174,58 +123,24 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
             <CardContent className="pt-6 space-y-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold">Modules</h2>
-                <Button onClick={() => setModuleDialogOpen(true)} variant="default">
-                  Add New Module
-                </Button>
+
                 <ModuleDialog
-                  open={isModuleDialogOpen}
-                  onClose={() => setModuleDialogOpen(false)}
+                  ref={moduleDialogRef}
+                  onClose={() => { }}
                   onSave={handleSaveModule}
                 />
               </div>
 
               {/* Render each module and its sessions */}
               {modules.map((module, index) => (
-                <div key={index} className="border rounded p-4 space-y-3">
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-medium"> Module {index + 1}: {module.name}</h3>
-                    <Button
-                      onClick={() => {
-                        setSessionDialogOpen(true);
-                      }}
-                      variant="default"
-                    >
-                      Add New Session
-                    </Button>
-                    <SessionDialog
-                      open={isSessionDialogOpen}
-                      onClose={() => setSessionDialogOpen(false)}
-                      onSave={handleSaveSession(module)}
-                    />
-                  </div>
-
-                  {Array.isArray(module.sessions) && module.sessions.length > 0 ? (
-                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                      {module.sessions.map((session) => (
-                        <li
-                          key={session.id}
-                          className="flex justify-between items-center"
-                        >
-                          <span>{session.name}</span>
-                          <Paperclip
-                            className="cursor-pointer text-muted-foreground"
-                            onClick={() => {
-                              setSelectedSession(session.name);
-                              setUploadNotesModalOpen(true);
-                            }}
-                          />
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No sessions yet.</p>
-                  )}
-                </div>
+                <ModuleCard
+                  key={module.id}
+                  module={module}
+                  index={index}
+                  onEdit={(module: Module) => {
+                    moduleDialogRef.current.onOpen(module);
+                  }}
+                />
               ))}
             </CardContent>
           </Card>
@@ -233,12 +148,116 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
       </Tabs>
 
       {/* Upload Notes Modal */}
+
+    </div>
+  )
+}
+
+
+const ModuleCard = ({
+  module,
+  index,
+  onEdit
+}: {
+  module: Module;
+  index: number;
+  onEdit: (module) => void;
+}) => {
+  const [isSessionDialogOpen, setSessionDialogOpen] = useState(false);
+  const handleSaveSession = (session: Session) => {
+    session.moduleId = module?.id
+    sessionService.createSession(session).then((session) => {
+      setSessionDialogOpen(false);
+    })
+  }
+  return (
+    <div className="border rounded p-4 space-y-3">
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2">
+          <h3 className="font-medium"> Module {index + 1}: {module.name}</h3>
+          <Edit onClick={() => onEdit(module)} />
+        </div>
+        <Button
+          onClick={() => {
+            setSessionDialogOpen(true);
+          }}
+          variant="default"
+        >
+          Add New Session
+        </Button>
+        <SessionDialog
+          open={isSessionDialogOpen}
+          onClose={() => setSessionDialogOpen(false)}
+          onSave={(session) => handleSaveSession(session)}
+        />
+      </div>
+
+      {Array.isArray(module.sessions) && module.sessions.length > 0 ? (
+        <SessionCard
+          module={module}
+        />
+      ) : (
+        <p className="text-sm text-muted-foreground">No sessions yet.</p>
+      )}
+    </div>
+  )
+}
+
+const SessionCard = ({
+  module
+}: {
+  module: Module;
+}) => {
+  return (
+    <>
+      <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+        {module.sessions.map((session) => (
+          <SessionComponent
+            key={session.id}
+            session={session}
+          />
+        ))}
+      </ul>
+    </>
+  )
+}
+
+const SessionComponent = ({
+  session,
+}: {
+  session: Session;
+}) => {
+  const [isUploadNotesModalOpen, setUploadNotesModalOpen] = useState(false)
+  const handleUploadNotes = (file: File | null) => {
+    if (file) {
+      console.log("Notes Uploaded for session:", session, file)
+    } else {
+      console.log("Notes removed for session:", session)
+    }
+    setUploadNotesModalOpen(false)
+  }
+  return (
+
+    <>
       <UploadNotesModal
         open={isUploadNotesModalOpen}
-        sessionName={selectedSession}
+        sessionName={session?.name}
         onClose={() => setUploadNotesModalOpen(false)}
         onSave={handleUploadNotes}
       />
-    </div>
+      <li
+        key={session.id}
+        className="flex justify-between items-center"
+      >
+        <span>{session.name}</span>
+        <Paperclip
+          className="cursor-pointer text-muted-foreground"
+          onClick={() => {
+            setUploadNotesModalOpen(true);
+          }}
+        />
+      </li>
+
+    </>
   )
 }

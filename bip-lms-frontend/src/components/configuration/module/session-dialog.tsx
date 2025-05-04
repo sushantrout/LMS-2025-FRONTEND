@@ -7,24 +7,27 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
+import { initialSession, Session } from "@/types/model/session-model"
 
 interface SessionDialogProps {
   open: boolean
   onClose: () => void
-  onSave: (data: { title: string; duration: string; videoUrl: string }) => void
+  onSave: (data: Session) => void
   initialData?: { title: string; duration: string; videoUrl: string }
 }
 
 export function SessionDialog({ open, onClose, onSave, initialData }: SessionDialogProps) {
-  const [title, setTitle] = useState(initialData?.title || "")
-  const [duration, setDuration] = useState(initialData?.duration || "")
-  const [videoUrl, setVideoUrl] = useState(initialData?.videoUrl || "")
+  const [formdata, setFormData] = useState<Session>(initialSession);
 
   const handleSubmit = () => {
-    onSave({ title, duration, videoUrl })
+    onSave(formdata)
     onClose()
   }
 
+  const handleChange = (property: string, value: any) => {
+    setFormData({ ...formdata, [property]: value })
+  }
+  
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-md rounded-2xl p-6 shadow-2xl">
@@ -36,9 +39,9 @@ export function SessionDialog({ open, onClose, onSave, initialData }: SessionDia
           <div className="space-y-2">
             <Label htmlFor="session-title">Session Title</Label>
             <Input
-              id="session-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              name="name"
+              value={formdata?.name}
+              onChange={(e) => handleChange(e.target.name, e.target.value)}
               placeholder="Enter session title"
             />
           </div>
@@ -46,19 +49,19 @@ export function SessionDialog({ open, onClose, onSave, initialData }: SessionDia
           <div className="space-y-2">
             <Label htmlFor="session-duration">Duration</Label>
             <Input
-              id="session-duration"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
+              name="duration"
+              value={formdata?.duration}
+              onChange={(e) => handleChange(e.target.name, e.target.value)}
               placeholder="Enter session duration"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="session-video-url">Video URL</Label>
-            <Input
-              id="session-video-url"
-              value={videoUrl}
-              onChange={(e) => setVideoUrl(e.target.value)}
+            <Label htmlFor="session-video-url">Description</Label>
+            <Textarea
+              name="description"
+              value={formdata?.description}
+              onChange={(e) => handleChange(e.target.name, e.target.value)}
               placeholder="Enter video URL"
             />
           </div>

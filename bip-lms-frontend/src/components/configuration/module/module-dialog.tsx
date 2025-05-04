@@ -6,38 +6,62 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { useState } from "react"
+import { forwardRef, useImperativeHandle, useState } from "react"
+import { initialModule, Module } from "@/types/model/module-model"
+import { DialogTrigger } from "@radix-ui/react-dialog"
 
 interface ModuleDialogProps {
-  open: boolean
   onClose: () => void
-  onSave: (data: { name: string; description: string }) => void
-  initialData?: { name: string; description: string }
+  onSave: (data: Module) => void
+  ref: React.Ref<any>
 }
 
-export function ModuleDialog({ open, onClose, onSave, initialData }: ModuleDialogProps) {
-  const [name, setName] = useState(initialData?.name || "")
-  const [description, setDescription] = useState(initialData?.description || "")
+function ModuleDialog(props: ModuleDialogProps, ref: React.Ref<any>) {
+  const [isModuleDialogOpen, setModuleDialogOpen] = useState(false);
+  const { onClose, onSave } = props;
+  const [formdata, setFormData] = useState<Module>({ ...initialModule })
+
+  useImperativeHandle(ref, () => ({
+    onOpen: (data?: Module) => {
+      if (data) {
+        setFormData(data)
+      }
+      setFormData({ ...initialModule })
+    },
+    onClose: () => {
+      setModuleDialogOpen(false);
+      setFormData({ ...initialModule })
+    },
+  }))
 
   const handleSubmit = () => {
-    onSave({ name, description })
+    onSave(formdata);
     onClose()
   }
 
+  const handleChange = (property: string, value: any) => {
+    setFormData({ ...formdata, [property]: value })
+  }
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={isModuleDialogOpen} onOpenChange={onClose}>
+      <DialogTrigger>
+        <Button onClick={() => setModuleDialogOpen(true)} variant="default">
+          Add New Module
+        </Button>
+      </DialogTrigger>
       <DialogContent className="max-w-md rounded-2xl p-6 shadow-2xl">
         <DialogHeader>
-          <DialogTitle>{initialData ? "Update Module" : "Add Module"}</DialogTitle>
+          <DialogTitle>{formdata?.id ? "Update Module" : "Add Module"}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="module-name">Module Name</Label>
             <Input
-              id="module-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              name="name"
+              value={formdata?.name}
+              onChange={(e) => handleChange(e.target.name, e.target.value)}
               placeholder="Enter module name"
             />
           </div>
@@ -45,9 +69,9 @@ export function ModuleDialog({ open, onClose, onSave, initialData }: ModuleDialo
           <div className="space-y-2">
             <Label htmlFor="module-description">Description</Label>
             <Textarea
-              id="module-description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              name="description"
+              value={formdata?.description}
+              onChange={(e) => handleChange(e.target.name, e.target.value)}
               placeholder="Enter module description"
             />
           </div>
@@ -57,9 +81,11 @@ export function ModuleDialog({ open, onClose, onSave, initialData }: ModuleDialo
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button onClick={handleSubmit}>{initialData ? "Update" : "Save"}</Button>
+          <Button onClick={handleSubmit}>{formdata?.id ? "Update" : "Save"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   )
 }
+
+export default forwardRef(ModuleDialog);
