@@ -26,6 +26,7 @@ import { sessionService } from "@/http/session-service";
 import { Session } from "@/types/model/session-model";
 import QuillEditor from "../editor/quill/quill-editor";
 import { showSuccessToast } from "@/util/helpers/toast-helper";
+import { useRouter } from "next/navigation";
 
 export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [course, setCourse] = useState<Course>({
@@ -41,6 +42,7 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
     []
   );
   const moduleDialogRef = useRef<any>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (courseId) {
@@ -69,6 +71,7 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
     console.log("Course Saved", course);
     courseService.updateCourse(course.id, course).then((course) => {
       showSuccessToast("Course updated successfully");
+      router.push(`/configuration`);
     });
   };
 
