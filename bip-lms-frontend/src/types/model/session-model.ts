@@ -15,6 +15,7 @@ export type Session = MasterData & {
   };
 
   export const initialSession: Session = {
+    sortOrder: 1,
     id: "",
     name: "",
     description: "",
