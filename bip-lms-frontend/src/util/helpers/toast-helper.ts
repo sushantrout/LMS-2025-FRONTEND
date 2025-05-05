@@ -12,4 +12,11 @@ export const showWarningToast = (message: string) => {
   toast.warning(message);
 };
 
+export const showInfoToast = (message: string, duration: number) => {
+    toast.promise(new Promise((resolve) => setTimeout(resolve, duration)), {
+        loading: `Saving ${message}`,
+        success: "Done",
+        error: "Error",
+      })
+};
 
