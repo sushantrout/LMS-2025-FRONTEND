@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { forwardRef, useImperativeHandle, useState } from "react"
 import { initialModule, Module } from "@/types/model/module-model"
 import { DialogTrigger } from "@radix-ui/react-dialog"
+import QuillEditor from "@/components/editor/quill/quill-editor"
 
 interface ModuleDialogProps {
   onClose: () => void
@@ -52,7 +53,7 @@ function ModuleDialog(props: ModuleDialogProps, ref: React.Ref<any>) {
           Add New Module
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md rounded-2xl p-6 shadow-2xl">
+      <DialogContent style={{ width: '150vw', maxWidth: '1500px', height: '80vh', maxHeight: '1000px' }} className="rounded-2xl p-6 shadow-2xl">
         <DialogHeader>
           <DialogTitle>{formdata?.id ? "Update Module" : "Add Module"}</DialogTitle>
         </DialogHeader>
@@ -69,14 +70,16 @@ function ModuleDialog(props: ModuleDialogProps, ref: React.Ref<any>) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="module-description">Description</Label>
-            <Textarea
-              name="description"
-              value={formdata?.description}
-              onChange={(e) => handleChange(e.target.name, e.target.value)}
-              placeholder="Enter module description"
-            />
-          </div>
+           <Label>Description</Label>
+          <QuillEditor 
+           style={{ height: '300px' }}
+        theme="snow" 
+        value={formdata?.description} 
+        onChange={(value) => handleChange('description', value)} 
+        placeholder="Enter module description" 
+        />
+       </div>
+          
         </div>
 
         <DialogFooter className="mt-6">

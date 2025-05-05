@@ -60,8 +60,10 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
   }, [courseId]);
 
   const handleSaveModule = (data: Module) => {
+    console.log("data===>", data)
     data.course = course;
-    moduleService.createModule(module).then((module) => {
+    console.log("module===>", module)
+    moduleService.createModule(data).then((module) => {
       moduleDialogRef.current.onClose();
     });
   };
