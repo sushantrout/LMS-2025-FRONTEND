@@ -73,7 +73,7 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
           {/* Main Content */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="w-full justify-start mb-6">
+              <TabsList className="w-full justify-start mb-1">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
                 <TabsTrigger value="instructor">Instructor</TabsTrigger>
