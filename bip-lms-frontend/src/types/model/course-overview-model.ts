@@ -8,4 +8,6 @@ export type CourseOverView = MasterData & {
     courseDescription: string;
     attachments: Attachment[];
     modules: ModuleOverview[];
+    duration:any;
+    lessons:any;
   };

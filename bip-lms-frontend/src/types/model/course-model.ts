@@ -1,7 +1,7 @@
 import { Category } from "./category-model";
 
 export type Course = MasterData &  {
-    description?: string,
+    description?: any,
     category ?: Category,
     courseType ?: string,
     noOfModule?: number,

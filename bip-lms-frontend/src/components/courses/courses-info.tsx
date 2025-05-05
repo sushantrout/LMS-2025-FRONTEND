@@ -30,70 +30,47 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
     <div className="min-h-screen bg-background">
       {/* Course Header */}
       <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30 z-10" />
-        <img
-          src={"/images/course/course-cover.avif?height=400&width=1200"}
-          alt={courseOverView?.courseName}
-          className="w-full h-[300px] md:h-[400px] object-cover"
-        />
-        <div className="container relative z-20 px-4 -mt-[200px] md:-mt-[250px]">
-          <Link
-            href="/courses"
-            className="inline-flex items-center gap-2 text-white mb-6 hover:underline"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Catalog
-          </Link>
-          <Badge className={`mb-4 ${courseOverView?.courseId}`}>
-            {courseOverView?.courseName}
-          </Badge>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            {courseOverView?.courseName}
-          </h1>
-          <div className="flex flex-wrap items-center gap-4 text-white mb-6">
-            <div className="flex items-center gap-1">
-              <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
-              <span className="font-medium">
-                {/* {courseOverView?.maxRating} */} 5.0
-              </span>
-              <span className="text-white/70">
-                {/* ({courseOverView?.maxRating} reviews) */}
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Users className="h-5 w-5" />
-              <span>{courseOverView?.createdBy} students</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Clock className="h-5 w-5" />
-              <span>{/* {courseOverView?.duration} */}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
-              </svg>
-              <span>
-                {/* {courseOverView?.lessons} */}
-                lessons
-              </span>
-            </div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30 z-10" />
+      <img
+        src={"/images/course/course-cover.avif?height=400&width=1200"}
+        alt={courseOverView?.courseName}
+        className="w-full h-[200px] md:h-[200px] object-cover"
+      />
+
+      {/* Header Content - Pull upward, but stay in front */}
+      <div className="container relative z-20 px-4 pt-6 -mt-24 md:-mt-32">
+        <Link
+          href="/courses"
+          className="inline-flex items-center gap-2 text-white mb-6 hover:underline"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Catalog
+        </Link>
+        <Badge className={`mb-4`}>
+          {courseOverView?.courseName}
+        </Badge>
+        <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          {courseOverView?.courseName}
+        </h1>
+        <div className="flex flex-wrap items-center gap-4 text-white mb-6">
+          <div className="flex items-center gap-1">
+            <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
+            <span className="font-medium">5.0</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Users className="h-5 w-5" />
+            <span>{courseOverView?.createdBy} students</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Clock className="h-5 w-5" />
+            <span>{/* duration */}</span>
           </div>
         </div>
       </div>
+    </div>
 
       {/* Course Content */}
-      <div className="container px-4 py-8">
+      <div className="container px-4 py-2">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
@@ -106,53 +83,18 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6">
-                <div>
-                  <h2 className="text-2xl font-semibold mb-4">
-                    About This Course
-                  </h2>
-                  <p className="text-muted-foreground">
-                    {courseOverView?.courseDescription}
-                  </p>
-                </div>
+                  <div
+                    className="font-semibold mb-4 mt-2"
+                      dangerouslySetInnerHTML={{
+                        __html: courseOverView?.courseDescription,
+                      }}
+                    />
               </TabsContent>
 
               <TabsContent value="curriculum">
                 <h2 className="text-2xl font-semibold mb-4">
                   Course Curriculum
                 </h2>
-                <div className="space-y-4">
-                  {/* {course?.modules?.map((section, index) => (
-                      <div key={index} className="border rounded-lg overflow-hidden">
-                        <div className="bg-muted p-4">
-                          <h3 className="font-medium">{section?.title}</h3>
-                          <div className="text-sm text-muted-foreground">
-                            {section?.lessons?.length} lessons • {section?.duration}
-                          </div>
-                        </div>
-                        <div className="divide-y">
-                          {section?.lessons?.map((lesson, lessonIndex) => (
-                            <div key={lessonIndex} className="p-4 flex items-center justify-between">
-                              <div className="flex items-start gap-3">
-                                <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs">
-                                  {lessonIndex + 1}
-                                </div>
-                                <div>
-                                  <div className="font-medium">{lesson.title}</div>
-                                  <div className="text-sm text-muted-foreground flex items-center gap-2">
-                                    <Clock className="h-3 w-3" />
-                                    {lesson?.duration}
-                                  </div>
-                                </div>
-                              </div>
-                              {lesson.preview && (
-                                <Button variant="ghost" size="sm">Preview</Button>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))} */}
-                </div>
               </TabsContent>
 
               <TabsContent value="instructor">

@@ -1,7 +1,7 @@
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 import { httpClient } from "./http-service";
 
-const BASE_URL = "lms/api";
+const BASE_URL = "api";
 type Data = any;
 
 export const lmsService = {
