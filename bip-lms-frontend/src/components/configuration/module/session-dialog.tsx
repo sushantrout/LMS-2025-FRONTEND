@@ -20,12 +20,13 @@ export function SessionDialog({ open, onClose, onSave, initialData }: SessionDia
   const [formdata, setFormData] = useState<Session>(initialSession);
 
   const handleSubmit = () => {
-    onSave(formdata)
+    const dataToSubmit = { ...formdata, sortOrder: formdata.sortOrder ?? 1 };
+    onSave(dataToSubmit);
     onClose()
   }
 
   const handleChange = (property: string, value: any) => {
-    setFormData({ ...formdata, [property]: value })
+    setFormData({ ...formdata, [property]: value})
   }
   
   return (
