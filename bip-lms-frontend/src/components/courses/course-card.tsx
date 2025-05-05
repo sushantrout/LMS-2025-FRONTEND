@@ -19,7 +19,7 @@ export default function CourseCard({
           alt={course.name}
           className="aspect-video w-full object-cover"
         />
-        <Badge className="absolute left-3 top-3">{course.category?.name}</Badge>
+        <Badge className="absolute right-3 top-3 ">{course.category?.name}</Badge>
       </div>
       <div className="flex flex-col space-y-1.5 p-4">
         <h3 className="text-xl font-semibold">{course.name}</h3>
@@ -31,9 +31,8 @@ export default function CourseCard({
         <div className="flex items-center justify-between mb-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <Clock className="h-4 w-4" />
-            <span>{course.name}</span>
+            <span>{course.duration}</span>
           </div>
-          <div>{course.name} lessons</div>
           <div className="text-yellow-500 font-medium">{course.maxRating}</div>
         </div>
         <div className="flex gap-2">
