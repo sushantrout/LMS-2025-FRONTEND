@@ -11,15 +11,15 @@ export default function SecureRootLayout({
 }>) {
     return (
         <ClientQueryProviders>
-            <Suspense fallback={<div>Loading...</div>}>
-                <ClientIdProviders>
-                    <AuthProvider>
+            {/* <Suspense fallback={<div>Loading...</div>}> */}
+                {/* <ClientIdProviders> */}
+                    {/* <AuthProvider> */}
                         <LayoutWrapper>
                             {children}
                         </LayoutWrapper>
-                    </AuthProvider>
-                </ClientIdProviders>
-            </Suspense>
+                    {/* </AuthProvider> */}
+                {/* </ClientIdProviders> */}
+            {/* </Suspense> */}
         </ClientQueryProviders>
     )
 }
