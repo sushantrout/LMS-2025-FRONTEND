@@ -17,7 +17,6 @@ import { courseService } from "@/http/course-service";
 import { Course, initialFormData } from "@/types/model/course-model";
 import { courseCategoryService } from "@/http/course-category-service";
 import { Category } from "@/types/model/category-model";
-import { toast } from "sonner";
 import CourseCard from "@/components/courses/course-card";
 import { showErrorToast, showSuccessToast } from "@/util/helpers/toast-helper";
 
@@ -59,7 +58,6 @@ export default function CourseCatalog() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form Data:", formData);
     courseService.createCourse(formData).then((res) => {
       console.log(res);
       showSuccessToast("Course created successfully!");
@@ -68,7 +66,7 @@ export default function CourseCatalog() {
       setFormData(initialFormData);
     }).catch(error => {
       console.error("Error creating course:", error);
-      showErrorToast("Failed to create course. Please try again.");
+      showErrorToast("Failed to create course. Please try Again.");
     });
   };
 
