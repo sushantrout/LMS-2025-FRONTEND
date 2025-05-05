@@ -14,7 +14,6 @@ import { courseService } from "@/http/course-service";
 import { courseCategoryService } from "@/http/course-catagory-service";
 import { Course } from "@/types/model/course-model";
 import { Module } from "@/types/model/module-model";
-import { toast } from "sonner";
 import {
   Select,
   SelectTrigger,
@@ -26,6 +25,7 @@ import { moduleService } from "@/http/module-service";
 import { sessionService } from "@/http/session-service";
 import { Session } from "@/types/model/session-model";
 import QuillEditor from "../editor/quill/quill-editor";
+import { showSuccessToast } from "@/util/helpers/toast-helper";
 
 export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [course, setCourse] = useState<Course>({
@@ -68,7 +68,7 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
     debugger;
     console.log("Course Saved", course);
     courseService.updateCourse(course.id, course).then((course) => {
-      toast.success("Course updated successfully");
+      showSuccessToast("Course updated successfully");
     });
   };
 
