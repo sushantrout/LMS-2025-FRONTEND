@@ -106,6 +106,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import { showInfoToast } from "@/util/helpers/toast-helper"
 
 export const schema = z.object({
   id: z.number(),
@@ -117,7 +118,6 @@ export const schema = z.object({
   reviewer: z.string(),
 })
 
-// Create a separate component for the drag handle
 function DragHandle({ id }: { id: number }) {
   const { attributes, listeners } = useSortable({
     id,
@@ -212,11 +212,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
       <form
         onSubmit={(e) => {
           e.preventDefault()
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: "Done",
-            error: "Error",
-          })
+          showInfoToast(`Saving ${row.original.header}`, 1000);
         }}
       >
         <Label htmlFor={`${row.original.id}-target`} className="sr-only">
@@ -237,11 +233,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
       <form
         onSubmit={(e) => {
           e.preventDefault()
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: "Done",
-            error: "Error",
-          })
+          showInfoToast(`Saving ${row.original.header}`, 1000);
         }}
       >
         <Label htmlFor={`${row.original.id}-limit`} className="sr-only">
