@@ -14,6 +14,7 @@ import { courseService } from "@/http/course-service";
 import { courseCategoryService } from "@/http/course-catagory-service";
 import { Course } from "@/types/model/course-model";
 import { Module } from "@/types/model/module-model";
+import { toast } from "sonner";
 import {
   Select,
   SelectTrigger,
@@ -24,14 +25,7 @@ import {
 import { moduleService } from "@/http/module-service";
 import { sessionService } from "@/http/session-service";
 import { Session } from "@/types/model/session-model";
-
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
-import dynamic from "next/dynamic";
-
-
-const DynamicQuill = dynamic(() => import('react-quill-new'), { ssr: false });
-
+import QuillEditor from "../editor/quill/quill-editor";
 
 export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [course, setCourse] = useState<Course>({
@@ -71,9 +65,10 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
   };
 
   const handleSaveCourse = (course: Course) => {
+    debugger;
     console.log("Course Saved", course);
     courseService.updateCourse(course.id, course).then((course) => {
-      console.log("course ====>>>" + course);
+      toast.success("Course updated successfully");
     });
   };
 
@@ -132,7 +127,7 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
 
               <div>
                 <Label>Description</Label>
-                <DynamicQuill theme="snow" value={course.description} onChange={(e) =>
+                <QuillEditor theme="snow" value={course.description} onChange={(e) =>
                     setCourse((prevCourse) => ({
                       ...prevCourse,
                       description: e,
