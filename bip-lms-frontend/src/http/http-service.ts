@@ -28,10 +28,10 @@ export const httpClient = {
   },
 };
 
-axiosInstance.interceptors.request.use((config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+/* axiosInstance.interceptors.request.use((config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
   const token = getCookie(GlobalKeys.AUTH_COOKIE_NAME);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
-});
+}); */
