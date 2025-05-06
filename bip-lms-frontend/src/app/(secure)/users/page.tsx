@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { z } from "zod";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,33 +34,9 @@ import {
 import { usersService } from "@/http/user-service";
 import { showErrorToast, showSuccessToast } from "@/util/helpers/toast-helper";
 import { roleService } from "@/http/role-service";
+import { userDefaultValues, userFormSchema, UserFormValues } from "@/types/model/user-model";
 
-// Define the validation schema based on the DTO
-const userFormSchema = z.object({
-  id: z.string().optional(),
-  username: z
-    .string()
-    .min(3, { message: "Username must be at least 3 characters" }),
-  password: z
-    .string()
-    .min(6, { message: "Password must be at least 6 characters" }),
-  email: z.string().email({ message: "Invalid email address" }),
-  phoneNumber: z.string().optional(),
-  firstName: z.string().min(1, { message: "First name is required" }),
-  lastName: z.string().min(1, { message: "Last name is required" }),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  country: z.string().optional(),
-  zipCode: z.string().optional(),
-  applicationRole: z.object({
-    id: z.string().optional(),
-    name: z.string(),
-  }),
-  uploadedFile: z.instanceof(FileList).optional(),
-});
 
-type UserFormValues = z.infer<typeof userFormSchema>;
 
 export default function UsersPage() {
   const [roles, setRoles] = useState([]);
@@ -86,38 +62,17 @@ export default function UsersPage() {
     getUserRoles();
   }, []);
 
-  const defaultValues: Partial<UserFormValues> = {
-    id: "",
-    username: "",
-    password: "",
-    email: "",
-    phoneNumber: "",
-    firstName: "",
-    lastName: "",
-    address: "",
-    city: "",
-    state: "",
-    country: "",
-    zipCode: "",
-    applicationRole: {
-      id: "",
-      name: "",
-    }
-  };
 
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userFormSchema),
-    defaultValues,
+    defaultValues: userDefaultValues,
   });
 
   const onSubmit = (data: UserFormValues) => {
-    // Add the file information if available
     console.log("Form submitted:", {
       ...data,
       uploadedFileName: uploadedFileName,
     });
-    // api call to save the user data
-    debugger;
     usersService
       .createApplicationUser(data)
       .then((response) => {
@@ -139,12 +94,9 @@ export default function UsersPage() {
 
   const handleSaveFile = () => {
     if (selectedFile) {
-      // Here you would typically upload the file to your server
-      // For now, we'll just set the file name to display
       setUploadedFileName(selectedFile.name);
       setIsFileModalOpen(false);
 
-      // Reset the selected file after saving
       setSelectedFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";

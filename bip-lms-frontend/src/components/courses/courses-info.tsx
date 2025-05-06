@@ -37,7 +37,7 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30 z-10" />
         <img
-          src={"/images/course/course-cover.avif?height=400&width=1200"}
+          src={courseOverView.coverImage ? `data:${courseOverView?.coverImage?.contentType};base64,${courseOverView?.coverImage?.imageInByteArray}` : "/images/course/course-cover.avif"}
           alt={courseOverView?.courseName}
           className="w-full h-[200px] md:h-[200px] object-cover"
         />
