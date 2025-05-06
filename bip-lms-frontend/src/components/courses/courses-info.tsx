@@ -1,5 +1,13 @@
 "use client";
-import { ArrowLeft, Book, BookAIcon, BookCopy, Clock, Star, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  Book,
+  BookAIcon,
+  BookCopy,
+  Clock,
+  Star,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +27,6 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
 
   useEffect(() => {
     courseService.getCourseOverView(courseId).then((res) => {
-      console.log(res?.data?.data);
       setCourseOverView(res?.data?.data);
     });
   }, [courseId]);
@@ -88,9 +95,50 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
               </TabsContent>
 
               <TabsContent value="curriculum">
-                <h2 className="text-2xl font-semibold mb-4">
-                  Course Curriculum
-                </h2>
+                <div className="space-y-6">
+                  {courseOverView?.modules.map((module, index) => (
+                    <div key={index} className="space-y-2">
+                      {/* Module Header */}
+                      <div className="flex items-center gap-2 font-medium text-lg">
+                        <BookAIcon className="h-5 w-5 text-blue-600" />
+                        <span>{module?.moduleName}</span>
+                      </div>
+
+                      {/* Sessions under Module */}
+                      {module?.sessions?.length > 0 ? (
+                        <ul className="ml-6 list-disc space-y-1 text-sm text-gray-700">
+                          {module.sessions.map((session, idx) => (
+                            <li key={idx}>
+                              <div className="flex flex-col">
+                                <span className="font-semibold">
+                                  {session.sessionName}
+                                </span>
+                                <span
+                                  className="text-gray-500"
+                                  dangerouslySetInnerHTML={{
+                                    __html: session?.sessionDescription
+                                  }}
+                                ></span>
+                                <a
+                                  href={session.link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-500 underline"
+                                >
+                                  Join Session
+                                </a>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="ml-6 text-sm text-gray-500">
+                          No sessions available for this module.
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </TabsContent>
 
               <TabsContent value="instructor">
@@ -122,9 +170,7 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                         <div className="flex items-center gap-4 my-3">
                           <div className="flex items-center gap-1">
                             <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                            <span>
-                              5.0
-                            </span>
+                            <span>5.0</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Users className="h-4 w-4" />
