@@ -28,6 +28,7 @@ import { showErrorToast, showSuccessToast } from "@/util/helpers/toast-helper";
 import { roleService } from "@/http/role-service";
 import { userDefaultValues, userFormSchema, UserFormValues } from "@/types/model/user-model";
 import UserFormComponent from "@/components/users/user-from";
+import UserList from "@/components/users/users-list";
 
 
 
@@ -141,8 +142,8 @@ export default function UsersPage() {
               <CardTitle>User List</CardTitle>
             </CardHeader>
             <CardContent>
-              <p>User list will be displayed here</p>
-              {/* Implement user list component here */}
+              
+              <UserList/>
             </CardContent>
           </Card>
         </TabsContent>
