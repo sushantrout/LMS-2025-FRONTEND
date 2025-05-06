@@ -6,4 +6,8 @@ export const courseReviewService = {
     getCourseReviews(coureseId: string) {
     return lmsService.get(`${BASE_URL}/get-course-review/${coureseId}`);
   },
+
+  getTotalRatingStatistics(coureseId: string) {
+    return lmsService.get(`${BASE_URL}/get-total-rating-statistics/${coureseId}`);
+  }
 };

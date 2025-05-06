@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  ArrowLeft,
-  BookAIcon,
-  Clock,
-  Star,
-  Users,
-} from "lucide-react";
+import { ArrowLeft, BookAIcon, Clock, Star, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -17,10 +11,14 @@ import { useEffect, useState } from "react";
 import { courseService } from "@/http/course-service";
 import { CourseOverView } from "@/types/model/course-overview-model";
 import { useRouter } from "next/navigation";
-import { CourseReview } from "@/types/model/course-review";
 import { courseReviewService } from "@/http/course-review-service";
-import { getTimeAgo } from "@/util/helpers/application-data-converter-util";
 import RatingStar from "../ui/rating-star";
+import {
+  CourseReview,
+  CourseReviewStats,
+} from "@/types/model/course-review-model";
+import ReviewList from "./review-list";
+import CourseStats from "./course-stats";
 
 export default function CourseDetailInfo({ courseId }: { courseId: string }) {
   const router = useRouter();
@@ -29,12 +27,15 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
   );
 
   const [courseReviews, setCourseReviews] = useState<CourseReview[]>([]);
+  const [courseStats, setCourseStats] = useState<CourseReviewStats>(
+    {} as CourseReviewStats
+  );
 
   const getCourseData = () => {
     courseService.getCourseOverView(courseId).then((res) => {
       setCourseOverView(res?.data?.data);
     });
-  }
+  };
 
   const getCourseReviews = () => {
     courseReviewService.getCourseReviews(courseId).then((res) => {
@@ -42,9 +43,16 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
     });
   };
 
+  const getCourseReviewStats = () => {
+    courseReviewService.getTotalRatingStatistics(courseId).then((res) => {
+      setCourseStats(res?.data?.data);
+    });
+  };
+
   useEffect(() => {
     getCourseData();
     getCourseReviews();
+    getCourseReviewStats();
   }, [courseId]);
 
   if (!courseOverView) return <div>Loading...</div>;
@@ -54,7 +62,11 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30 z-10" />
         <img
-          src={courseOverView.coverImage ? `data:${courseOverView?.coverImage?.contentType};base64,${courseOverView?.coverImage?.imageInByteArray}` : "/images/course/course-cover.avif"}
+          src={
+            courseOverView.coverImage
+              ? `data:${courseOverView?.coverImage?.contentType};base64,${courseOverView?.coverImage?.imageInByteArray}`
+              : "/images/course/course-cover.avif"
+          }
           alt={courseOverView?.courseName}
           className="w-full h-[200px] md:h-[200px] object-cover"
         />
@@ -166,7 +178,11 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                     <div className="flex flex-col md:flex-row gap-6 items-start mb-6">
                       <Avatar className="h-24 w-24">
                         <AvatarImage
-                          src={instructor?.profilePicture ? `data:${instructor?.profilePicture?.contentType};base64,${instructor?.profilePicture?.imageInByteArray}` : "/images/course/course-cover.avif"}
+                          src={
+                            instructor?.profilePicture
+                              ? `data:${instructor?.profilePicture?.contentType};base64,${instructor?.profilePicture?.imageInByteArray}`
+                              : "/images/course/course-cover.avif"
+                          }
                           alt={instructor?.fullName}
                         />
                         <AvatarFallback>
@@ -205,94 +221,11 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
 
               <TabsContent value="reviews">
                 <div className="flex flex-col md:flex-row gap-8">
-                  <div className="md:w-1/3">
-                    <div className="text-center p-6 border rounded-lg">
-                      <div className="text-5xl font-bold mb-2">
-                        {/* {course.maxRating} */}
-                      </div>
-                      <div className="flex justify-center mb-4">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`h-5 w-5 ${
-                              star <= 5
-                                ? //   Math.floor(courseOverView?.maxRating)
-                                  "fill-yellow-500 text-yellow-500"
-                                : "text-muted"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <div className="text-muted-foreground">Course Rating</div>
-                      <div className="mt-1 font-medium">
-                        {/* {course?.maxRating} */}
-                        Reviews
-                      </div>
-                    </div>
-                  </div>
-                  <div className="md:w-2/3 space-y-6">
-                    <div className="space-y-3">
-                      {[5, 4, 3, 2, 1].map((rating) => {
-                        const percentage =
-                          rating === 5
-                            ? 70
-                            : rating === 4
-                            ? 20
-                            : rating === 3
-                            ? 7
-                            : rating === 2
-                            ? 2
-                            : 1;
-                        return (
-                          <div key={rating} className="flex items-center gap-3">
-                            <div className="flex items-center gap-1 w-20">
-                              <span>{rating}</span>
-                              <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                            </div>
-                            <Progress
-                              value={percentage}
-                              className="h-2 flex-1"
-                            />
-                            <div className="w-12 text-right text-muted-foreground">
-                              {percentage}%
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                  <div className="md:w-3/3 space-y-6">
+                    <CourseStats courseStats={courseStats} />
 
                     <Separator />
-
-                    <div className="space-y-6">
-                      {courseReviews.map((review, index) => (
-                        <div key={index} className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <Avatar className="h-10 w-10">
-                                <AvatarFallback>
-                                  {review.user.fullName
-                                    .split(" ")
-                                    .map((n) => n[0].toUpperCase())
-                                    .join("")}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <div className="font-medium">{review.user.fullName}</div>
-                                <div className="text-xs text-muted-foreground">
-                                  {getTimeAgo(review.createdOn)}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex">
-                              <RatingStar rating={review.rating}></RatingStar>
-                            </div>
-                          </div>
-                          <p className="text-muted-foreground">
-                            {review.feedback}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
+                    <ReviewList courseReviews={courseReviews} />
                   </div>
                 </div>
               </TabsContent>
