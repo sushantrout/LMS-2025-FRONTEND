@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { CourseReview } from "@/types/model/course-review";
 import { courseReviewService } from "@/http/course-review-service";
 import { getTimeAgo } from "@/util/helpers/application-data-converter-util";
+import RatingStar from "../ui/rating-star";
 
 export default function CourseDetailInfo({ courseId }: { courseId: string }) {
   const router = useRouter();
@@ -283,16 +284,7 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                               </div>
                             </div>
                             <div className="flex">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <Star
-                                  key={star}
-                                  className={`h-4 w-4 ${
-                                    star <= review.rating
-                                      ? "fill-yellow-500 text-yellow-500"
-                                      : "text-muted"
-                                  }`}
-                                />
-                              ))}
+                              <RatingStar rating={review.rating}></RatingStar>
                             </div>
                           </div>
                           <p className="text-muted-foreground">
