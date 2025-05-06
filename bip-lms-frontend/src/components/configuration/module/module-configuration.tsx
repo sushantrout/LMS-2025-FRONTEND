@@ -29,7 +29,7 @@ export default function ModulesConfiguration({ courseId }: { courseId: string })
   console.log("courseId===>", courseId);
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [selectedModule, setSelectedModule] = useState(null)
+  const [selectedModule, setSelectedModule] = useState<Module | null>(null)
   const [selectedSession, setSelectedSession] = useState(null)
   const [isModuleDialogOpen, setIsModuleDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -63,24 +63,36 @@ export default function ModulesConfiguration({ courseId }: { courseId: string })
   : [];
 
   // Handle module form submission
-  const handleModuleSubmit = (e) => {
+  const handleModuleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement;
+    const action = submitter?.value; // "create" or "update"
+  
     const moduleData: Module = {
       name: formData.get("title") as string,
-      description: formData.get("description") as string,
+      description: selectedModule?.description || "",
       trainerId: formData.get("trainerId") as string || "",
       sortOrder: 1,
       noOfSessions: formData.get("noOfSessions") ? Number(formData.get("noOfSessions")) : 0,
       sessions: selectedModule?.sessions || [],
-      course: course|| {} as Course,
+      course: course || {} as Course,
     };
-    debugger;
-    moduleService.createModule(moduleData).then((module) => {
-      setModules([...modules, module.data.data]);
-      setIsModuleDialogOpen(false)
-    })
-  }
+  debugger;
+    if (action === "update") {
+      console.log("selectedModule.id===>", selectedModule.id);
+      moduleService.updateModule(selectedModule.id, moduleData).then((updated) => {
+        const updatedModules = modules.map(m => m.id === updated.data.data.id ? updated.data.data : m);
+        setModules(updatedModules);
+        setIsModuleDialogOpen(false);
+      });
+    } else {
+      moduleService.createModule(moduleData).then((created) => {
+        setModules([...modules, created.data.data]);
+        setIsModuleDialogOpen(false);
+      });
+    }
+  };
   useEffect(() => {
     if (courseId) {
       courseService.getCourseDetail(courseId).then((course) => {
@@ -268,6 +280,8 @@ export default function ModulesConfiguration({ courseId }: { courseId: string })
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => {
+                                  debugger;
+                                  console.log("module===>", module);
                                   setSelectedModule(module)
                                   setIsModuleDialogOpen(true)
                                 }}
@@ -403,7 +417,10 @@ export default function ModulesConfiguration({ courseId }: { courseId: string })
                               </div>
                               <div>
                                 <div className="font-medium">{module.name}</div>
-                                <div className="text-sm text-muted-foreground line-clamp-1">{module.description}</div>
+                                <div
+                                     className="font-semibold mb-4 mt-2"
+                                         dangerouslySetInnerHTML={{ __html: module.description }}
+                                ></div>
                               </div>
                             </div>
                           </TableCell>
@@ -415,6 +432,7 @@ export default function ModulesConfiguration({ courseId }: { courseId: string })
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => {
+                                  debugger;
                                   setSelectedModule(module)
                                   setIsModuleDialogOpen(true)
                                 }}
@@ -458,17 +476,19 @@ export default function ModulesConfiguration({ courseId }: { courseId: string })
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="title">Module Title</Label>
-                <Input id="title" name="title" defaultValue={selectedModule?.title || ""} required />
+                <Input id="title" name="title" defaultValue={selectedModule?.name || ""} required />
               </div>
               <div>
                 <Label>Description</Label>
                 <QuillEditor
                   theme="snow"
                   value={selectedModule?.description || ""}
-                  onChange={(value) => {
-                    // handle the value here, e.g., update state
-                    console.log(value);
-                  }}
+                  onChange={(e) =>
+                    setSelectedModule((prev) => ({
+                      ...prev,
+                      description: e,
+                    }))
+                  }
                 />
               </div>
 
@@ -503,7 +523,13 @@ export default function ModulesConfiguration({ courseId }: { courseId: string })
               <Button type="button" variant="outline" onClick={() => setIsModuleDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit">{selectedModule ? "Save Changes" : "Create Module"}</Button>
+              <Button
+                 type="submit"
+                 name="action"
+                value={selectedModule ? "update" : "create"}
+                 >
+               {selectedModule ? "Save Changes" : "Create Module"}
+</Button>
             </DialogFooter>
           </form>
         </DialogContent>

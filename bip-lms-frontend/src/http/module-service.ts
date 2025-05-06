@@ -13,7 +13,7 @@ export const moduleService = {
   createModule(data: any) {
     return lmsService.post(`${BASE_URL}`, data);
   },
-  updateCourse(id: string, data: any) {
+  updateModule(id: string, data: any) {
     return lmsService.put(`${BASE_URL}/${id}`, data);
   },
   deleteCourse(id: string) {
