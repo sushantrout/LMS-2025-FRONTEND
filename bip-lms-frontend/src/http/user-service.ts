@@ -3,8 +3,8 @@ import { lmsService } from "./lms-service";
 const BASE_URL = "v1/application-users";
 
 export const usersService = {
-  getApplcationUsersList(id: string) {
-    return lmsService.get(`${BASE_URL}/course/${id}`);
+  getApplcationUsersList() {
+    return lmsService.get(`${BASE_URL}`);
   },
   getApplicationUser(id: string) {
     return lmsService.get(`${BASE_URL}/${id}`);
