@@ -36,7 +36,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 import {
-  CheckCircle2Icon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -44,7 +43,6 @@ import {
   ChevronsRightIcon,
   ColumnsIcon,
   GripVerticalIcon,
-  LoaderIcon,
   MoreVerticalIcon,
   PlusIcon,
   TrendingUpIcon,
@@ -106,19 +104,36 @@ import {
 } from "@/components/ui/tabs"
 import { showInfoToast } from "@/util/helpers/toast-helper"
 
+import FileUploadModal from "../users/users-upload"
+
 export const schema = z.object({
-  id: z.number(),
+  id: z.union([z.number(), z.string()]),
   header: z.string(),
   type: z.string(),
   status: z.string(),
   target: z.string(),
   limit: z.string(),
   reviewer: z.string(),
+  username: z.string().optional(),
+  email: z.string().optional(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  phoneNumber: z.string().optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  country: z.string().optional(),
+  applicationRole: z
+    .object({
+      id: z.string().optional(),
+      name: z.string().optional(),
+    })
+    .optional(),
 })
 
-function DragHandle({ id }: { id: number }) {
+function DragHandle({ id }: { id: number | string }) {
   const { attributes, listeners } = useSortable({
-    id,
+    id: id.toString(),
   })
 
   return (
@@ -168,119 +183,75 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "header",
-    header: "Header",
+    accessorKey: "username",
+    header: "Username",
     cell: ({ row }) => {
-      return <TableCellViewer item={row.original} />
+      return <div>{row.original.header || row.original.username}</div>;
     },
     enableHiding: false,
   },
   {
-    accessorKey: "type",
-    header: "Section Type",
+    accessorKey: "email",
+    header: "Email",
     cell: ({ row }) => (
-      <div className="w-32">
-        <Badge variant="outline" className="px-1.5 text-muted-foreground">
-          {row.original.type}
-        </Badge>
+      <div>
+        {row.original.target || row.original.email || ""}
       </div>
     ),
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "fullName",
+    header: "Full Name",
     cell: ({ row }) => (
-      <Badge
-        variant="outline"
-        className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3"
-      >
-        {row.original.status === "Done" ? (
-          <CheckCircle2Icon className="text-green-500 dark:text-green-400" />
-        ) : (
-          <LoaderIcon />
-        )}
-        {row.original.status}
-      </Badge>
+      <div>
+        {row.original.limit || (row.original.firstName && row.original.lastName ? `${row.original.firstName} ${row.original.lastName}` : "")}
+      </div>
     ),
   },
   {
-    accessorKey: "target",
-    header: () => <div className="w-full text-right">Target</div>,
+    accessorKey: "phoneNumber",
+    header: "Phone Number",
     cell: ({ row }) => (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          showInfoToast(`Saving ${row.original.header}`, 1000);
-        }}
-      >
-        <Label htmlFor={`${row.original.id}-target`} className="sr-only">
-          Target
-        </Label>
-        <Input
-          className="h-8 w-16 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background"
-          defaultValue={row.original.target}
-          id={`${row.original.id}-target`}
-        />
-      </form>
+      <div>
+        {row.original.reviewer || row.original.phoneNumber || ""}
+      </div>
     ),
   },
   {
-    accessorKey: "limit",
-    header: () => <div className="w-full text-right">Limit</div>,
+    accessorKey: "address",
+    header: "Address",
     cell: ({ row }) => (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          showInfoToast(`Saving ${row.original.header}`, 1000);
-        }}
-      >
-        <Label htmlFor={`${row.original.id}-limit`} className="sr-only">
-          Limit
-        </Label>
-        <Input
-          className="h-8 w-16 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background"
-          defaultValue={row.original.limit}
-          id={`${row.original.id}-limit`}
-        />
-      </form>
+      <div>
+        {row.original.address || ""}
+      </div>
     ),
   },
   {
-    accessorKey: "reviewer",
-    header: "Reviewer",
-    cell: ({ row }) => {
-      const isAssigned = row.original.reviewer !== "Assign reviewer"
-
-      if (isAssigned) {
-        return row.original.reviewer
-      }
-
-      return (
-        <>
-          <Label htmlFor={`${row.original.id}-reviewer`} className="sr-only">
-            Reviewer
-          </Label>
-          <Select>
-            <SelectTrigger
-              className="h-8 w-40"
-              id={`${row.original.id}-reviewer`}
-            >
-              <SelectValue placeholder="Assign reviewer" />
-            </SelectTrigger>
-            <SelectContent align="end">
-              <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
-              <SelectItem value="Jamik Tashpulatov">
-                Jamik Tashpulatov
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </>
-      )
-    },
+    accessorKey: "location",
+    header: "Location",
+    cell: ({ row }) => (
+      <div>
+        {[
+          row.original.city, 
+          row.original.state, 
+          row.original.country
+        ].filter(Boolean).join(", ")}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "role",
+    header: "Role",
+    cell: ({ row }) => (
+      <div>
+        {row.original.type || (row.original.applicationRole ? row.original.applicationRole.name : "")}
+      </div>
+    ),
   },
   {
     id: "actions",
-    cell: () => (
+    header: "Actions",
+    cell: ({ row }) => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -293,9 +264,8 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-32">
+          <DropdownMenuItem>Upload</DropdownMenuItem>
           <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Make a copy</DropdownMenuItem>
-          <DropdownMenuItem>Favorite</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem>Delete</DropdownMenuItem>
         </DropdownMenuContent>
@@ -329,6 +299,7 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
   )
 }
 
+
 export function DataTable({
   data: initialData,
 }: {
@@ -346,6 +317,8 @@ export function DataTable({
     pageIndex: 0,
     pageSize: 10,
   })
+  const [uploadModalOpen, setUploadModalOpen] = React.useState(false);
+  const [selectedUserId, setSelectedUserId] = React.useState<string | number | null>(null);
   const sortableId = React.useId()
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
@@ -358,9 +331,50 @@ export function DataTable({
     [data]
   )
 
+  const columnsWithUpdatedActions = [...columns.filter(col => col.id !== 'actions'), {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
+              size="icon"
+            >
+              <MoreVerticalIcon />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-32">
+            <DropdownMenuItem onClick={() => {
+              setSelectedUserId(row.original.id);
+              setUploadModalOpen(true);
+            }}>
+              Upload
+            </DropdownMenuItem>
+            <DropdownMenuItem>Edit</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Delete</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        
+        {selectedUserId === row.original.id && (
+          <FileUploadModal
+            isOpen={uploadModalOpen}
+            onClose={() => setUploadModalOpen(false)}
+            onSave={handleFileUpload}
+            userId={row.original.id}
+          />
+        )}
+      </>
+    ),
+  }];
+
   const table = useReactTable({
     data,
-    columns,
+    columns: columnsWithUpdatedActions,
     state: {
       sorting,
       columnVisibility,
@@ -393,6 +407,12 @@ export function DataTable({
       })
     }
   }
+
+  const handleFileUpload = (userId: string | number, file: File) => {
+    debugger;
+    console.log(`Uploading file ${file.name} for user ${userId}`);
+    showInfoToast(`File ${file.name} uploaded successfully`, 2000);
+  };
 
   return (
     <Tabs
