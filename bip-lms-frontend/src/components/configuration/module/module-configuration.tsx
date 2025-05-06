@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Pencil, Plus, Trash2, MoreHorizontal, Search, BookOpen, Clock, Users, Eye } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -18,9 +18,10 @@ import {
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import QuillEditor from "@/components/editor/quill/quill-editor"
+import { useRouter } from "next/navigation"
+import { courseService } from "@/http/course-service"
 
 // Mock data for modules
 const initialModules = [
@@ -169,19 +170,29 @@ const initialModules = [
   },
 ]
 
-export default function ModulesConfiguration() {
+
+export default function ModulesConfiguration({ courseId }: { courseId: string } ) {
+  console.log("courseId===>", courseId);
   const [modules, setModules] = useState(initialModules)
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedModule, setSelectedModule] = useState(null)
   const [selectedSession, setSelectedSession] = useState(null)
   const [isModuleDialogOpen, setIsModuleDialogOpen] = useState(false)
-  const [isSessionDialogOpen, setIsSessionDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [isDeleteSessionDialogOpen, setIsDeleteSessionDialogOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("all")
-
+  const router = useRouter();
+  const [course, setCourse] = useState<Course>({
+    name: "",
+    description: "",
+    category: null,
+    courseType: "",
+    noOfModule: 0,
+    maxRating: 0,
+    instructors: [],
+  });
   // Filter modules based on search query and status filter
   const filteredModules = modules.filter((module) => {
     const matchesSearch =
@@ -190,7 +201,6 @@ export default function ModulesConfiguration() {
     const matchesStatus = statusFilter === "all" || module.status === statusFilter
     return matchesSearch && matchesStatus
   })
-
   // Handle module form submission
   const handleModuleSubmit = (e) => {
     e.preventDefault()
@@ -217,6 +227,15 @@ export default function ModulesConfiguration() {
     }
 
     setIsModuleDialogOpen(false)
+    useEffect(() => {
+      if (courseId) {
+        courseService.getCourseDetail(courseId).then((course) => {
+          setCourse(course.data.data);
+          setModules(course.data.data.modules);
+          console.log("course.data.data.modules===>", course.data.data.modules);
+        });
+      }
+    }, [courseId]);
   }
 
   // Handle session form submission
@@ -248,7 +267,6 @@ export default function ModulesConfiguration() {
     })
 
     setModules(updatedModules)
-    setIsSessionDialogOpen(false)
   }
 
   // Calculate total duration from sessions
@@ -312,14 +330,23 @@ export default function ModulesConfiguration() {
           <h1 className="text-3xl font-bold tracking-tight">Module Management</h1>
           <p className="text-muted-foreground">Manage your learning modules and sessions</p>
         </div>
-        <Button
-          onClick={() => {
-            setSelectedModule(null)
-            setIsModuleDialogOpen(true)
-          }}
-        >
-          <Plus className="mr-2 h-4 w-4" /> Add Module
-        </Button>
+        <div className="flex justify-between items-center mb-4">
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/configuration`)}
+          >
+            ← Back
+          </Button>
+
+          <Button
+            onClick={() => {
+              setSelectedModule(null);
+              setIsModuleDialogOpen(true);
+            }}
+          >
+            <Plus className="mr-2 h-4 w-4" /> Add Module
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
@@ -411,8 +438,7 @@ export default function ModulesConfiguration() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem
                                 onClick={() => {
-                                  setSelectedModule(module)
-                                  setIsViewDialogOpen(true)
+                                  router.push(`${courseId}/module/${module.id}`); // Adjust the path to match your route structure
                                 }}
                               >
                                 <Eye className="mr-2 h-4 w-4" />
@@ -612,16 +638,18 @@ export default function ModulesConfiguration() {
                 <Label htmlFor="title">Module Title</Label>
                 <Input id="title" name="title" defaultValue={selectedModule?.title || ""} required />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  rows={3}
-                  defaultValue={selectedModule?.description || ""}
-                  required
+              <div>
+                <Label>Description</Label>
+                <QuillEditor
+                  theme="snow"
+                  value={selectedModule?.description || ""}
+                  onChange={(value) => {
+                    // handle the value here, e.g., update state
+                    console.log(value);
+                  }}
                 />
               </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="status">Status</Label>
@@ -656,52 +684,6 @@ export default function ModulesConfiguration() {
                 Cancel
               </Button>
               <Button type="submit">{selectedModule ? "Save Changes" : "Create Module"}</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Session Form Dialog */}
-      <Dialog open={isSessionDialogOpen} onOpenChange={setIsSessionDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>{selectedSession ? "Edit Session" : "Add New Session"}</DialogTitle>
-            <DialogDescription>
-              {selectedSession ? "Update the details of this session." : "Fill in the details to create a new session."}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSessionSubmit}>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="title">Session Title</Label>
-                <Input id="title" name="title" defaultValue={selectedSession?.title || ""} required />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  rows={3}
-                  defaultValue={selectedSession?.description || ""}
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="duration">Duration</Label>
-                  <Input id="duration" name="duration" defaultValue={selectedSession?.duration || "1 hour"} required />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="instructor">Instructor</Label>
-                  <Input id="instructor" name="instructor" defaultValue={selectedSession?.instructor || ""} required />
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsSessionDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit">{selectedSession ? "Save Changes" : "Add Session"}</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -755,160 +737,6 @@ export default function ModulesConfiguration() {
         </DialogContent>
       </Dialog>
 
-      {/* View Module Details Dialog */}
-      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="sm:max-w-[700px] max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle>Module Details</DialogTitle>
-            <DialogDescription>View and manage the details of this module and its sessions.</DialogDescription>
-          </DialogHeader>
-          {selectedModule && (
-            <ScrollArea className="h-[60vh] pr-4">
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="h-16 w-16 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
-                    <img
-                      src={selectedModule.thumbnail || "/placeholder.svg"}
-                      alt={selectedModule.title}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-xl font-semibold">{selectedModule.title}</h3>
-                      {getStatusBadge(selectedModule.status)}
-                    </div>
-                    <p className="text-muted-foreground mt-1">{selectedModule.description}</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="flex items-center gap-2 p-3 border rounded-md">
-                    <BookOpen className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">Sessions</p>
-                      <p className="text-xl">{selectedModule.sessions.length}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 p-3 border rounded-md">
-                    <Clock className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">Duration</p>
-                      <p className="text-xl">{selectedModule.totalDuration}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 p-3 border rounded-md">
-                    <Users className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">Enrolled</p>
-                      <p className="text-xl">{selectedModule.enrolledCount}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold">Sessions</h3>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        setSelectedSession(null)
-                        setIsSessionDialogOpen(true)
-                      }}
-                    >
-                      <Plus className="mr-2 h-4 w-4" /> Add Session
-                    </Button>
-                  </div>
-
-                  {selectedModule.sessions.length === 0 ? (
-                    <div className="text-center py-8 border rounded-md">
-                      <p className="text-muted-foreground">No sessions added yet.</p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="mt-2"
-                        onClick={() => {
-                          setSelectedSession(null)
-                          setIsSessionDialogOpen(true)
-                        }}
-                      >
-                        <Plus className="mr-2 h-4 w-4" /> Add Your First Session
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {selectedModule.sessions.map((session, index) => (
-                        <div key={session.id} className="border rounded-md p-4">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-start gap-3">
-                              <div
-                                className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                  session.completed ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-500"
-                                }`}
-                              >
-                                {session.completed ? "✓" : index + 1}
-                              </div>
-                              <div>
-                                <h4 className="font-medium">{session.title}</h4>
-                                <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                                  <div className="flex items-center">
-                                    <Clock className="mr-1 h-3 w-3" />
-                                    {session.duration}
-                                  </div>
-                                  <div>Instructor: {session.instructor}</div>
-                                </div>
-                                <p className="text-sm mt-2">{session.description}</p>
-                              </div>
-                            </div>
-                            <div className="flex gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => {
-                                  setSelectedSession(session)
-                                  setIsSessionDialogOpen(true)
-                                }}
-                              >
-                                <Pencil className="h-4 w-4" />
-                                <span className="sr-only">Edit session</span>
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-destructive hover:text-destructive"
-                                onClick={() => {
-                                  setSelectedSession(session)
-                                  setIsDeleteSessionDialogOpen(true)
-                                }}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                                <span className="sr-only">Delete session</span>
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </ScrollArea>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
-              Close
-            </Button>
-            <Button
-              onClick={() => {
-                setIsViewDialogOpen(false)
-                setIsModuleDialogOpen(true)
-              }}
-            >
-              Edit Module
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
