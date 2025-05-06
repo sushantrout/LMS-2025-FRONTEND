@@ -1,24 +1,49 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { usersService } from "@/http/user-service";
 import { showErrorToast, showSuccessToast } from "@/util/helpers/toast-helper";
+import { roleService } from "@/http/role-service";
 
 // Define the validation schema based on the DTO
 const userFormSchema = z.object({
   id: z.string().optional(),
-  username: z.string().min(3, { message: "Username must be at least 3 characters" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  username: z
+    .string()
+    .min(3, { message: "Username must be at least 3 characters" }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters" }),
   email: z.string().email({ message: "Invalid email address" }),
   phoneNumber: z.string().optional(),
   firstName: z.string().min(1, { message: "First name is required" }),
@@ -30,25 +55,36 @@ const userFormSchema = z.object({
   zipCode: z.string().optional(),
   applicationRole: z.object({
     id: z.string().optional(),
-    name: z.string()
+    name: z.string(),
   }),
-  uploadedFile: z.instanceof(FileList).optional()
+  uploadedFile: z.instanceof(FileList).optional(),
 });
 
 type UserFormValues = z.infer<typeof userFormSchema>;
 
 export default function UsersPage() {
-  const [roles, setRoles] = useState([
-    { id: "0KK7H0HYM26PV", name: "Admin" },
-    { id: "0KK7H0HYM25PV", name: "Instructor" },
-    { id: "0KK7H0HYM24PV", name: "Student" }
-  ]);
-  
+  const [roles, setRoles] = useState([]);
   const [isFileModalOpen, setIsFileModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const getUserRoles = () => {
+    roleService
+      .getApplicationRoles()
+      .then((response) => {
+        debugger
+        setRoles(response.data?.data || []);
+      })
+      .catch((error) => {
+        console.error("Error fetching roles:", error);
+        showErrorToast("Error fetching roles");
+      });
+  }
+
+  useEffect(() => {
+    getUserRoles();
+  }, []);
 
   const defaultValues: Partial<UserFormValues> = {
     id: "",
@@ -65,9 +101,8 @@ export default function UsersPage() {
     zipCode: "",
     applicationRole: {
       id: "",
-      name: ""
+      name: "",
     }
-    // No default value needed for file upload
   };
 
   const form = useForm<UserFormValues>({
@@ -79,18 +114,21 @@ export default function UsersPage() {
     // Add the file information if available
     console.log("Form submitted:", {
       ...data,
-      uploadedFileName: uploadedFileName
+      uploadedFileName: uploadedFileName,
     });
     // api call to save the user data
     debugger;
-    usersService.createApplicationUser(data).then((response) => {
-      console.log("User created successfully:", response);
-      showSuccessToast("User created successfully");
-      form.reset();
-    }).catch((error) => {
-      console.error("Error creating user:", error);
-      showErrorToast("Error creating user");
-    });
+    usersService
+      .createApplicationUser(data)
+      .then((response) => {
+        console.log("User created successfully:", response);
+        showSuccessToast("User created successfully");
+        form.reset();
+      })
+      .catch((error) => {
+        console.error("Error creating user:", error);
+        showErrorToast("Error creating user");
+      });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,7 +143,7 @@ export default function UsersPage() {
       // For now, we'll just set the file name to display
       setUploadedFileName(selectedFile.name);
       setIsFileModalOpen(false);
-      
+
       // Reset the selected file after saving
       setSelectedFile(null);
       if (fileInputRef.current) {
@@ -126,19 +164,21 @@ export default function UsersPage() {
     }
   };
 
-    return (
-        <div className="container py-4 px-4">
+  return (
+    <div className="container py-4 px-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">User Management</h1>
-        <Button variant="default" className="bg-blue-600 hover:bg-blue-700">Back</Button>
+        <Button variant="default" className="bg-blue-600 hover:bg-blue-700">
+          Back
+        </Button>
       </div>
-      
+
       <Tabs defaultValue="create" className="w-full">
         <TabsList>
           <TabsTrigger value="create">Create User</TabsTrigger>
           <TabsTrigger value="list">User List</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="create">
           <Card>
             <CardHeader>
@@ -146,7 +186,10 @@ export default function UsersPage() {
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Username and Password */}
                     <FormField
@@ -169,13 +212,17 @@ export default function UsersPage() {
                         <FormItem>
                           <FormLabel>Password</FormLabel>
                           <FormControl>
-                            <Input type="password" placeholder="Password" {...field} />
+                            <Input
+                              type="password"
+                              placeholder="Password"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    
+
                     {/* Name */}
                     <FormField
                       control={form.control}
@@ -203,7 +250,7 @@ export default function UsersPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     {/* Contact Information */}
                     <FormField
                       control={form.control}
@@ -212,7 +259,11 @@ export default function UsersPage() {
                         <FormItem>
                           <FormLabel>Email</FormLabel>
                           <FormControl>
-                            <Input type="email" placeholder="Email" {...field} />
+                            <Input
+                              type="email"
+                              placeholder="Email"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -231,7 +282,7 @@ export default function UsersPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     {/* Address */}
                     <div className="md:col-span-2">
                       <FormField
@@ -248,7 +299,7 @@ export default function UsersPage() {
                         )}
                       />
                     </div>
-                    
+
                     <FormField
                       control={form.control}
                       name="city"
@@ -275,7 +326,7 @@ export default function UsersPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="country"
@@ -302,7 +353,7 @@ export default function UsersPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     {/* Role */}
                     <FormField
                       control={form.control}
@@ -310,8 +361,8 @@ export default function UsersPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Role</FormLabel>
-                          <Select 
-                            onValueChange={field.onChange} 
+                          <Select
+                            onValueChange={field.onChange}
                             value={field.value}
                           >
                             <FormControl>
@@ -331,14 +382,14 @@ export default function UsersPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     {/* File Upload Button */}
                     <FormItem>
                       <FormLabel>Upload File</FormLabel>
                       <div className="flex items-center gap-2">
-                        <Button 
-                          type="button" 
-                          variant="outline" 
+                        <Button
+                          type="button"
+                          variant="outline"
                           onClick={handleOpenFileModal}
                           className="w-full"
                         >
@@ -352,14 +403,16 @@ export default function UsersPage() {
                       </div>
                     </FormItem>
                   </div>
-                  
-                  <Button type="submit" className="w-full">Create User</Button>
+
+                  <Button type="submit" className="w-full">
+                    Create User
+                  </Button>
                 </form>
               </Form>
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="list">
           <Card>
             <CardHeader>
@@ -396,15 +449,15 @@ export default function UsersPage() {
             )}
           </div>
           <DialogFooter className="flex justify-between sm:justify-between">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={handleCloseFileModal}
             >
               Cancel
             </Button>
-            <Button 
-              type="button" 
+            <Button
+              type="button"
               onClick={handleSaveFile}
               disabled={!selectedFile}
             >
@@ -413,6 +466,6 @@ export default function UsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-        </div>
+    </div>
   );
 }
