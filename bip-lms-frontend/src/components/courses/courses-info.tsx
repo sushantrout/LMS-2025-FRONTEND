@@ -1,16 +1,13 @@
 "use client";
+
 import {
   ArrowLeft,
-  Book,
   BookAIcon,
-  BookCopy,
   Clock,
   Star,
   Users,
 } from "lucide-react";
-import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,8 +16,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { courseService } from "@/http/course-service";
 import { CourseOverView } from "@/types/model/course-overview-model";
+import { useRouter } from "next/navigation";
 
 export default function CourseDetailInfo({ courseId }: { courseId: string }) {
+  const router = useRouter();
   const [courseOverView, setCourseOverView] = useState<CourseOverView | null>(
     null
   );
@@ -44,14 +43,14 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
         />
 
         <div className="container relative z-20 px-4 pt-6 -mt-24 md:-mt-32">
-          <Link
-            href="/courses"
+          <button
+            onClick={() => router.back()}
             className="inline-flex items-center gap-2 text-white mb-6 hover:underline"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Catalog
-          </Link>
-          <Badge className={`mb-4 ml-2`}>{courseOverView?.courseName}</Badge>
+          </button>
+
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
             {courseOverView?.courseName}
           </h1>
@@ -116,7 +115,7 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                                 <span
                                   className="text-gray-500"
                                   dangerouslySetInnerHTML={{
-                                    __html: session?.sessionDescription
+                                    __html: session?.sessionDescription,
                                   }}
                                 ></span>
                                 <a
