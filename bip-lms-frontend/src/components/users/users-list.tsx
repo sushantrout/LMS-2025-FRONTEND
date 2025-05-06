@@ -3,26 +3,7 @@
 import { useEffect, useState } from "react";
 import { usersService } from "@/http/user-service";
 import { DataTable } from "@/components/dashboard/data-table";
-
-interface User {
-  id: number | string;
-  username: string;
-  password: string;
-  email: string;
-  phoneNumber: string;
-  firstName: string;
-  lastName: string;
-  address: string;
-  city: string;
-  state: string;
-  country: string;
-  zipCode: string;
-  applicationRole: {
-    id: string;
-    name: string;
-  };
-  profilePicture: string | null;
-}
+import { User } from "@/types/model/user-model";
 
 export default function UserList() {
   const [users, setUsers] = useState<User[]>([]);
@@ -43,7 +24,6 @@ export default function UserList() {
       setLoading(false);
     }
   };
-
 
   if (loading) {
     return <div className="flex justify-center py-8">Loading users...</div>;
