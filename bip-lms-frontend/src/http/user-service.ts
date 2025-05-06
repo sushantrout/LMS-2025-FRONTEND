@@ -19,4 +19,8 @@ export const usersService = {
     return lmsService.delete(`${BASE_URL}/delete/${id}`);
   },
 
+  updateApplicationUserProfilePicture(id: string, data: any) {
+    return lmsService.put(`${BASE_URL}/${id}`, data);
+  }
+
 };
