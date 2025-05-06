@@ -55,7 +55,7 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
       courseCategoryService.getCourseCategoryList().then((categories) => {
         setCategories(categories.data.data);
       });
-      moduleService.getCourseList(courseId).then(async (modules) => {
+      moduleService.getModuleByCourseId(courseId).then(async (modules) => {
         const moduleList = modules.data?.data || [];
         setModules(moduleList);
       });

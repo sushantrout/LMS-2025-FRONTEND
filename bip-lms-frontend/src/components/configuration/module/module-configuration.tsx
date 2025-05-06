@@ -23,158 +23,10 @@ import QuillEditor from "@/components/editor/quill/quill-editor"
 import { useRouter } from "next/navigation"
 import { courseService } from "@/http/course-service"
 import { Course } from "@/types/model/course-model"
-
-// Mock data for modules
-const initialModules = [
-  {
-    id: "1",
-    title: "Introduction to React",
-    description: "Learn the fundamentals of React, including components, props, state, and hooks.",
-    status: "active",
-    enrolledCount: 24,
-    totalDuration: "8 hours",
-    endDate: "May 30, 2025",
-    progress: 40,
-    thumbnail: "/placeholder.svg?height=64&width=64",
-    sessions: [
-      {
-        id: "1-1",
-        title: "Getting Started with React",
-        duration: "1.5 hours",
-        completed: true,
-        description: "Introduction to React, setting up your development environment.",
-        instructor: "Sarah Johnson",
-      },
-      {
-        id: "1-2",
-        title: "Components and Props",
-        duration: "2 hours",
-        completed: true,
-        description: "Learn about React components and how to pass data with props.",
-        instructor: "Sarah Johnson",
-      },
-      {
-        id: "1-3",
-        title: "State and Lifecycle",
-        duration: "1.5 hours",
-        completed: false,
-        description: "Understanding state management and component lifecycle.",
-        instructor: "Sarah Johnson",
-      },
-      {
-        id: "1-4",
-        title: "Hooks in React",
-        duration: "2 hours",
-        completed: false,
-        description: "Learn about React Hooks like useState, useEffect, and custom hooks.",
-        instructor: "Sarah Johnson",
-      },
-      {
-        id: "1-5",
-        title: "Building a Complete App",
-        duration: "1 hour",
-        completed: false,
-        description: "Apply everything you've learned to build a complete React application.",
-        instructor: "Sarah Johnson",
-      },
-    ],
-  },
-  {
-    id: "2",
-    title: "Advanced JavaScript Concepts",
-    description: "Deep dive into advanced JavaScript concepts like closures, prototypes, and async programming.",
-    status: "draft",
-    enrolledCount: 0,
-    totalDuration: "10 hours",
-    endDate: "June 15, 2025",
-    progress: 0,
-    thumbnail: "/placeholder.svg?height=64&width=64",
-    sessions: [
-      {
-        id: "2-1",
-        title: "Closures and Scope",
-        duration: "2 hours",
-        completed: false,
-        description: "Understanding JavaScript closures and scope chain.",
-        instructor: "Michael Chen",
-      },
-      {
-        id: "2-2",
-        title: "Prototypes and Inheritance",
-        duration: "2 hours",
-        completed: false,
-        description: "Deep dive into JavaScript's prototype-based inheritance.",
-        instructor: "Michael Chen",
-      },
-      {
-        id: "2-3",
-        title: "Async JavaScript",
-        duration: "3 hours",
-        completed: false,
-        description: "Promises, async/await, and handling asynchronous operations.",
-        instructor: "Michael Chen",
-      },
-      {
-        id: "2-4",
-        title: "JavaScript Design Patterns",
-        duration: "3 hours",
-        completed: false,
-        description: "Common design patterns implemented in JavaScript.",
-        instructor: "Michael Chen",
-      },
-    ],
-  },
-  {
-    id: "3",
-    title: "CSS Mastery",
-    description: "Master modern CSS techniques including Flexbox, Grid, and CSS animations.",
-    status: "completed",
-    enrolledCount: 36,
-    totalDuration: "6 hours",
-    endDate: "April 10, 2025",
-    progress: 100,
-    thumbnail: "/placeholder.svg?height=64&width=64",
-    sessions: [
-      {
-        id: "3-1",
-        title: "CSS Fundamentals Review",
-        duration: "1 hour",
-        completed: true,
-        description: "Quick review of CSS fundamentals and best practices.",
-        instructor: "Emma Rodriguez",
-      },
-      {
-        id: "3-2",
-        title: "Flexbox Layout",
-        duration: "1.5 hours",
-        completed: true,
-        description: "Mastering Flexbox for one-dimensional layouts.",
-        instructor: "Emma Rodriguez",
-      },
-      {
-        id: "3-3",
-        title: "CSS Grid Layout",
-        duration: "1.5 hours",
-        completed: true,
-        description: "Using CSS Grid for two-dimensional layouts.",
-        instructor: "Emma Rodriguez",
-      },
-      {
-        id: "3-4",
-        title: "CSS Animations and Transitions",
-        duration: "2 hours",
-        completed: true,
-        description: "Creating smooth animations and transitions with CSS.",
-        instructor: "Emma Rodriguez",
-      },
-    ],
-  },
-]
-
-
-export default function ModulesConfiguration({ courseId }: { courseId: string } ) {
+import { Module } from "@/types/model/module-model"
+import { moduleService } from "@/http/module-service"
+export default function ModulesConfiguration({ courseId }: { courseId: string }) {
   console.log("courseId===>", courseId);
-  const [modules, setModules] = useState(initialModules)
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedModule, setSelectedModule] = useState(null)
@@ -185,90 +37,59 @@ export default function ModulesConfiguration({ courseId }: { courseId: string } 
   const [isDeleteSessionDialogOpen, setIsDeleteSessionDialogOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("all")
   const router = useRouter();
-  const [course, setCourse] = useState<Course>({
-    name: "",
-    description: "",
-    category: null,
-    courseType: "",
-    noOfModule: 0,
-    instructors: [],
-  });
+  const [course, setCourse] = useState<Course>();
+  const [modules, setModules] = useState<Module[]>([]);
+  const [file, setFile] = useState<File | null>(null);
+  useEffect(() => {
+    if (courseId) {
+      moduleService.getModuleByCourseId(courseId).then((course) => {
+        setModules(course.data.data);
+      });
+    }
+  }, [courseId]);
   // Filter modules based on search query and status filter
-  const filteredModules = modules.filter((module) => {
-    const matchesSearch =
-      module.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      module.description.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = statusFilter === "all" || module.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
+  const filteredModules = Array.isArray(modules)
+  ? modules.filter((module) => {
+      const query = searchQuery?.toLowerCase() || "";
+      const matchesSearch =
+        module.name.toLowerCase().includes(query) ||
+        module.description.toLowerCase().includes(query);
+
+      const matchesStatus =
+        statusFilter === "all" || module.name === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    })
+  : [];
+
   // Handle module form submission
   const handleModuleSubmit = (e) => {
-    e.preventDefault()
-    const formData = new FormData(e.target)
-    const moduleData = {
-      id: selectedModule ? selectedModule.id : Date.now().toString(),
-      title: formData.get("title"),
-      description: formData.get("description"),
-      status: formData.get("status"),
-      enrolledCount: selectedModule ? selectedModule.enrolledCount : 0,
-      totalDuration: formData.get("totalDuration"),
-      endDate: formData.get("endDate"),
-      progress: selectedModule ? selectedModule.progress : 0,
-      thumbnail: "/placeholder.svg?height=64&width=64",
-      sessions: selectedModule ? selectedModule.sessions : [],
-    }
-
-    if (selectedModule) {
-      // Update existing module
-      setModules(modules.map((m) => (m.id === selectedModule.id ? moduleData : m)))
-    } else {
-      // Add new module
-      setModules([...modules, moduleData])
-    }
-
-    setIsModuleDialogOpen(false)
-    useEffect(() => {
-      if (courseId) {
-        courseService.getCourseDetail(courseId).then((course) => {
-          setCourse(course.data.data);
-          setModules(course.data.data.modules);
-          console.log("course.data.data.modules===>", course.data.data.modules);
-        });
-      }
-    }, [courseId]);
-  }
-
-  // Handle session form submission
-  const handleSessionSubmit = (e) => {
-    e.preventDefault()
-    const formData = new FormData(e.target)
-    const sessionData = {
-      id: selectedSession ? selectedSession.id : `${selectedModule.id}-${Date.now()}`,
-      title: formData.get("title"),
-      duration: formData.get("duration"),
-      description: formData.get("description"),
-      instructor: formData.get("instructor"),
-      completed: selectedSession ? selectedSession.completed : false,
-    }
-
-    const updatedModules = modules.map((module) => {
-      if (module.id === selectedModule.id) {
-        const updatedSessions = selectedSession
-          ? module.sessions.map((s) => (s.id === selectedSession.id ? sessionData : s))
-          : [...module.sessions, sessionData]
-
-        return {
-          ...module,
-          sessions: updatedSessions,
-          totalDuration: calculateTotalDuration(updatedSessions),
-        }
-      }
-      return module
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const moduleData: Module = {
+      name: formData.get("title") as string,
+      description: formData.get("description") as string,
+      trainerId: formData.get("trainerId") as string || "",
+      sortOrder: 1,
+      noOfSessions: formData.get("noOfSessions") ? Number(formData.get("noOfSessions")) : 0,
+      sessions: selectedModule?.sessions || [],
+      course: course|| {} as Course,
+    };
+    debugger;
+    moduleService.createModule(moduleData).then((module) => {
+      setModules([...modules, module.data.data]);
+      setIsModuleDialogOpen(false)
     })
-
-    setModules(updatedModules)
   }
-
+  useEffect(() => {
+    if (courseId) {
+      courseService.getCourseDetail(courseId).then((course) => {
+        setCourse(course.data.data);
+        setModules(course.data.data.modules);
+        console.log("course.data.data.modules===>", course.data.data.modules);
+      });
+    }
+  }, [courseId]);
   // Calculate total duration from sessions
   const calculateTotalDuration = (sessions) => {
     const totalHours = sessions.reduce((total, session) => {
@@ -412,21 +233,22 @@ export default function ModulesConfiguration({ courseId }: { courseId: string } 
                           <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded overflow-hidden bg-gray-100 flex-shrink-0">
                               <img
-                                src={module.thumbnail || "/placeholder.svg"}
-                                alt={module.title}
+                                src={module.name || "/placeholder.svg"}
+                                alt={module.name}
                                 className="h-full w-full object-cover"
                               />
                             </div>
                             <div>
-                              <div className="font-medium">{module.title}</div>
+                              <div className="font-medium">{module.name}</div>
                               <div className="text-sm text-muted-foreground line-clamp-1">{module.description}</div>
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>{getStatusBadge(module.status)}</TableCell>
+                        {/* status */}
+                        <TableCell>{getStatusBadge("active")}</TableCell>
                         <TableCell className="hidden md:table-cell">{module.sessions.length}</TableCell>
-                        <TableCell className="hidden md:table-cell">{module.totalDuration}</TableCell>
-                        <TableCell className="hidden md:table-cell">{module.enrolledCount}</TableCell>
+                        <TableCell className="hidden md:table-cell">8 hours</TableCell>
+                        <TableCell className="hidden md:table-cell">24</TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -492,7 +314,7 @@ export default function ModulesConfiguration({ courseId }: { courseId: string } 
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredModules.filter((m) => m.status === "active").length === 0 ? (
+                  {filteredModules.filter((m) => m.name === "active").length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                         No active modules found.
@@ -500,27 +322,27 @@ export default function ModulesConfiguration({ courseId }: { courseId: string } 
                     </TableRow>
                   ) : (
                     filteredModules
-                      .filter((m) => m.status === "active")
+                      .filter((m) => m.name === "active")
                       .map((module) => (
                         <TableRow key={module.id}>
                           <TableCell>
                             <div className="flex items-center gap-3">
                               <div className="h-10 w-10 rounded overflow-hidden bg-gray-100 flex-shrink-0">
                                 <img
-                                  src={module.thumbnail || "/placeholder.svg"}
-                                  alt={module.title}
+                                  src={module.name || "/placeholder.svg"}
+                                  alt={module.name}
                                   className="h-full w-full object-cover"
                                 />
                               </div>
                               <div>
-                                <div className="font-medium">{module.title}</div>
+                                <div className="font-medium">{module.name}</div>
                                 <div className="text-sm text-muted-foreground line-clamp-1">{module.description}</div>
                               </div>
                             </div>
                           </TableCell>
                           <TableCell className="hidden md:table-cell">{module.sessions.length}</TableCell>
-                          <TableCell className="hidden md:table-cell">{module.totalDuration}</TableCell>
-                          <TableCell className="hidden md:table-cell">{module.enrolledCount}</TableCell>
+                          <TableCell className="hidden md:table-cell">8 hours</TableCell>
+                          <TableCell className="hidden md:table-cell">24</TableCell>
                           <TableCell className="text-right">
                             <Button
                               variant="ghost"
@@ -559,7 +381,7 @@ export default function ModulesConfiguration({ courseId }: { courseId: string } 
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredModules.filter((m) => m.status === "draft").length === 0 ? (
+                  {filteredModules.filter((m) => m.name === "draft").length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                         No draft modules found.
@@ -567,26 +389,26 @@ export default function ModulesConfiguration({ courseId }: { courseId: string } 
                     </TableRow>
                   ) : (
                     filteredModules
-                      .filter((m) => m.status === "draft")
+                      .filter((m) => m.name === "draft")
                       .map((module) => (
                         <TableRow key={module.id}>
                           <TableCell>
                             <div className="flex items-center gap-3">
                               <div className="h-10 w-10 rounded overflow-hidden bg-gray-100 flex-shrink-0">
                                 <img
-                                  src={module.thumbnail || "/placeholder.svg"}
-                                  alt={module.title}
+                                  src={module.name || "/placeholder.svg"}
+                                  alt={module.name}
                                   className="h-full w-full object-cover"
                                 />
                               </div>
                               <div>
-                                <div className="font-medium">{module.title}</div>
+                                <div className="font-medium">{module.name}</div>
                                 <div className="text-sm text-muted-foreground line-clamp-1">{module.description}</div>
                               </div>
                             </div>
                           </TableCell>
                           <TableCell className="hidden md:table-cell">{module.sessions.length}</TableCell>
-                          <TableCell className="hidden md:table-cell">{module.endDate}</TableCell>
+                          <TableCell className="hidden md:table-cell">Last day</TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
                               <Button
@@ -664,20 +486,18 @@ export default function ModulesConfiguration({ courseId }: { courseId: string } 
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="totalDuration">Total Duration</Label>
-                  <Input
-                    id="totalDuration"
-                    name="totalDuration"
-                    defaultValue={selectedModule?.totalDuration || "0 hours"}
-                    required
-                  />
-                </div>
+                <div className="space-y-2">
+                <Label htmlFor="image">Module Image</Label>
+                <Input
+                  id="image"
+                  name="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="endDate">End Date</Label>
-                <Input id="endDate" name="endDate" type="text" defaultValue={selectedModule?.endDate || ""} required />
               </div>
+              
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setIsModuleDialogOpen(false)}>

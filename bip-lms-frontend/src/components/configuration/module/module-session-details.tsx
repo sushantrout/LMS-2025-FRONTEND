@@ -16,6 +16,8 @@ import {
   import { Label } from "@/components/ui/label"
   import { Input } from "@/components/ui/input"
   import { Textarea } from "@/components/ui/textarea"
+import { moduleService } from '@/http/module-service';
+import { sessionService } from '@/http/session-service';
 export default function ModuleSessionDetails({ moduleId }: { moduleId: string }) {
     const router = useRouter();
     console.log("moduleId===>", moduleId);
@@ -25,37 +27,15 @@ export default function ModuleSessionDetails({ moduleId }: { moduleId: string })
     const [isDeleteSessionDialogOpen, setIsDeleteSessionDialogOpen] = useState(false)
   
     const [module, setModule] = useState<any>(null); // Replace `any` with your Module type
-  
     useEffect(() => {
-      // Simulate fetching module data
-      setModule({
-        id: moduleId,
-        title: 'Introduction to Programming',
-        description: 'Learn the basics of programming using Python.',
-        thumbnail: '',
-        status: 'published',
-        sessions: [
-          {
-            id: 's1',
-            title: 'Variables and Data Types',
-            description: 'Understanding basic types in Python.',
-            duration: '45 minutes',
-            instructor: 'Alice',
-            completed: false,
-          },
-          {
-            id: 's2',
-            title: 'Control Flow',
-            description: 'If, else and loops.',
-            duration: '1 hour',
-            instructor: 'Bob',
-            completed: true,
-          },
-        ],
-        enrolledCount: 25,
-        totalDuration: '4 hours',
-      });
+      if (moduleId) {
+        moduleService.getModuleById(moduleId).then((module) => {
+          setModule(module.data.data);
+        });
+      }
     }, [moduleId]);
+    
+
   
     if (!module) return <div className="p-6">Loading module...</div>;
     const handleSessionSubmit = (e) => {    

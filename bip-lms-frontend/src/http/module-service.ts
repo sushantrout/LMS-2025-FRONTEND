@@ -4,10 +4,10 @@ import { lmsService } from "./lms-service";
 const BASE_URL = "v1/module";
 
 export const moduleService = {
-  getCourseList(id: string) {
+  getModuleByCourseId(id: string) {
     return lmsService.get(`${BASE_URL}/course/${id}`);
   },
-  getSessionList(id: string) {
+  getModuleById(id: string) {
     return lmsService.get(`${BASE_URL}/${id}`);
   },
   createModule(data: any) {
