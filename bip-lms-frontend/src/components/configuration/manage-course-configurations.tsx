@@ -29,6 +29,7 @@ import { instructorService } from "@/http/instructors-service";
 import { MultiSelect } from "../ui/multi-select";
 
 export default function ManageCoursePage({ courseId }: { courseId: string }) {
+  console.log("courseId===>", courseId);
   const [course, setCourse] = useState<Course>({
     name: "",
     description: "",
@@ -166,18 +167,20 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
                   }
                 />
               </div>
-
-              <div className="flex justify-end">
-                <Button onClick={() => handleSaveCourse(course)}>
-                  Save Changes
-                </Button>
-              </div>
+              <div className="flex justify-end space-x-2">
+                      <Button variant="outline" onClick={() => router.push(`/configuration`)}>
+                          Back
+                      </Button>
+                      <Button onClick={() => handleSaveCourse(course)}>
+                          Save Changes
+                      </Button>
+</div>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="modules">
-          <ModulesConfiguration />
+          <ModulesConfiguration courseId={courseId} />
         </TabsContent>
       </Tabs>
     </div>
