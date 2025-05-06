@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SessionDialog } from "./module/session-dialog";
-import ModuleDialog from "./module/module-dialog";
 import { Edit, Paperclip } from "lucide-react";
 import { UploadNotesModal } from "./module/upload-notes";
 import { courseService } from "@/http/course-service";
@@ -27,6 +26,7 @@ import { Session } from "@/types/model/session-model";
 import QuillEditor from "../editor/quill/quill-editor";
 import { showSuccessToast } from "@/util/helpers/toast-helper";
 import { useRouter } from "next/navigation";
+import ModulesConfiguration from "./module/module-configuration";
 
 export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [course, setCourse] = useState<Course>({
@@ -149,130 +149,11 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
           </Card>
         </TabsContent>
 
-        {/* --- Manage Modules Tab --- */}
         <TabsContent value="modules">
-          <Card className="mt-4">
-            <CardContent className="pt-6 space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold">Modules</h2>
-
-                <ModuleDialog
-                  ref={moduleDialogRef}
-                  onClose={() => {}}
-                  onSave={handleSaveModule}
-                />
-              </div>
-
-              {/* Render each module and its sessions */}
-              {modules.map((module, index) => (
-                <ModuleCard
-                  key={module.id}
-                  module={module}
-                  index={index}
-                  onEdit={() => {
-                    moduleDialogRef.current.onOpen(module);
-                  }}
-                />
-              ))}
-            </CardContent>
-          </Card>
+          <ModulesConfiguration />
         </TabsContent>
       </Tabs>
 
-      {/* Upload Notes Modal */}
     </div>
   );
 }
-
-const ModuleCard = ({
-  module,
-  index,
-  onEdit,
-}: {
-  module: Module;
-  index: number;
-  onEdit: (module) => void;
-}) => {
-  const [isSessionDialogOpen, setSessionDialogOpen] = useState(false);
-  const handleSaveSession = (session: Session) => {
-    session.moduleId = module?.id;
-    sessionService.createSession(session).then((session) => {
-      setSessionDialogOpen(false);
-    });
-  };
-  return (
-    <div className="border rounded p-4 space-y-3">
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2">
-          <h3 className="font-medium">
-            {" "}
-            Module {index + 1}: {module.name}
-          </h3>
-          <Edit onClick={() => onEdit(module)} />
-        </div>
-        <Button
-          onClick={() => {
-            setSessionDialogOpen(true);
-          }}
-          variant="default"
-        >
-          Add New Session
-        </Button>
-        <SessionDialog
-          open={isSessionDialogOpen}
-          onClose={() => setSessionDialogOpen(false)}
-          onSave={(session) => handleSaveSession(session)}
-        />
-      </div>
-
-      {Array.isArray(module.sessions) && module.sessions.length > 0 ? (
-        <SessionCard module={module} />
-      ) : (
-        <p className="text-sm text-muted-foreground">No sessions yet.</p>
-      )}
-    </div>
-  );
-};
-
-const SessionCard = ({ module }: { module: Module }) => {
-  return (
-    <>
-      <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-        {module.sessions.map((session) => (
-          <SessionComponent key={session.id} session={session} />
-        ))}
-      </ul>
-    </>
-  );
-};
-
-const SessionComponent = ({ session }: { session: Session }) => {
-  const [isUploadNotesModalOpen, setUploadNotesModalOpen] = useState(false);
-  const handleUploadNotes = (file: File | null) => {
-    if (file) {
-      console.log("Notes Uploaded for session:", session, file);
-    } else {
-      console.log("Notes removed for session:", session);
-    }
-    setUploadNotesModalOpen(false);
-  };
-  return (
-    <>
-      <UploadNotesModal
-        open={isUploadNotesModalOpen}
-        sessionName={session?.name}
-        onClose={() => setUploadNotesModalOpen(false)}
-        onSave={handleUploadNotes}
-      />
-      <li key={session.id} className="flex justify-between items-center">
-        <span>{session.name}</span>
-        <Paperclip
-          className="cursor-pointer text-muted-foreground"
-          onClick={() => {
-            setUploadNotesModalOpen(true);
-          }}
-        />
-      </li>
-    </>
-  );
-};
