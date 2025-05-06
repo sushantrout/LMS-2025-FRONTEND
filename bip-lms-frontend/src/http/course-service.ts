@@ -10,8 +10,7 @@ export const courseService = {
     return lmsService.get(`${BASE_URL}/${id}`);
   },
   createCourse(data: any) {
-    debugger
-    return lmsService.post(`${BASE_URL}`, data);
+    return lmsService.post(`${BASE_URL}/save-with-attachment`, data);
   },
   updateCourse(id: string, data: any) {
     return lmsService.put(`${BASE_URL}/${id}`, data);

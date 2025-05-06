@@ -16,7 +16,7 @@ export default function CourseCard({
     <div className="flex flex-col overflow-hidden rounded-lg border bg-card text-card-foreground">
       <div className="relative">
         <img
-          src="/images/course/course-cover.avif"
+          src={course.coverImage ? `data:${course?.coverImage?.contentType};base64,${course?.coverImage?.imageInByteArray}` : "/images/course/course-cover.avif"}
           alt={course.name}
           className="aspect-video w-full object-cover"
         />

@@ -24,15 +24,15 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import QuillEditor from "@/components/editor/quill/quill-editor";
 import { User } from "@/types/model/user-model";
 
-
 export default function CourseCatalog() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [courseCategories, setCourseCategories] = useState<Category[]>([]);
   const [formVisible, setFormVisible] = useState(false);
   const [formData, setFormData] = useState<Course>(initialFormData);
-  const[instructors, setInstructors] = useState<User[]>([]);
+  const [instructors, setInstructors] = useState<User[]>([]);
+  const [file, setFile] = useState<File | null>(null);
 
-  const getCourses = ()=> {
+  const getCourses = () => {
     courseService.getCourseList().then((res) => {
       setCourses(res?.data?.data);
     });
@@ -46,11 +46,10 @@ export default function CourseCatalog() {
 
   const getInstructors = () => {
     instructorService.getUserList().then((instructor) => {
-            const instructorList = instructor.data?.data?.data || [];
-            setInstructors(instructorList);
-          }
-    );
-  }
+      const instructorList = instructor.data?.data?.data || [];
+      setInstructors(instructorList);
+    });
+  };
 
   useEffect(() => {
     getCourses();
@@ -66,33 +65,37 @@ export default function CourseCatalog() {
   };
 
   const handleCategoryChange = (value: string) => {
-    const category = value? {id: value} : null;
-    setFormData((prev) => ({ ...prev, category: category}));
+    const category = value ? { id: value } : null;
+    setFormData((prev) => ({ ...prev, category: category }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    courseService.createCourse(formData).then((res) => {
-      console.log(res);
+
+    const multipartForm = new FormData();
+    if (file) {
+      multipartForm.append("file", file);
+    }
+    multipartForm.append("formData", new Blob([JSON.stringify(formData)], { type: "application/json" }));
+
+    try {
+      const res = await courseService.createCourse(multipartForm);
       showSuccessToast("Course created successfully!");
-      setCourses((prev) => [formData, ...prev]);
+      setCourses((prev) => [res.data.data, ...prev]);
       setFormVisible(false);
       setFormData(initialFormData);
-    }).catch(error => {
+      setFile(null);
+    } catch (error) {
       console.error("Error creating course:", error);
-      showErrorToast("Failed to create course. Please try Again.");
-    });
+      showErrorToast("Failed to create course. Please try again.");
+    }
   };
 
   return (
     <div className="min-h-screen bg-background">
       <main className="container px-4 space-y-4">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-2">
-              Course Catalog
-            </h1>
-          </div>
+          <h1 className="text-3xl font-bold tracking-tight mb-2">Course Catalog</h1>
           <Button onClick={() => setFormVisible((prev) => !prev)}>
             {formVisible ? "Cancel" : "Create Course"}
           </Button>
@@ -107,7 +110,7 @@ export default function CourseCatalog() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
+                <Label htmlFor="name">Title</Label>
                 <Input
                   id="name"
                   name="name"
@@ -128,7 +131,7 @@ export default function CourseCatalog() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="rating">Rating</Label>
+                <Label htmlFor="maxRating">Rating</Label>
                 <Input
                   id="maxRating"
                   name="maxRating"
@@ -158,41 +161,49 @@ export default function CourseCatalog() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Instructers</Label>
+                <Label>Instructors</Label>
                 <MultiSelect
                   options={instructors}
                   values={formData.instructors}
                   optionLabel="fullName"
                   optionValue="id"
                   placeholder="Select instructors"
-                  onChange={(values) => setFormData((prev) => ({ ...prev, instructors: values }))}
+                  onChange={(values) =>
+                    setFormData((prev) => ({ ...prev, instructors: values }))
+                  }
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="image">Image URL</Label>
+                <Label htmlFor="image">Course Image</Label>
                 <Input
                   id="image"
                   name="image"
-                  value={formData.image}
-                  onChange={handleChange}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label>Description</Label>
-              <QuillEditor className="" theme="snow" value={formData.description} onChange={(e) =>
+              <QuillEditor
+                className=""
+                theme="snow"
+                value={formData.description}
+                onChange={(e) =>
                   setFormData((prevCourse) => ({
                     ...prevCourse,
                     description: e,
                   }))
-                } />
+                }
+              />
             </div>
 
             <div className="space-y-2">
-            <Button type="submit" className="w-full">
-              Create Course
-            </Button>
+              <Button type="submit" className="w-full">
+                Create Course
+              </Button>
             </div>
           </form>
         )}
@@ -228,5 +239,3 @@ function CourseGrid({ courses }: { courses: Course[] }) {
     </div>
   );
 }
-
-

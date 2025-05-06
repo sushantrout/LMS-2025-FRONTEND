@@ -8,4 +8,5 @@ export type Attachment = {
   attachmentType?: string;
   thumbnailUrl?: string;
   thumbnailContentType?: string;
+  imageInByteArray?: string;
 };

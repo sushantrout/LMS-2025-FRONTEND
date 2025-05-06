@@ -1,3 +1,4 @@
+import { Attachment } from "./attachment-model";
 import { Category } from "./category-model";
 import { User } from "./user-model";
 
@@ -13,7 +14,7 @@ export type Course = MasterData &  {
     assgnments?: any[],
     pricing?: any,
     comments?: any[],
-    image?: string,
+    coverImage?: Attachment,
     instructors?: User[]
 }
 
