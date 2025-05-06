@@ -5,32 +5,17 @@ import { useState, useRef, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usersService } from "@/http/user-service";
 import { showErrorToast, showSuccessToast } from "@/util/helpers/toast-helper";
 import { roleService } from "@/http/role-service";
-import { userDefaultValues, userFormSchema, UserFormValues } from "@/types/model/user-model";
+import {
+  userDefaultValues,
+  userFormSchema,
+  UserFormValues,
+} from "@/types/model/user-model";
 import UserFormComponent from "@/components/users/user-from";
 import UserList from "@/components/users/users-list";
-
-
 
 export default function UsersPage() {
   const [roles, setRoles] = useState([]);
@@ -43,19 +28,18 @@ export default function UsersPage() {
     roleService
       .getApplicationRoles()
       .then((response) => {
-        debugger
+        debugger;
         setRoles(response.data?.data || []);
       })
       .catch((error) => {
         console.error("Error fetching roles:", error);
         showErrorToast("Error fetching roles");
       });
-  }
+  };
 
   useEffect(() => {
     getUserRoles();
   }, []);
-
 
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userFormSchema),
@@ -114,40 +98,13 @@ export default function UsersPage() {
     <div className="container py-4 px-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">User Management</h1>
-        <Button variant="default" className="bg-blue-600 hover:bg-blue-700">
-          Back
-        </Button>
       </div>
-
-      <Tabs defaultValue="create" className="w-full">
-        <TabsList>
-          <TabsTrigger value="create">Create User</TabsTrigger>
-          <TabsTrigger value="list">User List</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="create">
-          <Card>
-            <CardHeader>
-              <CardTitle>Create New User</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <UserFormComponent studentFrom={form} roles={roles} onSubmit={onSubmit}></UserFormComponent>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="list">
-          <Card>
-            <CardHeader>
-              <CardTitle>User List</CardTitle>
-            </CardHeader>
-            <CardContent>
-              
-              <UserList/>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <UserList />
+      <UserFormComponent
+        studentFrom={form}
+        roles={roles}
+        onSubmit={onSubmit}
+      ></UserFormComponent>
     </div>
   );
 }
