@@ -14,6 +14,7 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
+  UsersIcon,
 } from "lucide-react"
 
 import { NavMain } from "@/components/layouts/nav-main"
@@ -77,6 +78,25 @@ const data = {
       title: "Courses",
       url: "/courses",
       icon: BookAIcon,
+      items: [
+        {
+          title: "Genesis",
+          url: "#",
+        },
+        {
+          title: "Explorer",
+          url: "#",
+        },
+        {
+          title: "Quantum",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Users",
+      url: "/users",
+      icon: UsersIcon,
       items: [
         {
           title: "Genesis",

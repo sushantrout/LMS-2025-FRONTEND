@@ -87,7 +87,10 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
 
   return (
     <div className="container py-4 px-4">
-      <h1 className="text-2xl font-bold mb-4">Manage Course: {course.name}</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Manage Course: {course.name}</h1>
+        <Button variant="default" onClick={() => router.push("/configuration")}>Back</Button>
+      </div>
 
       <Tabs defaultValue="course" className="w-full">
         <TabsList>
