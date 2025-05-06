@@ -6,9 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SessionDialog } from "./module/session-dialog";
-import { Edit, Paperclip } from "lucide-react";
-import { UploadNotesModal } from "./module/upload-notes";
 import { courseService } from "@/http/course-service";
 import { courseCategoryService } from "@/http/course-catagory-service";
 import { Course } from "@/types/model/course-model";
@@ -27,6 +24,8 @@ import QuillEditor from "../editor/quill/quill-editor";
 import { showSuccessToast } from "@/util/helpers/toast-helper";
 import { useRouter } from "next/navigation";
 import ModulesConfiguration from "./module/module-configuration";
+import { User } from "@/types/model/user-model";
+import { instructorService } from "@/http/instructors-service";
 
 export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [course, setCourse] = useState<Course>({
@@ -41,6 +40,8 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [categories, setCategories] = useState<{ id: string; name: string }[]>(
     []
   );
+  const[instructor, setInstructor] = useState<User[]>([]);
+
   const moduleDialogRef = useRef<any>(null);
   const router = useRouter();
 
@@ -55,6 +56,11 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
       moduleService.getCourseList(courseId).then(async (modules) => {
         const moduleList = modules.data?.data || [];
         setModules(moduleList);
+      });
+
+      instructorService.getUserList().then((instructor) => {
+        const instructorList = instructor.data?.data || [];
+        setInstructor(instructorList);
       });
     }
   }, [courseId]);
@@ -128,6 +134,31 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
                     </SelectContent>
                   </Select>
                 </div>
+
+                <div className="w-3/12">
+                  <Label>Category</Label>
+                  <Select
+                    value={course?.category?.id}
+                    onValueChange={(value) => {
+                      setCourse((prevCourse) => ({
+                        ...prevCourse,
+                        category: { id: value },
+                      }));
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
               </div>
 
               <div>
