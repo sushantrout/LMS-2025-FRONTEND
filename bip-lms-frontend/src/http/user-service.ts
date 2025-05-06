@@ -19,8 +19,11 @@ export const usersService = {
     return lmsService.delete(`${BASE_URL}/delete/${id}`);
   },
 
-  updateApplicationUserProfilePicture(id: string, data: any) {
-    return lmsService.put(`${BASE_URL}/${id}`, data);
-  }
-
+  updateApplicationUserProfilePicture(id: string, file: any) {
+    //cretaet form dat for file upload
+    const data = new FormData();
+    data.append("file", file);
+    //send file to server
+    return lmsService.put(`${BASE_URL}/${id}/profile-photo`, data);
+  },
 };

@@ -76,8 +76,6 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
   };
 
   const handleSaveCourse = (course: Course) => {
-    debugger;
-    console.log("Course Saved", course);
     courseService.updateCourse(course.id, course).then((course) => {
       showSuccessToast("Course updated successfully");
       router.push(`/configuration`);

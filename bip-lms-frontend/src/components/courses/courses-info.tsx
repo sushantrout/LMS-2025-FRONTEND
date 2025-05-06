@@ -149,7 +149,7 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                     <div className="flex flex-col md:flex-row gap-6 items-start mb-6">
                       <Avatar className="h-24 w-24">
                         <AvatarImage
-                          src="/placeholder.svg"
+                          src={instructor?.profilePicture ? `data:${instructor?.profilePicture?.contentType};base64,${instructor?.profilePicture?.imageInByteArray}` : "/images/course/course-cover.avif"}
                           alt={instructor?.fullName}
                         />
                         <AvatarFallback>

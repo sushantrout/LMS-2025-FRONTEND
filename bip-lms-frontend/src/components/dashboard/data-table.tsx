@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   DndContext,
   KeyboardSensor,
@@ -11,15 +11,15 @@ import {
   useSensors,
   type DragEndEvent,
   type UniqueIdentifier,
-} from "@dnd-kit/core"
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
+} from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
   SortableContext,
   arrayMove,
   useSortable,
   verticalListSortingStrategy,
-} from "@dnd-kit/sortable"
-import { CSS } from "@dnd-kit/utilities"
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -34,7 +34,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -46,20 +46,20 @@ import {
   MoreVerticalIcon,
   PlusIcon,
   TrendingUpIcon,
-} from "lucide-react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
-import { z } from "zod"
+} from "lucide-react";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { z } from "zod";
 
-import { useIsMobile } from "@/hooks/use-mobile"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
-import { Checkbox } from "@/components/ui/checkbox"
+} from "@/components/ui/chart";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -67,17 +67,17 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetClose,
@@ -87,7 +87,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
+} from "@/components/ui/sheet";
 import {
   Table,
   TableBody,
@@ -95,16 +95,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
-import { showInfoToast } from "@/util/helpers/toast-helper"
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { showInfoToast } from "@/util/helpers/toast-helper";
 
-import FileUploadModal from "../users/users-upload"
+import FileUploadModal from "../users/users-upload";
+import { usersService } from "@/http/user-service";
 
 export const schema = z.object({
   id: z.union([z.number(), z.string()]),
@@ -129,12 +125,12 @@ export const schema = z.object({
       name: z.string().optional(),
     })
     .optional(),
-})
+});
 
 function DragHandle({ id }: { id: number | string }) {
   const { attributes, listeners } = useSortable({
     id: id.toString(),
-  })
+  });
 
   return (
     <Button
@@ -147,7 +143,7 @@ function DragHandle({ id }: { id: number | string }) {
       <GripVerticalIcon className="size-3 text-muted-foreground" />
       <span className="sr-only">Drag to reorder</span>
     </Button>
-  )
+  );
 }
 
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
@@ -194,9 +190,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     accessorKey: "email",
     header: "Email",
     cell: ({ row }) => (
-      <div>
-        {row.original.target || row.original.email || ""}
-      </div>
+      <div>{row.original.target || row.original.email || ""}</div>
     ),
   },
   {
@@ -204,7 +198,10 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     header: "Full Name",
     cell: ({ row }) => (
       <div>
-        {row.original.limit || (row.original.firstName && row.original.lastName ? `${row.original.firstName} ${row.original.lastName}` : "")}
+        {row.original.limit ||
+          (row.original.firstName && row.original.lastName
+            ? `${row.original.firstName} ${row.original.lastName}`
+            : "")}
       </div>
     ),
   },
@@ -212,30 +209,22 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     accessorKey: "phoneNumber",
     header: "Phone Number",
     cell: ({ row }) => (
-      <div>
-        {row.original.reviewer || row.original.phoneNumber || ""}
-      </div>
+      <div>{row.original.reviewer || row.original.phoneNumber || ""}</div>
     ),
   },
   {
     accessorKey: "address",
     header: "Address",
-    cell: ({ row }) => (
-      <div>
-        {row.original.address || ""}
-      </div>
-    ),
+    cell: ({ row }) => <div>{row.original.address || ""}</div>,
   },
   {
     accessorKey: "location",
     header: "Location",
     cell: ({ row }) => (
       <div>
-        {[
-          row.original.city, 
-          row.original.state, 
-          row.original.country
-        ].filter(Boolean).join(", ")}
+        {[row.original.city, row.original.state, row.original.country]
+          .filter(Boolean)
+          .join(", ")}
       </div>
     ),
   },
@@ -244,7 +233,10 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     header: "Role",
     cell: ({ row }) => (
       <div>
-        {row.original.type || (row.original.applicationRole ? row.original.applicationRole.name : "")}
+        {row.original.type ||
+          (row.original.applicationRole
+            ? row.original.applicationRole.name
+            : "")}
       </div>
     ),
   },
@@ -272,12 +264,12 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
       </DropdownMenu>
     ),
   },
-]
+];
 
 function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: row.original.id,
-  })
+  });
 
   return (
     <TableRow
@@ -296,81 +288,87 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
         </TableCell>
       ))}
     </TableRow>
-  )
+  );
 }
-
 
 export function DataTable({
   data: initialData,
 }: {
-  data: z.infer<typeof schema>[]
+  data: z.infer<typeof schema>[];
 }) {
-  const [data, setData] = React.useState(() => initialData)
-  const [rowSelection, setRowSelection] = React.useState({})
+  const [data, setData] = React.useState(() => initialData);
+  const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
+    React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
-  )
-  const [sorting, setSorting] = React.useState<SortingState>([])
+  );
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
-  })
+  });
   const [uploadModalOpen, setUploadModalOpen] = React.useState(false);
-  const [selectedUserId, setSelectedUserId] = React.useState<string | number | null>(null);
-  const sortableId = React.useId()
+  const [selectedUserId, setSelectedUserId] = React.useState<
+    string | number | null
+  >(null);
+  const sortableId = React.useId();
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
     useSensor(TouchSensor, {}),
     useSensor(KeyboardSensor, {})
-  )
+  );
 
   const dataIds = React.useMemo<UniqueIdentifier[]>(
     () => data?.map(({ id }) => id) || [],
     [data]
-  )
+  );
 
-  const columnsWithUpdatedActions = [...columns.filter(col => col.id !== 'actions'), {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => (
-      <>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
-              size="icon"
-            >
-              <MoreVerticalIcon />
-              <span className="sr-only">Open menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-32">
-            <DropdownMenuItem onClick={() => {
-              setSelectedUserId(row.original.id);
-              setUploadModalOpen(true);
-            }}>
-              Upload
-            </DropdownMenuItem>
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Delete</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        
-        {selectedUserId === row.original.id && (
-          <FileUploadModal
-            isOpen={uploadModalOpen}
-            onClose={() => setUploadModalOpen(false)}
-            onSave={handleFileUpload}
-            userId={row.original.id}
-          />
-        )}
-      </>
-    ),
-  }];
+  const columnsWithUpdatedActions = [
+    ...columns.filter((col) => col.id !== "actions"),
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
+                size="icon"
+              >
+                <MoreVerticalIcon />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-32">
+              <DropdownMenuItem
+                onClick={() => {
+                  setSelectedUserId(row.original.id);
+                  setUploadModalOpen(true);
+                }}
+              >
+                Upload
+              </DropdownMenuItem>
+              <DropdownMenuItem>Edit</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Delete</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {selectedUserId === row.original.id && (
+            <FileUploadModal
+              isOpen={uploadModalOpen}
+              onClose={() => setUploadModalOpen(false)}
+              onSave={handleFileUpload}
+              userId={row.original.id}
+            />
+          )}
+        </>
+      ),
+    },
+  ];
 
   const table = useReactTable({
     data,
@@ -395,23 +393,28 @@ export function DataTable({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-  })
+  });
 
   function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event
+    const { active, over } = event;
     if (active && over && active.id !== over.id) {
       setData((data) => {
-        const oldIndex = dataIds.indexOf(active.id)
-        const newIndex = dataIds.indexOf(over.id)
-        return arrayMove(data, oldIndex, newIndex)
-      })
+        const oldIndex = dataIds.indexOf(active.id);
+        const newIndex = dataIds.indexOf(over.id);
+        return arrayMove(data, oldIndex, newIndex);
+      });
     }
   }
 
   const handleFileUpload = (userId: string | number, file: File) => {
-    debugger;
-    console.log(`Uploading file ${file.name} for user ${userId}`);
-    showInfoToast(`File ${file.name} uploaded successfully`, 2000);
+    usersService
+      .updateApplicationUserProfilePicture(userId.toString(), file)
+      .then(() => {
+        setUploadModalOpen(false);
+      })
+      .catch((error) => {
+        console.error("Error uploading file:", error);
+      });
   };
 
   return (
@@ -489,7 +492,7 @@ export function DataTable({
                     >
                       {column.id}
                     </DropdownMenuCheckboxItem>
-                  )
+                  );
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -525,7 +528,7 @@ export function DataTable({
                                 header.getContext()
                               )}
                         </TableHead>
-                      )
+                      );
                     })}
                   </TableRow>
                 ))}
@@ -567,7 +570,7 @@ export function DataTable({
               <Select
                 value={`${table.getState().pagination.pageSize}`}
                 onValueChange={(value) => {
-                  table.setPageSize(Number(value))
+                  table.setPageSize(Number(value));
                 }}
               >
                 <SelectTrigger className="w-20" id="rows-per-page">
@@ -648,7 +651,7 @@ export function DataTable({
         <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
       </TabsContent>
     </Tabs>
-  )
+  );
 }
 
 const chartData = [
@@ -658,7 +661,7 @@ const chartData = [
   { month: "April", desktop: 73, mobile: 190 },
   { month: "May", desktop: 209, mobile: 130 },
   { month: "June", desktop: 214, mobile: 140 },
-]
+];
 
 const chartConfig = {
   desktop: {
@@ -669,10 +672,10 @@ const chartConfig = {
     label: "Mobile",
     color: "var(--primary)",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
-  const isMobile = useIsMobile()
+  const isMobile = useIsMobile();
 
   return (
     <Sheet>
@@ -829,5 +832,5 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
         </SheetFooter>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

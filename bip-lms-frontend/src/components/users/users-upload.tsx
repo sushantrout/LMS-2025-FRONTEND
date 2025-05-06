@@ -33,8 +33,6 @@ export default function FileUploadModal({
   
     const handleSave = () => {
       if (selectedFile) {
-        debugger;
-        // api call for upload file
         onSave(userId, selectedFile);
         handleClose();
       }

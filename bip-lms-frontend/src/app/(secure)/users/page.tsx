@@ -28,7 +28,6 @@ export default function UsersPage() {
     roleService
       .getApplicationRoles()
       .then((response) => {
-        debugger;
         setRoles(response.data?.data || []);
       })
       .catch((error) => {
