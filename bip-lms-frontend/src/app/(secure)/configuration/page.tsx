@@ -92,9 +92,6 @@ export default function CourseCatalog() {
             <h1 className="text-3xl font-bold tracking-tight mb-2">
               Course Catalog
             </h1>
-            <p className="text-muted-foreground">
-              Discover and enroll in training courses to develop your skills
-            </p>
           </div>
           <Button onClick={() => setFormVisible((prev) => !prev)}>
             {formVisible ? "Cancel" : "Create Course"}
