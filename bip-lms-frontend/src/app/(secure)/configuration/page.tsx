@@ -130,18 +130,6 @@ export default function CourseCatalog() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="maxRating">Rating</Label>
-                <Input
-                  id="maxRating"
-                  name="maxRating"
-                  type="number"
-                  step="0.1"
-                  value={formData.maxRating}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
                 <Label>Category</Label>
                 <Select
                   onValueChange={handleCategoryChange}

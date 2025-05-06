@@ -86,7 +86,7 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
           <div className="flex flex-wrap items-center gap-4 text-white mb-3">
             <div className="flex items-center gap-1 p-4">
               <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
-              <span className="font-medium">5.0</span>
+              <span className="font-medium">{courseOverView.rating}</span>
             </div>
             <div className="flex items-center gap-1">
               <Users className="h-5 w-5" />

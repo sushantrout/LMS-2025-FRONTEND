@@ -13,4 +13,5 @@ export type CourseOverView = MasterData & {
     lessons:any;
     instructors:User[];
     coverImage: Attachment;
+    rating:number;
   };

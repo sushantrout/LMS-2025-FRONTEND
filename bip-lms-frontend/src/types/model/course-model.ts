@@ -7,7 +7,7 @@ export type Course = MasterData &  {
     category ?: Category,
     courseType ?: string,
     noOfModule?: number,
-    maxRating ?: number
+    rating ?: number
     duration ?: string,
     lessons ?: string,
     modules?: any[],
@@ -23,7 +23,6 @@ export const initialFormData: Course = {
     description: "",
     category: null,
     courseType: "FREE",
-    maxRating: 0,
     duration: "",
     lessons: "",
     pricing: null,

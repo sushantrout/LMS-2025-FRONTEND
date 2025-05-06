@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label"
 import QuillEditor from "@/components/editor/quill/quill-editor"
 import { useRouter } from "next/navigation"
 import { courseService } from "@/http/course-service"
+import { Course } from "@/types/model/course-model"
 
 // Mock data for modules
 const initialModules = [
@@ -190,7 +191,6 @@ export default function ModulesConfiguration({ courseId }: { courseId: string } 
     category: null,
     courseType: "",
     noOfModule: 0,
-    maxRating: 0,
     instructors: [],
   });
   // Filter modules based on search query and status filter

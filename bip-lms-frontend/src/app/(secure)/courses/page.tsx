@@ -56,7 +56,7 @@ export default function CourseCatalog() {
           <TabsContent value="popular">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-2">
               {courseList
-                .filter((c) => c.maxRating > 4.5)
+                .filter((c) => c.rating > 4.5)
                 .map((course) => (
                   <CourseCard key={course.id} course={course} type="configuration" />
                 ))}

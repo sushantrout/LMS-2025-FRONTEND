@@ -35,7 +35,7 @@ export default function CourseCard({
         <div className="flex items-center justify-between mb-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-1.5">
           <div className="flex">
-              <RatingStar rating={course.maxRating} />
+              <RatingStar rating={course.rating} />
             </div>
           </div>
           <div className="flex items-center text-yellow-500 font-medium gap-1">

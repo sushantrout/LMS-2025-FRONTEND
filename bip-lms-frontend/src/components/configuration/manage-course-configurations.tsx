@@ -36,7 +36,6 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
     category: null,
     courseType: "",
     noOfModule: 0,
-    maxRating: 0,
     instructors: [],
   });
   const [modules, setModules] = useState<Module[]>([]);
