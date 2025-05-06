@@ -73,7 +73,7 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
       </div>
 
       {/* Course Content */}
-      <div className="container px-4 py-1">
+      <div className="container px-4 py-1 font-sans text-sm">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
