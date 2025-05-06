@@ -13,6 +13,7 @@ export type Course = MasterData &  {
     pricing?: any,
     comments?: any[],
     image?: string,
+    instructors?: User[],
 }
 
 export const initialFormData: Course = {
@@ -24,4 +25,5 @@ export const initialFormData: Course = {
     duration: "",
     lessons: "",
     pricing: null,
+    instructors: [],
   }

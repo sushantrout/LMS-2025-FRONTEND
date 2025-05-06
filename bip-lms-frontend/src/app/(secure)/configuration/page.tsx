@@ -19,6 +19,9 @@ import { courseCategoryService } from "@/http/course-category-service";
 import { Category } from "@/types/model/category-model";
 import CourseCard from "@/components/courses/course-card";
 import { showErrorToast, showSuccessToast } from "@/util/helpers/toast-helper";
+import { instructorService } from "@/http/instructors-service";
+import { MultiSelect } from "@/components/ui/multi-select";
+import QuillEditor from "@/components/editor/quill/quill-editor";
 
 
 export default function CourseCatalog() {
@@ -26,6 +29,7 @@ export default function CourseCatalog() {
   const [courseCategories, setCourseCategories] = useState<Category[]>([]);
   const [formVisible, setFormVisible] = useState(false);
   const [formData, setFormData] = useState<Course>(initialFormData);
+  const[instructors, setInstructors] = useState<User[]>([]);
 
   const getCourses = ()=> {
     courseService.getCourseList().then((res) => {
@@ -39,9 +43,18 @@ export default function CourseCatalog() {
     });
   };
 
+  const getInstructors = () => {
+    instructorService.getUserList().then((instructor) => {
+            const instructorList = instructor.data?.data?.data || [];
+            setInstructors(instructorList);
+          }
+    );
+  }
+
   useEffect(() => {
     getCourses();
     getCourseCategory();
+    getInstructors();
   }, []);
 
   const handleChange = (
@@ -110,6 +123,7 @@ export default function CourseCatalog() {
                 <Input
                   id="duration"
                   name="duration"
+                  type="number"
                   value={formData.duration}
                   onChange={handleChange}
                   required
@@ -146,6 +160,17 @@ export default function CourseCatalog() {
                 </Select>
               </div>
               <div className="space-y-2">
+                <Label>Instructers</Label>
+                <MultiSelect
+                  options={instructors}
+                  values={formData.instructors}
+                  optionLabel="fullName"
+                  optionValue="id"
+                  placeholder="Select instructors"
+                  onChange={(values) => setFormData((prev) => ({ ...prev, instructors: values }))}
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="image">Image URL</Label>
                 <Input
                   id="image"
@@ -157,19 +182,20 @@ export default function CourseCatalog() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                required
-              />
+              <Label>Description</Label>
+              <QuillEditor className="" theme="snow" value={formData.description} onChange={(e) =>
+                  setFormData((prevCourse) => ({
+                    ...prevCourse,
+                    description: e,
+                  }))
+                } />
             </div>
 
+            <div className="space-y-2">
             <Button type="submit" className="w-full">
               Create Course
             </Button>
+            </div>
           </form>
         )}
 
