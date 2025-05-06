@@ -22,6 +22,7 @@ import { showErrorToast, showSuccessToast } from "@/util/helpers/toast-helper";
 import { instructorService } from "@/http/instructors-service";
 import { MultiSelect } from "@/components/ui/multi-select";
 import QuillEditor from "@/components/editor/quill/quill-editor";
+import { User } from "@/types/model/user-model";
 
 
 export default function CourseCatalog() {

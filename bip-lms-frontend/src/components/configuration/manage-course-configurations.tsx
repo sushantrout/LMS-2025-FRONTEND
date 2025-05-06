@@ -26,21 +26,23 @@ import { useRouter } from "next/navigation";
 import ModulesConfiguration from "./module/module-configuration";
 import { User } from "@/types/model/user-model";
 import { instructorService } from "@/http/instructors-service";
+import { MultiSelect } from "../ui/multi-select";
 
 export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [course, setCourse] = useState<Course>({
-    name:"",
+    name: "",
     description: "",
     category: null,
     courseType: "",
     noOfModule: 0,
     maxRating: 0,
+    instructors: [],
   });
   const [modules, setModules] = useState<Module[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>(
     []
   );
-  const[instructor, setInstructor] = useState<User[]>([]);
+  const [instructors, setInstructors] = useState<User[]>([]);
 
   const moduleDialogRef = useRef<any>(null);
   const router = useRouter();
@@ -59,16 +61,16 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
       });
 
       instructorService.getUserList().then((instructor) => {
-        const instructorList = instructor.data?.data || [];
-        setInstructor(instructorList);
+        const instructorList = instructor.data?.data?.data || [];
+        setInstructors(instructorList);
       });
     }
   }, [courseId]);
 
   const handleSaveModule = (data: Module) => {
-    console.log("data===>", data)
+    console.log("data===>", data);
     data.course = course;
-    console.log("module===>", module)
+    console.log("module===>", module);
     moduleService.createModule(data).then((module) => {
       moduleDialogRef.current.onClose();
     });
@@ -136,39 +138,32 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
                 </div>
 
                 <div className="w-3/12">
-                  <Label>Category</Label>
-                  <Select
-                    value={course?.category?.id}
-                    onValueChange={(value) => {
-                      setCourse((prevCourse) => ({
-                        ...prevCourse,
-                        category: { id: value },
-                      }));
-                    }}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id}>
-                          {cat.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label>Instructers</Label>
+                  <MultiSelect
+                    options={instructors}
+                    values={course.instructors}
+                    optionLabel="fullName"
+                    optionValue="id"
+                    placeholder="Select instructors"
+                    onChange={(values) =>
+                      setCourse((prev) => ({ ...prev, instructors: values }))
+                    }
+                  />
                 </div>
-                
               </div>
 
               <div>
                 <Label>Description</Label>
-                <QuillEditor theme="snow" value={course.description} onChange={(e) =>
+                <QuillEditor
+                  theme="snow"
+                  value={course.description}
+                  onChange={(e) =>
                     setCourse((prevCourse) => ({
                       ...prevCourse,
                       description: e,
                     }))
-                  } />
+                  }
+                />
               </div>
 
               <div className="flex justify-end">
@@ -184,7 +179,6 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
           <ModulesConfiguration />
         </TabsContent>
       </Tabs>
-
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { Attachment } from "./attachment-model";
 import { ModuleOverview } from "./module-overview-model";
+import { User } from "./user-model";
 
 
 export type CourseOverView = MasterData & {
@@ -10,4 +11,5 @@ export type CourseOverView = MasterData & {
     modules: ModuleOverview[];
     duration:any;
     lessons:any;
+    instructors:User[];
   };

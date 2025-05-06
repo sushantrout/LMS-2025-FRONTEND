@@ -1,4 +1,5 @@
 import { Category } from "./category-model";
+import { User } from "./user-model";
 
 export type Course = MasterData &  {
     description?: any,
@@ -13,7 +14,7 @@ export type Course = MasterData &  {
     pricing?: any,
     comments?: any[],
     image?: string,
-    instructors?: User[],
+    instructors?: User[]
 }
 
 export const initialFormData: Course = {
@@ -25,5 +26,5 @@ export const initialFormData: Course = {
     duration: "",
     lessons: "",
     pricing: null,
-    instructors: [],
+    instructors: []
   }

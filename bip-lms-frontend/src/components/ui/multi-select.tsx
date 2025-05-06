@@ -4,7 +4,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface MultiSelectProps<T> {
   options: T[];

@@ -2,7 +2,7 @@ import { Attachment } from "./attachment-model";
 import { Role } from "./role-model";
 
 export type User = {
-    id: string;
+  id: string;
   username: string;
   password: string;
   email: string;
@@ -16,4 +16,5 @@ export type User = {
   zipCode: string;
   applicationRole: Role;
   profilePicture: Attachment;
+  fullName: string;
 }

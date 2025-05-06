@@ -1,5 +1,5 @@
 "use client";
-import { ArrowLeft, Clock, Star, Users} from "lucide-react";
+import { ArrowLeft, Book, BookAIcon, BookCopy, Clock, Star, Users } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -29,43 +29,41 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
   return (
     <div className="min-h-screen bg-background">
       <div className="relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30 z-10" />
-      <img
-        src={"/images/course/course-cover.avif?height=400&width=1200"}
-        alt={courseOverView?.courseName}
-        className="w-full h-[200px] md:h-[200px] object-cover"
-      />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30 z-10" />
+        <img
+          src={"/images/course/course-cover.avif?height=400&width=1200"}
+          alt={courseOverView?.courseName}
+          className="w-full h-[200px] md:h-[200px] object-cover"
+        />
 
-      <div className="container relative z-20 px-4 pt-6 -mt-24 md:-mt-32">
-        <Link
-          href="/courses"
-          className="inline-flex items-center gap-2 text-white mb-6 hover:underline"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Catalog
-        </Link>
-        <Badge className={`mb-4 ml-2`}>
-          {courseOverView?.courseName}
-        </Badge>
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-          {courseOverView?.courseName}
-        </h1>
-        <div className="flex flex-wrap items-center gap-4 text-white mb-3">
-          <div className="flex items-center gap-1 p-4">
-            <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
-            <span className="font-medium">5.0</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Users className="h-5 w-5" />
-            <span>{courseOverView?.createdBy} students</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Clock className="h-5 w-5" />
-            <span>{/* duration */}</span>
+        <div className="container relative z-20 px-4 pt-6 -mt-24 md:-mt-32">
+          <Link
+            href="/courses"
+            className="inline-flex items-center gap-2 text-white mb-6 hover:underline"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Catalog
+          </Link>
+          <Badge className={`mb-4 ml-2`}>{courseOverView?.courseName}</Badge>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            {courseOverView?.courseName}
+          </h1>
+          <div className="flex flex-wrap items-center gap-4 text-white mb-3">
+            <div className="flex items-center gap-1 p-4">
+              <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
+              <span className="font-medium">5.0</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Users className="h-5 w-5" />
+              <span>{courseOverView?.createdBy} students</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Clock className="h-5 w-5" />
+              <span>{/* duration */}</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
       {/* Course Content */}
       <div className="container px-4 py-1">
@@ -81,12 +79,12 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6">
-                  <div
-                    className="font-semibold mb-4 mt-2"
-                      dangerouslySetInnerHTML={{
-                        __html: courseOverView?.courseDescription,
-                      }}
-                    />
+                <div
+                  className="font-semibold mb-4 mt-2"
+                  dangerouslySetInnerHTML={{
+                    __html: courseOverView?.courseDescription,
+                  }}
+                />
               </TabsContent>
 
               <TabsContent value="curriculum">
@@ -99,68 +97,48 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                 <h2 className="text-2xl font-semibold mb-4">
                   Meet Your Instructor
                 </h2>
-                <div className="flex flex-col md:flex-row gap-6 items-start">
-                  <Avatar className="h-24 w-24">
-                    <AvatarImage
-                      src="/placeholder.svg"
-                      alt={courseOverView?.courseName}
-                    />
-                    <AvatarFallback>
-                      {courseOverView?.courseName
-                        ?.split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="text-xl font-medium">
-                      {courseOverView?.courseName}
-                    </h3>
-                    <p className="text-muted-foreground">
-                      {courseOverView?.courseName}
-                    </p>
-                    <div className="flex items-center gap-4 my-3">
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                        <span>
-                          {/* {courseOverView?.maxRating} */} 5.0 Instructor
-                          Rating
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        <span>{courseOverView?.createdBy} Students</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                          <rect
-                            width="8"
-                            height="4"
-                            x="8"
-                            y="2"
-                            rx="1"
-                            ry="1"
-                          />
-                        </svg>
-                        <span>{courseOverView?.createdBy} Courses</span>
+                {courseOverView?.instructors.map((instructor) => {
+                  return (
+                    <div className="flex flex-col md:flex-row gap-6 items-start mb-6">
+                      <Avatar className="h-24 w-24">
+                        <AvatarImage
+                          src="/placeholder.svg"
+                          alt={instructor?.fullName}
+                        />
+                        <AvatarFallback>
+                          {courseOverView?.courseName
+                            ?.split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="text-xl font-medium">
+                          {instructor?.fullName}
+                        </h3>
+                        <p className="text-muted-foreground">
+                          {instructor?.email}
+                        </p>
+                        <div className="flex items-center gap-4 my-3">
+                          <div className="flex items-center gap-1">
+                            <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                            <span>
+                              5.0
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Users className="h-4 w-4" />
+                            <span>{courseOverView?.createdBy} Students</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <BookAIcon className="h-4 w-4" />
+                            <span>{courseOverView?.createdBy} Courses</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <p className="text-muted-foreground">
-                      {courseOverView?.createdBy}
-                    </p>
-                  </div>
-                </div>
+                  );
+                })}
               </TabsContent>
 
               <TabsContent value="reviews">
@@ -365,8 +343,6 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                           {item.icon === "message-circle" && (
                             <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
                           )}
-                          {/* {item.icon === "award" && <circle cx="12" cy="8" r="7\" /><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12" />} */}
-                          {/* {item.icon === "smartphone" && <rect width="14" height="20" x="5" y="2" rx="2" ry="2" /><path d="M12 18h.01" />} */}
                         </svg>
                         <span>{item.text}</span>
                       </div>
