@@ -17,6 +17,9 @@ import { useEffect, useState } from "react";
 import { courseService } from "@/http/course-service";
 import { CourseOverView } from "@/types/model/course-overview-model";
 import { useRouter } from "next/navigation";
+import { CourseReview } from "@/types/model/course-review";
+import { courseReviewService } from "@/http/course-review-service";
+import { getTimeAgo } from "@/util/helpers/application-data-converter-util";
 
 export default function CourseDetailInfo({ courseId }: { courseId: string }) {
   const router = useRouter();
@@ -24,10 +27,23 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
     null
   );
 
-  useEffect(() => {
+  const [courseReviews, setCourseReviews] = useState<CourseReview[]>([]);
+
+  const getCourseData = () => {
     courseService.getCourseOverView(courseId).then((res) => {
       setCourseOverView(res?.data?.data);
     });
+  }
+
+  const getCourseReviews = () => {
+    courseReviewService.getCourseReviews(courseId).then((res) => {
+      setCourseReviews(res?.data?.data);
+    });
+  };
+
+  useEffect(() => {
+    getCourseData();
+    getCourseReviews();
   }, [courseId]);
 
   if (!courseOverView) return <div>Loading...</div>;
@@ -247,44 +263,22 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                     <Separator />
 
                     <div className="space-y-6">
-                      {[
-                        {
-                          name: "Alex Johnson",
-                          date: "2 weeks ago",
-                          rating: 5,
-                          comment:
-                            "This course exceeded my expectations. The instructor explains complex concepts in a way that's easy to understand. Highly recommended!",
-                        },
-                        {
-                          name: "Sarah Miller",
-                          date: "1 month ago",
-                          rating: 4,
-                          comment:
-                            "Great content and well-structured lessons. I would have liked more practical exercises, but overall it's a solid course.",
-                        },
-                        {
-                          name: "David Chen",
-                          date: "2 months ago",
-                          rating: 5,
-                          comment:
-                            "The best course I've taken on this subject. The instructor is knowledgeable and engaging. I've already applied what I learned to my work.",
-                        },
-                      ].map((review, index) => (
+                      {courseReviews.map((review, index) => (
                         <div key={index} className="space-y-2">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <Avatar className="h-10 w-10">
                                 <AvatarFallback>
-                                  {review.name
+                                  {review.user.fullName
                                     .split(" ")
-                                    .map((n) => n[0])
+                                    .map((n) => n[0].toUpperCase())
                                     .join("")}
                                 </AvatarFallback>
                               </Avatar>
                               <div>
-                                <div className="font-medium">{review.name}</div>
+                                <div className="font-medium">{review.user.fullName}</div>
                                 <div className="text-xs text-muted-foreground">
-                                  {review.date}
+                                  {getTimeAgo(review.createdOn)}
                                 </div>
                               </div>
                             </div>
@@ -302,7 +296,7 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                             </div>
                           </div>
                           <p className="text-muted-foreground">
-                            {review.comment}
+                            {review.feedback}
                           </p>
                         </div>
                       ))}
