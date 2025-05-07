@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -30,18 +32,22 @@ import {
 import { Session, initialSession } from "@/types/model/session-model";
 import { moduleService } from "@/http/module-service";
 import { Module } from "@/types/model/module-model";
+import { sessionService } from "@/http/session-service";
 
+// Updated schema
 const moduleSchema = z.object({
   name: z.string().min(1, "Session name is required"),
-  sortOrder: z.number().min(1, "Sort order must be at least 1"),
-  trainer: z.string().min(1, "Instructor is required"),
+  sortOrder: z.coerce.number().min(1, "Sort order must be at least 1"),
   description: z.string().optional(),
-  mode: z.string().optional(),
-  startTime: z.date().optional(),
-  endTime: z.date().optional(),
+  mode: z.string(),
+  startTime: z.date().nullable().optional(),
+  endTime: z.date().nullable().optional(),
   location: z.string().optional(),
   link: z.string().optional(),
+  moduleId: z.string().min(1, "Module is required"),
 });
+
+type ModuleFormSchema = z.infer<typeof moduleSchema>;
 
 interface ManageSessionModalProps {
   isSessionModalOpen: boolean;
@@ -58,11 +64,27 @@ export default function ManageSessionModal({
   getModulesByCourseId,
   selectedSession,
 }: ManageSessionModalProps) {
-  const sessionData = selectedSession ?? initialSession;
+  const [modules, setModules] = useState<Module[]>([]);
 
-  const form = useForm({
+  const form = useForm<ModuleFormSchema>({
     resolver: zodResolver(moduleSchema),
     defaultValues: {
+      name: "",
+      sortOrder: 1,
+      description: "",
+      mode: "ONLINE",
+      startTime: null,
+      endTime: null,
+      location: "",
+      link: "",
+      moduleId: "",
+    },
+  });
+
+  // Reset form when selectedSession changes
+  useEffect(() => {
+    const sessionData = selectedSession ?? initialSession;
+    form.reset({
       name: sessionData.name || "",
       sortOrder: sessionData.sortOrder || 1,
       description: sessionData.description || "",
@@ -71,12 +93,11 @@ export default function ManageSessionModal({
       endTime: sessionData.endTime || null,
       location: sessionData.location || "",
       link: sessionData.link || "",
-    },
-  });
+      moduleId: sessionData.moduleId || "",
+    });
+  }, [selectedSession]);
 
-  const [modules, setModules] = useState<Module[]>([]);
-
-  // Fetch instructors and course details when courseId changes
+  // Fetch modules when courseId changes
   useEffect(() => {
     if (courseId) {
       moduleService.getModuleByCourseId(courseId).then((res) => {
@@ -85,19 +106,21 @@ export default function ManageSessionModal({
     }
   }, [courseId]);
 
-  const onSubmit = async (values: Session) => {
-    // Here, you will handle either creating or updating a session
-    // Example: API call to save session
-    if (selectedSession?.id) {
-      // Update session
-      updateSession(values);
-    } else {
-      // Create new session
-      createSession(values);
-    }
+  const onSubmit = async (values: ModuleFormSchema) => {
+    console.log("Submitting...", values);
 
-    setIsSessionModalOpen(false);
-    getModulesByCourseId(); // Refresh modules list
+    try {
+      if (selectedSession?.id) {
+        await updateSession({ ...selectedSession, ...values });
+      } else {
+        await createSession(values);
+      }
+
+      setIsSessionModalOpen(false);
+      getModulesByCourseId();
+    } catch (error) {
+      console.error("Failed to save session:", error);
+    }
   };
 
   const handleClose = () => {
@@ -115,6 +138,31 @@ export default function ManageSessionModal({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="moduleId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Module</FormLabel>
+                  <FormControl>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Module" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {modules.map((module) => (
+                          <SelectItem key={module.id} value={module.id}>
+                            {module.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="name"
@@ -136,7 +184,12 @@ export default function ManageSessionModal({
                 <FormItem>
                   <FormLabel>Sort Order</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="Sort order" {...field} />
+                    <Input
+                      type="number"
+                      placeholder="Sort order"
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -175,34 +228,6 @@ export default function ManageSessionModal({
                         <SelectItem value="OFFLINE">OFFLINE</SelectItem>
                       </SelectContent>
                     </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="startTime"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Start Time</FormLabel>
-                  <FormControl>
-                    {/* <Input type="datetime-local" {...field} /> */}
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="endTime"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>End Time</FormLabel>
-                  <FormControl>
-                    {/* <Input type="datetime-local" {...field} /> */}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -252,10 +277,14 @@ export default function ManageSessionModal({
   );
 }
 
+// Dummy updateSession function – implement your API logic
 const updateSession = async (session: Session) => {
-  // Replace with actual API call to update session
+  const res = await sessionService.updateSession(session.id!, session);
+  console.log("Updated session:", res);
 };
 
-const createSession = async (session: Session) => {
-  // Replace with actual API call to create session
+// Create session API logic
+const createSession = async (session: ModuleFormSchema) => {
+  const res = await sessionService.createSession(session);
+  console.log("Created session:", res);
 };

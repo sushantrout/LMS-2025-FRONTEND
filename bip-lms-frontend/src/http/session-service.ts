@@ -13,10 +13,10 @@ export const sessionService = {
   createSession(data: any) {
     return lmsService.post(`${BASE_URL}`, data);
   },
-  updateCourse(id: string, data: any) {
+  updateSession(id: string, data: any) {
     return lmsService.put(`${BASE_URL}/${id}`, data);
   },
-  deleteCourse(id: string) {
+  deleteSession(id: string) {
     return lmsService.delete(`${BASE_URL}/delete/${id}`);
   },
 
