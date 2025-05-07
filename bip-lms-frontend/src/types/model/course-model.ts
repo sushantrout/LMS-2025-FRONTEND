@@ -18,7 +18,7 @@ export type Course = MasterData &  {
     instructors?: User[]
 }
 
-export const initialFormData: Course = {
+export const initialCourseFormData: Course = {
     name: "",
     description: "",
     category: null,

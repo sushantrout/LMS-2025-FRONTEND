@@ -14,7 +14,7 @@ import { Button } from "../ui/button";
 import { courseCategoryService } from "@/http/course-catagory-service";
 import { Category } from "@/types/model/category-model";
 import { User } from "@/types/model/user-model";
-import { Course, initialFormData } from "@/types/model/course-model";
+import { Course, initialCourseFormData } from "@/types/model/course-model";
 import { instructorService } from "@/http/instructors-service";
 import { showErrorToast, showSuccessToast } from "@/util/helpers/toast-helper";
 import { courseService } from "@/http/course-service";
@@ -41,7 +41,7 @@ export default function ManageCourseModal({
   isCourseModalOpen,
   setIsCourseModalOpen,
 }: ManageCourseModalProps) {
-  const [formData, setFormData] = useState<Course>(initialFormData);
+  const [formData, setFormData] = useState<Course>(initialCourseFormData);
   const [file, setFile] = useState<File | null>(null);
   const [courseCategories, setCourseCategories] = useState<Category[]>([]);
   const [instructors, setInstructors] = useState<User[]>([]);
@@ -89,7 +89,7 @@ export default function ManageCourseModal({
         setCourses((prev) => [response.data.data, ...prev]);
       }
 
-      setFormData(initialFormData);
+      setFormData(initialCourseFormData);
       setFile(null);
       setIsCourseModalOpen(false);
     } catch (error) {
@@ -120,7 +120,7 @@ export default function ManageCourseModal({
     if (selectedCourse) {
       setFormData(selectedCourse);
     } else {
-      setFormData(initialFormData);
+      setFormData(initialCourseFormData);
     }
   }, [selectedCourse]);
 
