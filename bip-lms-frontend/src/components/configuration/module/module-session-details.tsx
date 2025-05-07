@@ -17,7 +17,6 @@ import {
   import { Input } from "@/components/ui/input"
   import { Textarea } from "@/components/ui/textarea"
 import { moduleService } from '@/http/module-service';
-import { sessionService } from '@/http/session-service';
 export default function ModuleSessionDetails({ moduleId }: { moduleId: string }) {
     const router = useRouter();
     console.log("moduleId===>", moduleId);
@@ -57,13 +56,13 @@ export default function ModuleSessionDetails({ moduleId }: { moduleId: string })
                 <div className="h-16 w-16 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
                   <img
                     src={module.thumbnail || '/placeholder.svg'}
-                    alt={module.title}
+                    alt={module.name}
                     className="h-full w-full object-cover"
                   />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-semibold">{module.title}</h3>
+                    <h3 className="text-xl font-semibold">{module.name}</h3>
                     
                   </div>
                   <p className="text-muted-foreground mt-1">{module.description}</p>
@@ -135,7 +134,7 @@ export default function ModuleSessionDetails({ moduleId }: { moduleId: string })
                               {session.completed ? '✓' : index + 1}
                             </div>
                             <div>
-                              <h4 className="font-medium">{session.title}</h4>
+                              <h4 className="font-medium">{session.name}</h4>
                               <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
                                 <div className="flex items-center">
                                   <Clock className="mr-1 h-3 w-3" />
@@ -197,8 +196,8 @@ export default function ModuleSessionDetails({ moduleId }: { moduleId: string })
           <form onSubmit={handleSessionSubmit}>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="title">Session Title</Label>
-                <Input id="title" name="title" defaultValue={selectedSession?.title || ""} required />
+                <Label htmlFor="name">Session Name</Label>
+                <Input id="name" name="name" defaultValue={selectedSession?.name || ""} required />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="description">Description</Label>
