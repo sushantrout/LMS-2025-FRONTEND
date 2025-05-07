@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -22,12 +22,24 @@ import { Module, initialModule } from "@/types/model/module-model";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import QuillEditor from "@/components/editor/quill/quill-editor";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { courseService } from "@/http/course-service";
+import { User } from "@/types/model/user-model";
+import { moduleService } from "@/http/module-service";
 
 interface ManageCourseModalProps {
   setModules: React.Dispatch<React.SetStateAction<Module[]>>;
   selectedModule: Module | null;
   isModuleModalOpen: boolean;
   setIsModuleModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  courseId: string;
 }
 
 // Zod schema
@@ -40,6 +52,7 @@ const moduleSchema = z.object({
 type ModuleFormValues = z.infer<typeof moduleSchema>;
 
 export default function ManageModuleModal({
+  courseId,
   setModules,
   selectedModule,
   isModuleModalOpen,
@@ -53,7 +66,8 @@ export default function ManageModuleModal({
       sortOrder: 0,
     },
   });
-
+  const [instructors, setInstructors] = useState<User[]>([]);
+  const [course, setCourse] = useState<Course | null>(null);
   // Populate form when editing
   useEffect(() => {
     if (selectedModule) {
@@ -65,12 +79,19 @@ export default function ManageModuleModal({
     } else {
       form.reset(); // Reset for new module
     }
+    if (courseId) {
+      courseService.getCourseDetail(courseId).then((res) => {
+        setCourse(res?.data?.data)
+        setInstructors(res?.data?.data?.instructors);
+      });
+    }
   }, [selectedModule, form]);
 
   const onSubmit = (values: ModuleFormValues) => {
     const newModule: Module = {
       ...selectedModule,
       ...values,
+      course:course
     };
 
     setModules((prev) => {
@@ -80,8 +101,9 @@ export default function ManageModuleModal({
         return [...prev, { ...newModule, id: crypto.randomUUID() }];
       }
     });
-
-    setIsModuleModalOpen(false);
+    moduleService.createModule(newModule).then((res) => {
+      setIsModuleModalOpen(false);
+    });
   };
 
   return (
@@ -111,7 +133,31 @@ export default function ManageModuleModal({
                 </FormItem>
               )}
             />
-
+            <FormField
+              control={form.control}
+              name="instructor"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Instructor</FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an instructor" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {instructors.map((inst) => (
+                          <SelectItem key={inst.id} value={inst.id}>
+                            {inst.fullName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="description"
@@ -119,25 +165,13 @@ export default function ManageModuleModal({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Module description"
-                      className="resize-none min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="sortOrder"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sort Order</FormLabel>
-                  <FormControl>
-                    <Input type="number" {...field} />
+                    <div className=" overflow-y-auto rounded border border-input">
+                      <QuillEditor
+                        theme="snow"
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

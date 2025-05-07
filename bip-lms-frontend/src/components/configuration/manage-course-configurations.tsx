@@ -77,7 +77,7 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
           </Button>
         </div>
         <CourseModules courseId={courseId} />
-        <ManageModuleModal setModules={setModules} selectedModule={selectedModule} isModuleModalOpen={isModuleModalOpen} setIsModuleModalOpen={setIsModuleModalOpen}></ManageModuleModal>
+        <ManageModuleModal  setModules={setModules} selectedModule={selectedModule} isModuleModalOpen={isModuleModalOpen} setIsModuleModalOpen={setIsModuleModalOpen}  courseId={courseId}></ManageModuleModal>
       </div>
     </div>
   );
