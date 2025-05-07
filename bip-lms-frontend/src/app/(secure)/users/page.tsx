@@ -23,12 +23,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { DeleteConfirmationModal } from "@/components/ui/delete-confirmation-modal";
 
 export default function UsersPage() {
   const [roles, setRoles] = useState([]);
   const [isFileModalOpen, setIsFileModalOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [userIdToDelete, setUserIdToDelete] = useState<string | null>(null);
 
   const getUserRoles = () => {
     roleService
@@ -116,6 +119,19 @@ export default function UsersPage() {
     }
   };
 
+  const handleRequestDeleteUser = (userId: string) => {
+    setUserIdToDelete(userId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDeleteUser = () => {
+    if (userIdToDelete) {
+      handleDeleteUser(userIdToDelete);
+      setIsDeleteModalOpen(false);
+      setUserIdToDelete(null);
+    }
+  };
+
   return (
     <div className="container mx-auto max-w-full px-4 py-4">
       <div className="flex justify-between items-center mb-4">
@@ -152,6 +168,11 @@ export default function UsersPage() {
             roles={roles}
             onSubmit={onSubmit}
             isEditing={!!editingUser}
+            onCancel={() => {
+              setIsFileModalOpen(false);
+              form.reset();
+              setEditingUser(null);
+            }}
           />
         </DialogContent>
       </Dialog>
@@ -160,9 +181,17 @@ export default function UsersPage() {
         <UserList 
           refreshTrigger={refreshTrigger} 
           onEditUser={handleEditUser}
-          onDeleteUser={handleDeleteUser}
+          onDeleteUser={handleRequestDeleteUser}
         />
       </div>
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onDelete={handleConfirmDeleteUser}
+        title="Are you sure?"
+        description="This action cannot be undone. The user will be permanently deleted."
+      />
     </div>
   );
 }
