@@ -13,12 +13,17 @@ import { useEffect, useState } from "react";
 import CourseModules from "./module/course-modules";
 import { Module } from "@/types/model/module-model";
 import ManageModuleModal from "./module/manage-moule";
+import { moduleService } from "@/http/module-service";
 
 export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [course, setCourse] = useState<Course>({});
   const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
   const [modules, setModules] = useState<Module[]>([]);
+
+  const getModulesByCourseId = () => moduleService.getModuleByCourseId(courseId).then(async (modules) => {
+    setModules(modules.data?.data || []);
+  });
 
   useEffect(() => {
     if (courseId) {
@@ -76,8 +81,8 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
             <span className="text-yellow-600 font-medium">Add Assignment</span>
           </Button>
         </div>
-        <CourseModules courseId={courseId} />
-        <ManageModuleModal  setModules={setModules} selectedModule={selectedModule} isModuleModalOpen={isModuleModalOpen} setIsModuleModalOpen={setIsModuleModalOpen}  courseId={courseId}></ManageModuleModal>
+        <CourseModules courseId={courseId} modules={modules} setModules={setModules} getModulesByCourseId={getModulesByCourseId}/>
+        <ManageModuleModal  setModules={setModules} selectedModule={selectedModule} isModuleModalOpen={isModuleModalOpen} setIsModuleModalOpen={setIsModuleModalOpen}  courseId={courseId} getModulesByCourseId={getModulesByCourseId}></ManageModuleModal>
       </div>
     </div>
   );

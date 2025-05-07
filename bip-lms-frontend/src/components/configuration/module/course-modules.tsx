@@ -7,14 +7,7 @@ import { Card } from "@/components/ui/card"
 import { Module } from "@/types/model/module-model"
 import { moduleService } from "@/http/module-service"
 
-export default function CourseModules({courseId}: { courseId: string }) {
-
-  const [modules, setModules] = useState<Module[]>([]);
-
-  const getModulesByCourseId = () => moduleService.getModuleByCourseId(courseId).then(async (modules) => {
-    setModules(modules.data?.data || []);
-  });
-
+export default function CourseModules({courseId, modules, setModules, getModulesByCourseId}: { courseId: string, modules: Module[], setModules: React.Dispatch<React.SetStateAction<Module[]>>, getModulesByCourseId: () => void }) {
   useEffect(() => {
     getModulesByCourseId();
   }

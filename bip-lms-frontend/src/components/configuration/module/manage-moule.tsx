@@ -39,6 +39,7 @@ interface ManageCourseModalProps {
   isModuleModalOpen: boolean;
   setIsModuleModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   courseId: string;
+  getModulesByCourseId: () => void;
 }
 
 // Zod schema
@@ -57,6 +58,7 @@ export default function ManageModuleModal({
   selectedModule,
   isModuleModalOpen,
   setIsModuleModalOpen,
+  getModulesByCourseId
 }: ManageCourseModalProps) {
   const form = useForm<ModuleFormValues>({
     resolver: zodResolver(moduleSchema),
@@ -96,16 +98,9 @@ export default function ManageModuleModal({
       trainer: values.trainer ? { id: values.trainer } : undefined,
     };
 
-    setModules((prev) => {
-      if (selectedModule?.id) {
-        return prev.map((mod) => (mod.id === selectedModule.id ? newModule : mod));
-      } else {
-        return [...prev, { ...newModule, id: crypto.randomUUID() }];
-      }
-    });
-
     moduleService.createModule(newModule).then(() => {
       setIsModuleModalOpen(false);
+      getModulesByCourseId();
     });
   };
 
