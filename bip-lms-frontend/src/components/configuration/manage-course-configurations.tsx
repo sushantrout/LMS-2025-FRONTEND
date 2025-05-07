@@ -11,9 +11,14 @@ import { Course } from "@/types/model/course-model";
 import { courseService } from "@/http/course-service";
 import { useEffect, useState } from "react";
 import CourseModules from "./module/course-modules";
+import { Module } from "@/types/model/module-model";
+import ManageModuleModal from "./module/manage-moule";
 
 export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [course, setCourse] = useState<Course>({});
+  const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
+  const [selectedModule, setSelectedModule] = useState<Module | null>(null);
+  const [modules, setModules] = useState<Module[]>([]);
 
   useEffect(() => {
     if (courseId) {
@@ -40,7 +45,7 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
       <div className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {/* Add Module */}
-          <Button variant="outline" className={commonButtonClass}>
+          <Button variant="outline" className={commonButtonClass} onClick={() => setIsModuleModalOpen(true)}>
             <div className={`${iconStyle} bg-primary/10 border-primary/30`}>
               <PlusCircle className="h-5 w-5 text-primary" />
             </div>
@@ -72,6 +77,7 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
           </Button>
         </div>
         <CourseModules courseId={courseId} />
+        <ManageModuleModal setModules={setModules} selectedModule={selectedModule} isModuleModalOpen={isModuleModalOpen} setIsModuleModalOpen={setIsModuleModalOpen}></ManageModuleModal>
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import { Module } from "@/types/model/module-model"
 import { moduleService } from "@/http/module-service"
 
 export default function CourseModules({courseId}: { courseId: string }) {
+
   const [modules, setModules] = useState<Module[]>([]);
 
   const getModulesByCourseId = () => moduleService.getModuleByCourseId(courseId).then(async (modules) => {
@@ -60,6 +61,8 @@ export default function CourseModules({courseId}: { courseId: string }) {
           </Card>
         ))}
       </div>
+      
     </div>
+
   )
 }
