@@ -36,6 +36,7 @@ import { Course } from "@/types/model/course-model";
 interface ManageCourseModalProps {
   setModules: React.Dispatch<React.SetStateAction<Module[]>>;
   selectedModule: Module | null;
+  setSelectedModule: React.Dispatch<React.SetStateAction<Module | null>>;
   isModuleModalOpen: boolean;
   setIsModuleModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   courseId: string;
@@ -57,7 +58,8 @@ export default function ManageModuleModal({
   selectedModule,
   isModuleModalOpen,
   setIsModuleModalOpen,
-  getModulesByCourseId
+  getModulesByCourseId,
+  setSelectedModule
 }: ManageCourseModalProps) {
   const form = useForm<ModuleFormValues>({
     resolver: zodResolver(moduleSchema),
@@ -78,6 +80,7 @@ export default function ManageModuleModal({
       });
     } else {
       form.reset();
+      setSelectedModule(null);
     }
 
     if (courseId) {
@@ -107,11 +110,13 @@ export default function ManageModuleModal({
       moduleService.updateModule(selectedModule.id ,newModule).then(() => {
         setIsModuleModalOpen(false);
         getModulesByCourseId();
+        setSelectedModule(null);
       });
     } else {
       moduleService.createModule(newModule).then(() => {
         setIsModuleModalOpen(false);
         getModulesByCourseId();
+        setSelectedModule(null);
       });
     }
   };
@@ -195,7 +200,10 @@ export default function ManageModuleModal({
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsModuleModalOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => {
+                setIsModuleModalOpen(false);
+                setSelectedModule(null);
+              }}>
                 Cancel
               </Button>
               <Button type="submit">{selectedModule?.id ? "Update" : "Create"}</Button>
