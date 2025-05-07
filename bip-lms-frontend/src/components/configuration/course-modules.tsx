@@ -34,13 +34,16 @@ export default function CourseModules({
   }, [courseId, getModulesByCourseId]);
 
   // Toggle the expanded state of a module
-  const toggleModule = useCallback((id: string) => {
-    setModules((prevModules) =>
-      prevModules.map((module) =>
-        module.id === id ? { ...module, expanded: !module.expanded } : module
-      )
-    );
-  }, [setModules]);
+  const toggleModule = useCallback(
+    (id: string) => {
+      setModules((prevModules) =>
+        prevModules.map((module) =>
+          module.id === id ? { ...module, expanded: !module.expanded } : module
+        )
+      );
+    },
+    [setModules]
+  );
 
   // Handle deletion of a module
   const handleDeleteModule = async () => {
@@ -112,29 +115,65 @@ export default function CourseModules({
                     {renderModuleActions(module)}
                   </div>
 
-                  {/* 👉 Sessions List */}
-                  {module.expanded && module.sessions?.length > 0 && (
-                    <div className="mt-4 space-y-3">
-                      {module.sessions.map((session) => (
-                        <div
-                          key={session.id}
-                          className="rounded border px-4 py-2 bg-muted text-sm flex justify-between items-center"
-                        >
-                          <div>
-                            <div className="font-semibold">{session.name}</div>
-                            {session.mode && (
-                              <div className="text-xs text-gray-500">Mode: {session.mode}</div>
-                            )}
-                          </div>
-                          {/* Add session actions if needed */}
+                  {module.expanded && (
+                    <>
+                      {module.sessions?.length > 0 ? (
+                        <div className="mt-6 space-y-4">
+                          {module.sessions.map((session) => (
+                            <div
+                              key={session.id}
+                              className="group flex items-center justify-between rounded-xl border border-gray-200 bg-gradient-to-tr from-white via-slate-50 to-white px-5 py-4 shadow transition-all duration-200 hover:shadow-md"
+                            >
+                              <div>
+                                <div className="text-lg font-semibold text-gray-800 group-hover:text-indigo-600 flex items-center gap-2">
+                                  <svg
+                                    className="w-5 h-5 text-indigo-400 group-hover:text-indigo-600 transition-colors"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={1.5}
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path d="M12 8v4l3 3" />
+                                    <path d="M12 2a10 10 0 1 1-7.07 2.93A10 10 0 0 1 12 2z" />
+                                  </svg>
+                                  {session.name}
+                                </div>
+                                {session.mode && (
+                                  <div className="mt-1 inline-block rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-600">
+                                    Mode: {session.mode}
+                                  </div>
+                                )}
+                              </div>
+                              {/* Optional action buttons */}
+                              {/* <div className="flex gap-2 text-gray-400 hover:text-indigo-500 cursor-pointer">
+              <button title="Edit">
+                <PencilIcon className="w-5 h-5" />
+              </button>
+              <button title="Delete">
+                <TrashIcon className="w-5 h-5" />
+              </button>
+            </div> */}
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Optional: Empty state if no sessions */}
-                  {module.expanded && module.sessions?.length === 0 && (
-                    <div className="mt-4 text-sm text-gray-400 italic">No sessions available.</div>
+                      ) : (
+                        <div className="mt-6 flex items-center justify-center text-sm text-gray-500">
+                          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-gray-600">
+                            <svg
+                              className="w-4 h-4 text-gray-400"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth={1.5}
+                              viewBox="0 0 24 24"
+                            >
+                              <path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20z" />
+                              <path d="M12 8v4l3 3" />
+                            </svg>
+                            No sessions available
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
