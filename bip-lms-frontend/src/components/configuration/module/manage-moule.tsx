@@ -1,3 +1,5 @@
+// File: ManageModuleModal.tsx
+
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -43,7 +45,6 @@ interface ManageCourseModalProps {
   getModulesByCourseId: () => void;
 }
 
-// Zod schema
 const moduleSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
@@ -59,18 +60,23 @@ export default function ManageModuleModal({
   isModuleModalOpen,
   setIsModuleModalOpen,
   getModulesByCourseId,
-  setSelectedModule
+  setSelectedModule,
 }: ManageCourseModalProps) {
   const form = useForm<ModuleFormValues>({
     resolver: zodResolver(moduleSchema),
-    defaultValues: {},
+    defaultValues: {
+      name: "",
+      description: "",
+      sortOrder: 0,
+      trainer: "",
+    },
   });
 
   const [instructors, setInstructors] = useState<User[]>([]);
   const [course, setCourse] = useState<Course | null>(null);
 
-  // Populate form when editing
   useEffect(() => {
+    debugger
     if (selectedModule) {
       form.reset({
         name: selectedModule.name ?? "",
@@ -80,9 +86,11 @@ export default function ManageModuleModal({
       });
     } else {
       form.reset();
-      setSelectedModule(null);
+      setSelectedModule(initialModule);
     }
+  }, [selectedModule, form]);
 
+  useEffect(() => {
     if (courseId) {
       courseService.getCourseDetail(courseId).then((res) => {
         const courseData = res?.data?.data;
@@ -90,42 +98,40 @@ export default function ManageModuleModal({
         setInstructors(courseData?.instructors ?? []);
       });
     }
-  }, [selectedModule, form, courseId]);
+  }, [courseId]);
 
-  const onSubmit = (values: ModuleFormValues) => {
+  const onSubmit = async (values: ModuleFormValues) => {
     const newModule: Module = {
       ...selectedModule,
       ...values,
       course: course!,
       trainer: values.trainer ? { id: values.trainer } : undefined,
+      id: selectedModule?.id || initialModule.id,
     };
 
     if (selectedModule?.id) {
-      newModule.id = selectedModule.id;
+      await moduleService.updateModule(selectedModule.id, newModule);
     } else {
-      newModule.id = initialModule.id;
+      await moduleService.createModule(newModule);
     }
 
-    if(selectedModule?.id) {
-      moduleService.updateModule(selectedModule.id ,newModule).then(() => {
-        setIsModuleModalOpen(false);
-        getModulesByCourseId();
-        setSelectedModule(null);
-      });
-    } else {
-      moduleService.createModule(newModule).then(() => {
-        setIsModuleModalOpen(false);
-        getModulesByCourseId();
-        setSelectedModule(null);
-      });
-    }
+    setIsModuleModalOpen(false);
+    getModulesByCourseId();
+    setSelectedModule(null);
+  };
+
+  const handleClose = () => {
+    setIsModuleModalOpen(false);
+    setSelectedModule(null);
   };
 
   return (
-    <Dialog open={isModuleModalOpen} onOpenChange={setIsModuleModalOpen}>
+    <Dialog open={isModuleModalOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{selectedModule?.id ? "Edit Module" : "Create Module"}</DialogTitle>
+          <DialogTitle>
+            {selectedModule?.id ? "Edit Module" : "Create Module"}
+          </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -200,13 +206,12 @@ export default function ManageModuleModal({
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => {
-                setIsModuleModalOpen(false);
-                setSelectedModule(null);
-              }}>
+              <Button type="button" variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button type="submit">{selectedModule?.id ? "Update" : "Create"}</Button>
+              <Button type="submit">
+                {selectedModule?.id ? "Update" : "Create"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

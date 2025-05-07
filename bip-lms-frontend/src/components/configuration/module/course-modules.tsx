@@ -1,20 +1,40 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { ChevronDown, ChevronRight, Edit, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Module } from "@/types/model/module-model"
 
-export default function CourseModules({courseId, modules, setModules, getModulesByCourseId, setSelectedModule, setIsModuleModalOpen}: { courseId: string, modules: Module[], setModules: React.Dispatch<React.SetStateAction<Module[]>>, getModulesByCourseId: () => void , setSelectedModule: React.Dispatch<React.SetStateAction<Module | null>>, setIsModuleModalOpen: React.Dispatch<React.SetStateAction<boolean>> }) {
+interface CourseModulesProps {
+  courseId: string;
+  modules: Module[];
+  setModules: React.Dispatch<React.SetStateAction<Module[]>>;
+  getModulesByCourseId: () => void;
+  setSelectedModule: React.Dispatch<React.SetStateAction<Module | null>>;
+  setIsModuleModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export default function CourseModules({
+  courseId,
+  modules,
+  setModules,
+  getModulesByCourseId,
+  setSelectedModule,
+  setIsModuleModalOpen
+}: CourseModulesProps) {
+
   useEffect(() => {
     getModulesByCourseId();
-  }
-  , [courseId]);
+  }, [courseId, getModulesByCourseId]);
 
   const toggleModule = (id: string) => {
-    setModules(modules.map((module) => (module.id === id ? { ...module, expanded: !module.expanded } : module)))
-  }
+    setModules(prevModules =>
+      prevModules.map(module =>
+        module.id === id ? { ...module, expanded: !module.expanded } : module
+      )
+    );
+  };
 
   return (
     <div className="grid grid-cols-1">
@@ -31,21 +51,28 @@ export default function CourseModules({courseId, modules, setModules, getModules
               </button>
               <div className="flex-1">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-md font-medium">
-                    {module.name}
-                  </h3>
+                  <h3 className="text-md font-medium">{module.name}</h3>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" className="text-xs h-8">
                       Sort Lessons
                     </Button>
-                    <Button variant="outline" size="sm" className="text-xs h-8 flex items-center gap-1" onClick={() => {
-                      setSelectedModule(module);
-                      setIsModuleModalOpen(true);
-                    }}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs h-8 flex items-center gap-1"
+                      onClick={() => {
+                        setSelectedModule(module);
+                        setIsModuleModalOpen(true);
+                      }}
+                    >
                       <Edit className="h-3 w-3" />
                       Edit Module
                     </Button>
-                    <Button variant="outline" size="sm" className="text-xs h-8 text-red-500 flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs h-8 text-red-500 flex items-center gap-1"
+                    >
                       <Trash2 className="h-3 w-3" />
                       Delete Module
                     </Button>
@@ -56,8 +83,6 @@ export default function CourseModules({courseId, modules, setModules, getModules
           </Card>
         ))}
       </div>
-      
     </div>
-
-  )
+  );
 }
