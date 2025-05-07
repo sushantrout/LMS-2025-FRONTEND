@@ -65,3 +65,24 @@ export const userDefaultValues: Partial<UserFormValues> = {
     name: "",
   },
 };
+
+
+export function getUserData(userData: User) {
+  return {
+    id: userData.id,
+    username: userData.username,
+    email: userData.email,
+    firstName: userData.firstName,
+    lastName: userData.lastName,
+    phoneNumber: userData.phoneNumber,
+    address: userData.address,
+    city: userData.city,
+    state: userData.state,
+    country: userData.country,
+    zipCode: userData.zipCode,
+    applicationRole: {
+      id: userData.applicationRole?.id,
+      name: userData.applicationRole?.name,
+    },
+  }
+}
