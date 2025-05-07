@@ -17,8 +17,8 @@ export const moduleService = {
   updateModule(id: string, data: any) {
     return lmsService.put(`${BASE_URL}/${id}`, data);
   },
-  deleteCourse(id: string) {
-    return lmsService.delete(`${BASE_URL}/delete/${id}`);
+  deleteModule(id: string) {
+    return lmsService.delete(`${BASE_URL}/${id}`);
   },
 
 };
