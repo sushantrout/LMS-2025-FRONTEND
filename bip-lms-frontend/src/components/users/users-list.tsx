@@ -5,13 +5,19 @@ import { usersService } from "@/http/user-service";
 import { DataTable } from "@/components/dashboard/data-table";
 import { User } from "@/types/model/user-model";
 
-export default function UserList() {
+interface UserListProps {
+  refreshTrigger?: number;
+  onEditUser?: (userId: string) => void;
+  onDeleteUser?: (userId: string) => void;
+}
+
+export default function UserList({ refreshTrigger = 0, onEditUser, onDeleteUser }: UserListProps) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [refreshTrigger]);
 
   const fetchUsers = async () => {
     try {
@@ -34,7 +40,11 @@ export default function UserList() {
       {users.length === 0 ? (
         <div className="text-center py-8">No users found</div>
       ) : (
-        <DataTable data={users} />
+        <DataTable 
+          data={users} 
+          onEditUser={onEditUser}
+          onDeleteUser={onDeleteUser}
+        />
       )}
     </div>
   );
