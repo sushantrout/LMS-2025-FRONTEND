@@ -5,7 +5,8 @@ const BASE_URL = "v1/module";
 
 export const moduleService = {
   getModuleByCourseId(id: string) {
-    return lmsService.get(`${BASE_URL}/course/${id}`);
+    //Sort by sortOrder
+    return lmsService.get(`${BASE_URL}/course/${id}?sort=sortOrder`);
   },
   getModuleById(id: string) {
     return lmsService.get(`${BASE_URL}/${id}`);

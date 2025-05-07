@@ -54,7 +54,6 @@ type ModuleFormValues = z.infer<typeof moduleSchema>;
 
 export default function ManageModuleModal({
   courseId,
-  setModules,
   selectedModule,
   isModuleModalOpen,
   setIsModuleModalOpen,
@@ -98,10 +97,23 @@ export default function ManageModuleModal({
       trainer: values.trainer ? { id: values.trainer } : undefined,
     };
 
-    moduleService.createModule(newModule).then(() => {
-      setIsModuleModalOpen(false);
-      getModulesByCourseId();
-    });
+    if (selectedModule?.id) {
+      newModule.id = selectedModule.id;
+    } else {
+      newModule.id = initialModule.id;
+    }
+
+    if(selectedModule?.id) {
+      moduleService.updateModule(selectedModule.id ,newModule).then(() => {
+        setIsModuleModalOpen(false);
+        getModulesByCourseId();
+      });
+    } else {
+      moduleService.createModule(newModule).then(() => {
+        setIsModuleModalOpen(false);
+        getModulesByCourseId();
+      });
+    }
   };
 
   return (

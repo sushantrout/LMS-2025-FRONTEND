@@ -5,9 +5,8 @@ import { ChevronDown, ChevronRight, Edit, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Module } from "@/types/model/module-model"
-import { moduleService } from "@/http/module-service"
 
-export default function CourseModules({courseId, modules, setModules, getModulesByCourseId}: { courseId: string, modules: Module[], setModules: React.Dispatch<React.SetStateAction<Module[]>>, getModulesByCourseId: () => void }) {
+export default function CourseModules({courseId, modules, setModules, getModulesByCourseId, setSelectedModule, setIsModuleModalOpen}: { courseId: string, modules: Module[], setModules: React.Dispatch<React.SetStateAction<Module[]>>, getModulesByCourseId: () => void , setSelectedModule: React.Dispatch<React.SetStateAction<Module | null>>, setIsModuleModalOpen: React.Dispatch<React.SetStateAction<boolean>> }) {
   useEffect(() => {
     getModulesByCourseId();
   }
@@ -39,7 +38,10 @@ export default function CourseModules({courseId, modules, setModules, getModules
                     <Button variant="outline" size="sm" className="text-xs h-8">
                       Sort Lessons
                     </Button>
-                    <Button variant="outline" size="sm" className="text-xs h-8 flex items-center gap-1">
+                    <Button variant="outline" size="sm" className="text-xs h-8 flex items-center gap-1" onClick={() => {
+                      setSelectedModule(module);
+                      setIsModuleModalOpen(true);
+                    }}>
                       <Edit className="h-3 w-3" />
                       Edit Module
                     </Button>

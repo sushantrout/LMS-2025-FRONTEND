@@ -81,7 +81,7 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
             <span className="text-yellow-600 font-medium">Add Assignment</span>
           </Button>
         </div>
-        <CourseModules courseId={courseId} modules={modules} setModules={setModules} getModulesByCourseId={getModulesByCourseId}/>
+        <CourseModules  setIsModuleModalOpen={setIsModuleModalOpen} courseId={courseId} modules={modules} setSelectedModule={setSelectedModule} setModules={setModules} getModulesByCourseId={getModulesByCourseId}/>
         <ManageModuleModal  setModules={setModules} selectedModule={selectedModule} isModuleModalOpen={isModuleModalOpen} setIsModuleModalOpen={setIsModuleModalOpen}  courseId={courseId} getModulesByCourseId={getModulesByCourseId}></ManageModuleModal>
       </div>
     </div>
