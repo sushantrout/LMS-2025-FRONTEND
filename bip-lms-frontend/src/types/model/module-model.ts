@@ -7,6 +7,7 @@ export type Module = MasterData & {
     noOfSessions?: number;
     sessions: Session[];
     course:Course;
+    status?: string;
   };
   
 export const initialModule: Module = {
@@ -17,5 +18,6 @@ export const initialModule: Module = {
     sortOrder: 0,
     noOfSessions: 0,
     sessions: [],
-    course:null
+    course:null,
+    status:''
   }

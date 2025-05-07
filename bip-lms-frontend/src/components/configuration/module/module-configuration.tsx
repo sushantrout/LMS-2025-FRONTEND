@@ -545,7 +545,7 @@ export default function ModulesConfiguration({ courseId }: { courseId: string })
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <p className="font-medium">{selectedModule?.title}</p>
+            <p className="font-medium">{selectedModule?.name}</p>
             <p className="text-sm text-muted-foreground mt-1">{selectedModule?.description}</p>
           </div>
           <DialogFooter>
