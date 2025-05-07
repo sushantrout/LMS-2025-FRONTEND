@@ -19,12 +19,14 @@ import {
 } from "@/components/ui/form";
 import { UserFormValues } from "@/types/model/user-model";
 import { Role } from "@/types/model/role-model";
+import { Textarea } from "@/components/ui/textarea";
 
 interface FormComponentProps {
   userForm : any;
   roles: Role[];
   onSubmit: (data: UserFormValues) => void;
   isEditing?: boolean;
+  onCancel?: () => void;
 }
 
 const UserFormComponent: FC<FormComponentProps> = ({
@@ -32,6 +34,7 @@ const UserFormComponent: FC<FormComponentProps> = ({
   roles,
   onSubmit,
   isEditing = false,
+  onCancel,
 }) => {
   return (
     <Form {...userForm}>
@@ -130,7 +133,7 @@ const UserFormComponent: FC<FormComponentProps> = ({
                 <FormItem>
                   <FormLabel>Address</FormLabel>
                   <FormControl>
-                    <Input placeholder="Address" {...field} />
+                    <Textarea placeholder="Address" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -219,9 +222,14 @@ const UserFormComponent: FC<FormComponentProps> = ({
           />
         </div>
 
-        <Button type="submit" className="w-full">
-          {isEditing ? "Save" : "Create User"}
-        </Button>
+        <div className="flex gap-4 justify-end">
+          <Button type="button" variant="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit">
+            {isEditing ? "Save" : "Create User"}
+          </Button>
+        </div>
       </form>
     </Form>
   );
