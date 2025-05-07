@@ -126,7 +126,7 @@ export default function ManageModuleModal({
 
   return (
     <Dialog open={isModuleModalOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[1200px] max-h-[100vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {selectedModule?.id ? "Edit Module" : "Create Module"}

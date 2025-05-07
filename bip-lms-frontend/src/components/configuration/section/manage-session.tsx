@@ -55,6 +55,7 @@ interface ManageSessionModalProps {
   courseId: string;
   getModulesByCourseId: () => void;
   selectedSession: Session | null;
+  setSelectedSession: React.Dispatch<React.SetStateAction<Session | null>>;
 }
 
 export default function ManageSessionModal({
@@ -63,6 +64,7 @@ export default function ManageSessionModal({
   setIsSessionModalOpen,
   getModulesByCourseId,
   selectedSession,
+  setSelectedSession,
 }: ManageSessionModalProps) {
   const [modules, setModules] = useState<Module[]>([]);
 
@@ -84,18 +86,21 @@ export default function ManageSessionModal({
   // Reset form when selectedSession changes
   useEffect(() => {
     const sessionData = selectedSession ?? initialSession;
-    form.reset({
-      name: sessionData.name || "",
-      sortOrder: sessionData.sortOrder || 1,
-      description: sessionData.description || "",
-      mode: sessionData.mode || "ONLINE",
-      startTime: sessionData.startTime || null,
-      endTime: sessionData.endTime || null,
-      location: sessionData.location || "",
-      link: sessionData.link || "",
-      moduleId: sessionData.moduleId || "",
-    });
-  }, [selectedSession]);
+  
+    if (isSessionModalOpen) {
+      form.reset({
+        name: sessionData.name || "",
+        sortOrder: sessionData.sortOrder || 1,
+        description: sessionData.description || "",
+        mode: sessionData.mode || "ONLINE",
+        startTime: sessionData.startTime || null,
+        endTime: sessionData.endTime || null,
+        location: sessionData.location || "",
+        link: sessionData.link || "",
+        moduleId: sessionData.moduleId || "",
+      });
+    }
+  }, [selectedSession, isSessionModalOpen]);
 
   // Fetch modules when courseId changes
   useEffect(() => {
@@ -115,9 +120,10 @@ export default function ManageSessionModal({
       } else {
         await createSession(values);
       }
-
+      setSelectedSession(null);
       setIsSessionModalOpen(false);
       getModulesByCourseId();
+
     } catch (error) {
       console.error("Failed to save session:", error);
     }
@@ -129,7 +135,7 @@ export default function ManageSessionModal({
 
   return (
     <Dialog open={isSessionModalOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {selectedSession?.id ? "Edit Session" : "Create Session"}
@@ -138,63 +144,71 @@ export default function ManageSessionModal({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="moduleId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Module</FormLabel>
-                  <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Module" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {modules.map((module) => (
-                          <SelectItem key={module.id} value={module.id}>
-                            {module.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="flex flex-wrap gap-x-4">
+              <div className="flex-1 min-w-[200px]">
+                <FormField
+                  control={form.control}
+                  name="moduleId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Module</FormLabel>
+                      <FormControl>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Module" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {modules.map((module) => (
+                              <SelectItem key={module.id} value={module.id}>
+                                {module.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Session name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <div className="flex-1 min-w-[200px]">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Session name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-            <FormField
-              control={form.control}
-              name="sortOrder"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sort Order</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Sort order"
-                      value={field.value}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <div className="w-[120px]">
+                <FormField
+                  control={form.control}
+                  name="sortOrder"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sort Order</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Sort order"
+                          value={field.value}
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
             <FormField
               control={form.control}
@@ -212,41 +226,51 @@ export default function ManageSessionModal({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="mode"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mode</FormLabel>
-                  <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Mode" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="ONLINE">ONLINE</SelectItem>
-                        <SelectItem value="OFFLINE">OFFLINE</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="flex flex-wrap gap-x-4">
+              <div className="flex-1 min-w-[200px]">
+                <FormField
+                  control={form.control}
+                  name="mode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mode</FormLabel>
+                      <FormControl>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Mode" />
+                          </SelectTrigger>
+                          <SelectContent className="w-[2800px]">
+                            <SelectItem value="ONLINE" className="text-base py-3 px-4">
+                              ONLINE
+                            </SelectItem>
+                            <SelectItem value="OFFLINE" className="text-base py-3 px-4">
+                              OFFLINE
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Location" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <div className="flex-1 min-w-[200px]">
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Location" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
             <FormField
               control={form.control}

@@ -131,6 +131,7 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
           isSessionModalOpen={isSessionModalOpen}
           setIsSessionModalOpen={setIsSessionModalOpen}
           getModulesByCourseId={fetchModules}
+          setSelectedSession={setSelectedSession}
         />
       </div>
     </div>

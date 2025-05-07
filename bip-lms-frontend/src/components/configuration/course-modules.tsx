@@ -7,6 +7,10 @@ import { Card } from "@/components/ui/card";
 import { Module } from "@/types/model/module-model";
 import { moduleService } from "@/http/module-service";
 import { DeleteConfirmationModal } from "@/components/ui/delete-confirmation-modal";
+import { Session } from "@/types/model/session-model";
+import ManageSessionModal from "./section/manage-session";
+import { sessionService } from "@/http/session-service";
+
 
 interface CourseModulesProps {
   courseId: string;
@@ -25,15 +29,17 @@ export default function CourseModules({
   setSelectedModule,
   setIsModuleModalOpen,
 }: CourseModulesProps) {
-  // State for delete modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [moduleToDelete, setModuleToDelete] = useState<Module | null>(null);
-
+  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
+  const [isSessionDeleteModalOpen, setIsSessionDeleteModalOpen] = useState(false);
+  const [sessionToDelete, setSessionToDelete] = useState<Session | null>(null);
+  const [moduleIdToExpand, setModuleIdToExpand] = useState<string | null>(null);
   useEffect(() => {
     getModulesByCourseId();
   }, [courseId, getModulesByCourseId]);
 
-  // Toggle the expanded state of a module
   const toggleModule = useCallback(
     (id: string) => {
       setModules((prevModules) =>
@@ -44,21 +50,71 @@ export default function CourseModules({
     },
     [setModules]
   );
+  const handleDeleteSession = async () => {
+    if (sessionToDelete) {
+      try {
+        await sessionService.deleteSession(sessionToDelete.id);
+        getModulesByCourseId();
+        const moduleId = sessionToDelete.moduleId;
+        // Re-expand the module that had the deleted session
+        console.log("module Id=====>"+moduleId)
+        setModules((prevModules) =>
+          prevModules.map((module) =>
+            module.id === moduleId ? { ...module, expanded: true } : module
+          )
+        );
+        setIsSessionDeleteModalOpen(false);
+        setSessionToDelete(null);
+      } catch (error) {
+        console.error("Error deleting session:", error);
+      }
+    }
+  };
 
-  // Handle deletion of a module
   const handleDeleteModule = async () => {
     if (moduleToDelete) {
       try {
         await moduleService.deleteModule(moduleToDelete.id);
-        getModulesByCourseId(); // Refresh modules list after deletion
-        setIsDeleteModalOpen(false); // Close the modal after deletion
+        getModulesByCourseId();
+        setIsDeleteModalOpen(false);
       } catch (error) {
         console.error("Error deleting module:", error);
       }
     }
   };
 
-  // Render the modules with proper actions
+  const handleEdit = (session: Session) => {
+    setSelectedSession(session);
+    setModuleIdToExpand(session.moduleId); // Track the module ID
+    setIsSessionModalOpen(true);
+  };
+
+  const handleCloseSessionModal = () => {
+    setSelectedSession(null);
+    setIsSessionModalOpen(false);
+  
+    // Re-fetch and expand the module that was edited
+    getModulesByCourseId();
+    if (moduleIdToExpand) {
+      setModules((prevModules) =>
+        prevModules.map((module) =>
+          module.id === moduleIdToExpand ? { ...module, expanded: true } : module
+        )
+      );
+      setModuleIdToExpand(null);
+    }
+  };
+
+  const handleDelete = (session: Session) => {
+    setSessionToDelete(session);
+    setIsSessionDeleteModalOpen(true);
+    console.log("Delete session clicked:", session);
+  };
+
+  const handleAddNote = (session: Session) => {
+    console.log("Add note to session:", session);
+  };
+
   const renderModuleActions = (module: Module) => (
     <div className="flex gap-2">
       <Button variant="outline" size="sm" className="text-xs h-8">
@@ -82,7 +138,7 @@ export default function CourseModules({
         className="text-xs h-8 text-red-500 flex items-center gap-1"
         onClick={() => {
           setModuleToDelete(module);
-          setIsDeleteModalOpen(true); // Open delete confirmation modal
+          setIsDeleteModalOpen(true);
         }}
       >
         <Trash2 className="h-3 w-3" />
@@ -124,7 +180,6 @@ export default function CourseModules({
                               key={session.id}
                               className="group flex items-center justify-between rounded-xl border border-gray-200 bg-gradient-to-tr from-white via-slate-50 to-white px-5 py-4 shadow transition-all duration-200 hover:shadow-md"
                             >
-                              {/* Session Info */}
                               <div>
                                 <div className="text-lg font-semibold text-gray-800 group-hover:text-indigo-600 flex items-center gap-2">
                                   <svg
@@ -146,13 +201,12 @@ export default function CourseModules({
                                 )}
                               </div>
 
-                              {/* Session Actions */}
                               <div className="flex gap-2 items-center">
                                 <Button
                                   variant="outline"
                                   size="sm"
                                   className="h-8 text-xs flex items-center gap-1"
-                                  /* onClick={() => handleEdit(session)} */
+                                  onClick={() => handleEdit(session)}
                                   title="Edit Session"
                                 >
                                   <Edit className="h-4 w-4" />
@@ -163,7 +217,7 @@ export default function CourseModules({
                                   variant="outline"
                                   size="sm"
                                   className="h-8 text-xs text-red-500 flex items-center gap-1"
-                                  /* onClick={() => handleDelete(session)} */
+                                  onClick={() => handleDelete(session)}
                                   title="Delete Session"
                                 >
                                   <Trash2 className="h-4 w-4" />
@@ -174,7 +228,7 @@ export default function CourseModules({
                                   variant="outline"
                                   size="sm"
                                   className="h-8 text-xs text-amber-600 flex items-center gap-1"
-                                  /* onClick={() => handleAddNote(session)} */
+                                  onClick={() => handleAddNote(session)}
                                   title="Add Note"
                                 >
                                   <svg
@@ -221,10 +275,27 @@ export default function CourseModules({
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)} // Close the modal on cancel
-        onDelete={handleDeleteModule} // Handle deletion
+        onClose={() => setIsDeleteModalOpen(false)}
+        onDelete={handleDeleteModule}
         title="Are you sure?"
         description="This action cannot be undone. The module will be permanently deleted."
+      />
+      <DeleteConfirmationModal
+        isOpen={isSessionDeleteModalOpen}
+        onClose={() => setIsSessionDeleteModalOpen(false)}
+        onDelete={handleDeleteSession}
+        title="Delete this session?"
+        description="This action cannot be undone. The session will be permanently deleted."
+      />
+
+
+      {/* ✅ Session Edit Modal */}
+      <ManageSessionModal
+        courseId={courseId}
+        selectedSession={selectedSession}
+        isSessionModalOpen={isSessionModalOpen}
+        setIsSessionModalOpen={handleCloseSessionModal}
+        getModulesByCourseId={getModulesByCourseId}
       />
     </>
   );
