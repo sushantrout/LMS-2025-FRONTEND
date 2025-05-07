@@ -19,7 +19,6 @@ import {
 import { moduleService } from '@/http/module-service';
 export default function ModuleSessionDetails({ moduleId }: { moduleId: string }) {
     const router = useRouter();
-    console.log("moduleId===>", moduleId);
     const searchParams = useSearchParams();
     const [selectedSession, setSelectedSession] = useState(null)
     const [isSessionDialogOpen, setIsSessionDialogOpen] = useState(false)
@@ -180,7 +179,7 @@ export default function ModuleSessionDetails({ moduleId }: { moduleId: string })
           </ScrollArea>
                 
           <div className="flex justify-end gap-2 pt-6">
-            <Button variant="outline" onClick={() => router.push(`/configuration/manage-course/${courseId}`)}>
+            <Button variant="outline" onClick={() => router.back()}>
               Back
             </Button>
             

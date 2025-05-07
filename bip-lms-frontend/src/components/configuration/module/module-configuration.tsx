@@ -84,24 +84,10 @@ export default function ModulesConfiguration({
     if (courseId) {
       moduleService.getModuleByCourseId(courseId).then((course) => {
         setModules(course.data.data);
+        console.log("course.data.data===>", course.data.data);
       });
     }
   }, [courseId]);
-  
-  // Filter modules based on search query and status filter
-  const filteredModules = Array.isArray(modules)
-    ? modules.filter((module) => {
-        const query = searchQuery?.toLowerCase() || "";
-        const matchesSearch =
-          module.name.toLowerCase().includes(query) ||
-          module.description.toLowerCase().includes(query);
-
-        const matchesStatus =
-          statusFilter === "all" || module.name === statusFilter;
-
-        return matchesSearch && matchesStatus;
-      })
-    : [];
 
   // Handle module form submission
   const handleModuleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -131,7 +117,7 @@ export default function ModulesConfiguration({
           const updatedModules = modules.map((m) =>
             m.id === updated.data.data.id ? updated.data.data : m
           );
-          setModules(updatedModules);
+          //setModules(updatedModules);
           setIsModuleDialogOpen(false);
         });
     } else {
@@ -145,8 +131,8 @@ export default function ModulesConfiguration({
     if (courseId) {
       courseService.getCourseDetail(courseId).then((course) => {
         setCourse(course.data.data);
-        setModules(course.data.data.modules);
-        console.log("course.data.data.modules===>", course.data.data.modules);
+       // setModules(course.data.data);
+        console.log("course.data.data===>", course.data.data);
       });
     }
   }, [courseId]);
@@ -162,7 +148,7 @@ export default function ModulesConfiguration({
 
   // Handle module deletion
   const handleDeleteModule = () => {
-    setModules(modules.filter((m) => m.id !== selectedModule.id));
+    //setModules(modules.filter((m) => m.id !== selectedModule.id));
     setIsDeleteDialogOpen(false);
     setSelectedModule(null);
   };
@@ -183,7 +169,7 @@ export default function ModulesConfiguration({
       return module;
     });
 
-    setModules(updatedModules);
+    //setModules(updatedModules);
     setIsDeleteSessionDialogOpen(false);
     setSelectedSession(null);
   };
@@ -277,7 +263,7 @@ export default function ModulesConfiguration({
             <CardHeader className="pb-3">
               <CardTitle>All Modules</CardTitle>
               <CardDescription>
-                Showing {filteredModules.length} modules
+                Showing {modules.length} modules
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -299,7 +285,7 @@ export default function ModulesConfiguration({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredModules.length === 0 ? (
+                  {modules.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={6}
@@ -309,7 +295,7 @@ export default function ModulesConfiguration({
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredModules.map((module) => (
+                    modules.map((module) => (
                       <TableRow key={module.id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
@@ -416,7 +402,7 @@ export default function ModulesConfiguration({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredModules.filter((m) => m.name === "active").length ===
+                  {modules.filter((m) => m.name === "active").length ===
                   0 ? (
                     <TableRow>
                       <TableCell
@@ -427,7 +413,7 @@ export default function ModulesConfiguration({
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredModules
+                    modules
                       .filter((m) => m.name === "active")
                       .map((module) => (
                         <TableRow key={module.id}>
@@ -501,7 +487,7 @@ export default function ModulesConfiguration({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredModules.filter((m) => m.name === "draft").length ===
+                  {modules.filter((m) => m.name === "draft").length ===
                   0 ? (
                     <TableRow>
                       <TableCell
@@ -512,7 +498,7 @@ export default function ModulesConfiguration({
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredModules
+                    modules
                       .filter((m) => m.name === "draft")
                       .map((module) => (
                         <TableRow key={module.id}>
