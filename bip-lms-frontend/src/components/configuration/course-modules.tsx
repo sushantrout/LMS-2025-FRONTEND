@@ -124,6 +124,7 @@ export default function CourseModules({
                               key={session.id}
                               className="group flex items-center justify-between rounded-xl border border-gray-200 bg-gradient-to-tr from-white via-slate-50 to-white px-5 py-4 shadow transition-all duration-200 hover:shadow-md"
                             >
+                              {/* Session Info */}
                               <div>
                                 <div className="text-lg font-semibold text-gray-800 group-hover:text-indigo-600 flex items-center gap-2">
                                   <svg
@@ -144,15 +145,50 @@ export default function CourseModules({
                                   </div>
                                 )}
                               </div>
-                              {/* Optional action buttons */}
-                              {/* <div className="flex gap-2 text-gray-400 hover:text-indigo-500 cursor-pointer">
-              <button title="Edit">
-                <PencilIcon className="w-5 h-5" />
-              </button>
-              <button title="Delete">
-                <TrashIcon className="w-5 h-5" />
-              </button>
-            </div> */}
+
+                              {/* Session Actions */}
+                              <div className="flex gap-2 items-center">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-8 text-xs flex items-center gap-1"
+                                  /* onClick={() => handleEdit(session)} */
+                                  title="Edit Session"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                  Edit Session
+                                </Button>
+
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-8 text-xs text-red-500 flex items-center gap-1"
+                                  /* onClick={() => handleDelete(session)} */
+                                  title="Delete Session"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                  Delete Session
+                                </Button>
+
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-8 text-xs text-amber-600 flex items-center gap-1"
+                                  /* onClick={() => handleAddNote(session)} */
+                                  title="Add Note"
+                                >
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={1.5}
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path d="M15 3H5a2 2 0 0 0-2 2v14l4-4h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z" />
+                                  </svg>
+                                  Add Note
+                                </Button>
+                              </div>
                             </div>
                           ))}
                         </div>
