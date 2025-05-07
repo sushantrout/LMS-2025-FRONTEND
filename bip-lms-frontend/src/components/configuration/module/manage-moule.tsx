@@ -76,7 +76,6 @@ export default function ManageModuleModal({
   const [course, setCourse] = useState<Course | null>(null);
 
   useEffect(() => {
-    debugger
     if (selectedModule) {
       form.reset({
         name: selectedModule.name ?? "",

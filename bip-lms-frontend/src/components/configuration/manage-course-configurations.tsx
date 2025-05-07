@@ -14,7 +14,8 @@ import { Module } from "@/types/model/module-model";
 import { courseService } from "@/http/course-service";
 import { moduleService } from "@/http/module-service";
 
-import CourseModules from "./module/course-modules";
+import CourseModules from "./course-modules";
+import ManageSessionModal from "./section/manage-session";
 import ManageModuleModal from "./module/manage-moule";
 
 export default function ManageCoursePage({ courseId }: { courseId: string }) {
@@ -22,6 +23,8 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [modules, setModules] = useState<Module[]>([]);
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
   const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
+  const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<Module | null>(null);
 
   const fetchModules = useCallback(async () => {
     try {
@@ -77,11 +80,15 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
             <span className="text-primary font-medium">Add Module</span>
           </Button>
 
-          <Button variant="outline" className={commonButtonClass}>
+          <Button variant="outline" className={commonButtonClass} onClick={() => {
+              setSelectedSession(null);
+              setIsSessionModalOpen(true);
+            }
+          }>
             <div className={`${iconStyle} bg-blue-50 border-blue-200`}>
               <BookOpen className="h-5 w-5 text-blue-600" />
             </div>
-            <span className="text-blue-600 font-medium">Add Lesson</span>
+            <span className="text-blue-600 font-medium">Add Session</span>
           </Button>
 
           <Button variant="outline" className={commonButtonClass}>
@@ -115,6 +122,14 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
           setSelectedModule={setSelectedModule}
           setIsModuleModalOpen={setIsModuleModalOpen}
           setModules={setModules}
+          getModulesByCourseId={fetchModules}
+        />
+        
+        <ManageSessionModal
+          courseId={courseId}
+          selectedSession={selectedSession}
+          isSessionModalOpen={isSessionModalOpen}
+          setIsSessionModalOpen={setIsSessionModalOpen}
           getModulesByCourseId={fetchModules}
         />
       </div>
