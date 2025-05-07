@@ -21,7 +21,6 @@ import { courseService } from "@/http/course-service";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -131,11 +130,6 @@ export default function ManageCourseModal({
           <DialogTitle>
             {selectedCourse ? "Edit Course" : "Add New Course"}
           </DialogTitle>
-          <DialogDescription>
-            {selectedCourse
-              ? "Update the details of this course."
-              : "Fill in the details to create a new course."}
-          </DialogDescription>
         </DialogHeader>
         <form
           onSubmit={handleSubmit}

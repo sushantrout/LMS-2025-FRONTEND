@@ -20,7 +20,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -147,11 +146,6 @@ export default function UsersPage() {
             <DialogTitle>
               {editingUser ? "Edit User" : "Create New User"}
             </DialogTitle>
-            <DialogDescription>
-              {editingUser
-                ? "Update the user details below."
-                : "Fill in the details to create a new user."}
-            </DialogDescription>
           </DialogHeader>
           <UserFormComponent
             userForm={form}

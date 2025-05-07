@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -115,11 +114,6 @@ export default function ManageModuleModal({
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{selectedModule?.id ? "Edit Module" : "Create Module"}</DialogTitle>
-          <DialogDescription>
-            {selectedModule?.id
-              ? "Update the module details below."
-              : "Fill in the details to create a new module."}
-          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
