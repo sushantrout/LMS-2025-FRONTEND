@@ -1,6 +1,6 @@
 import { Course } from "@/types/model/course-model";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Star, StarHalf } from "lucide-react";
+import { Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Duration } from "./course-duration";
@@ -9,19 +9,27 @@ import RatingStar from "../ui/rating-star";
 export default function CourseCard({
   course,
   type,
+  setSelectedCourse,
+  setOpenCourseModal,
 }: {
   course: Course;
   type: "catalog" | "configuration";
+  setSelectedCourse,
+  setOpenCourseModal
 }) {
   return (
     <div className="flex flex-col overflow-hidden rounded-lg border bg-card text-card-foreground">
       <div className="relative">
         <img
-          src={course.coverImage ? `data:${course?.coverImage?.contentType};base64,${course?.coverImage?.imageInByteArray}` : "/images/course/course-cover.avif"}
+          src={
+            course.coverImage
+              ? `data:${course.coverImage.contentType};base64,${course.coverImage.imageInByteArray}`
+              : "/images/course/course-cover.avif"
+          }
           alt={course.name}
           className="aspect-video w-full object-cover"
         />
-        <Badge className="absolute right-3 top-3 ">
+        <Badge className="absolute right-3 top-3">
           {course.category?.name}
         </Badge>
       </div>
@@ -34,12 +42,9 @@ export default function CourseCard({
       <div className="mt-auto p-4 pt-0">
         <div className="flex items-center justify-between mb-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-1.5">
-          <div className="flex">
-              <RatingStar rating={course.rating} />
-            </div>
+            <RatingStar rating={course.rating} />
           </div>
           <div className="flex items-center text-yellow-500 font-medium gap-1">
-            
             <Clock className="h-4 w-4" />
             <span>
               <Duration duration={Number(course.duration)} />
@@ -47,19 +52,23 @@ export default function CourseCard({
           </div>
         </div>
         <div className="flex gap-2">
-          <ActionButton type={type} course={course} />
+          <ActionButtons type={type} course={course} setSelectedCourse={setSelectedCourse} setOpenCourseModal={setOpenCourseModal}/>
         </div>
       </div>
     </div>
   );
 }
 
-const ActionButton = ({
+const ActionButtons = ({
   type,
   course,
+  setSelectedCourse,
+  setOpenCourseModal,
 }: {
   type: "catalog" | "configuration";
   course: Course;
+  setSelectedCourse?: (course: Course) => void;
+  setOpenCourseModal?: (open: boolean) => void;
 }) => {
   if (type === "configuration") {
     return (
@@ -68,14 +77,26 @@ const ActionButton = ({
       </Link>
     );
   }
+
   if (type === "catalog") {
     return (
-      <Link
-        href={`/configuration/manage-course/${course.id}`}
-        className="flex-1"
-      >
-        <Button className="w-full">Manage</Button>
-      </Link>
+      <>
+        <Button
+          className="flex-1"
+          onClick={() => {
+            console.log("Edit course", setOpenCourseModal);
+            setSelectedCourse(course);
+            setOpenCourseModal(true);
+          }}
+        >
+          Edit
+        </Button>
+        <Link href={`/configuration/manage-course/${course.id}`} className="flex-1">
+          <Button className="w-full">Manage Modules</Button>
+        </Link>
+      </>
     );
   }
+
+  return null;
 };

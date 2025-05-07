@@ -1,4 +1,3 @@
-import ModuleSessionDetails from '@/components/configuration/module/module-session-details'
 import React from 'react'
 
 export default async function page({
@@ -8,6 +7,6 @@ export default async function page({
 }) {
   const { moduleId } = await params
   return (
-    <ModuleSessionDetails moduleId={moduleId} />
+    {/* <ModuleSessionDetails moduleId={moduleId} /> */}
   )
 }

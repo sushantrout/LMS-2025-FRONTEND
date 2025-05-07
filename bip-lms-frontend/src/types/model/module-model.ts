@@ -8,6 +8,7 @@ export type Module = MasterData & {
     sessions: Session[];
     course:Course;
     status?: string;
+    expanded?: boolean; // For UI state management
   };
   
 export const initialModule: Module = {
