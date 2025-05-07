@@ -16,9 +16,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Module, initialModule } from "@/types/model/module-model";
+import { initialModule, Module } from "@/types/model/module-model";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,6 +32,7 @@ import {
 import { courseService } from "@/http/course-service";
 import { User } from "@/types/model/user-model";
 import { moduleService } from "@/http/module-service";
+import { Course } from "@/types/model/course-model";
 
 interface ManageCourseModalProps {
   setModules: React.Dispatch<React.SetStateAction<Module[]>>;
@@ -47,6 +47,7 @@ const moduleSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
   sortOrder: z.coerce.number().min(0, "Sort order must be a non-negative number"),
+  trainer: z.string().optional(),
 });
 
 type ModuleFormValues = z.infer<typeof moduleSchema>;
@@ -60,14 +61,12 @@ export default function ManageModuleModal({
 }: ManageCourseModalProps) {
   const form = useForm<ModuleFormValues>({
     resolver: zodResolver(moduleSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      sortOrder: 0,
-    },
+    defaultValues: {},
   });
+
   const [instructors, setInstructors] = useState<User[]>([]);
   const [course, setCourse] = useState<Course | null>(null);
+
   // Populate form when editing
   useEffect(() => {
     if (selectedModule) {
@@ -75,23 +74,27 @@ export default function ManageModuleModal({
         name: selectedModule.name ?? "",
         description: selectedModule.description ?? "",
         sortOrder: selectedModule.sortOrder ?? 0,
+        trainer: selectedModule.trainer?.id ?? "",
       });
     } else {
-      form.reset(); // Reset for new module
+      form.reset();
     }
+
     if (courseId) {
       courseService.getCourseDetail(courseId).then((res) => {
-        setCourse(res?.data?.data)
-        setInstructors(res?.data?.data?.instructors);
+        const courseData = res?.data?.data;
+        setCourse(courseData);
+        setInstructors(courseData?.instructors ?? []);
       });
     }
-  }, [selectedModule, form]);
+  }, [selectedModule, form, courseId]);
 
   const onSubmit = (values: ModuleFormValues) => {
     const newModule: Module = {
       ...selectedModule,
       ...values,
-      course:course
+      course: course!,
+      trainer: values.trainer ? { id: values.trainer } : undefined,
     };
 
     setModules((prev) => {
@@ -101,7 +104,8 @@ export default function ManageModuleModal({
         return [...prev, { ...newModule, id: crypto.randomUUID() }];
       }
     });
-    moduleService.createModule(newModule).then((res) => {
+
+    moduleService.createModule(newModule).then(() => {
       setIsModuleModalOpen(false);
     });
   };
@@ -133,15 +137,29 @@ export default function ManageModuleModal({
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
-              name="instructor"
+              name="sortOrder"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sort Order</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="Sort order" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="trainer"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Instructor</FormLabel>
                   <FormControl>
-                    <Select
-                      onValueChange={field.onChange}>
+                    <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select an instructor" />
                       </SelectTrigger>
@@ -158,6 +176,7 @@ export default function ManageModuleModal({
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="description"
@@ -165,12 +184,8 @@ export default function ManageModuleModal({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <div className=" overflow-y-auto rounded border border-input">
-                      <QuillEditor
-                        theme="snow"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
+                    <div className="overflow-y-auto rounded border border-input">
+                      <QuillEditor theme="snow" value={field.value} onChange={field.onChange} />
                     </div>
                   </FormControl>
                   <FormMessage />
