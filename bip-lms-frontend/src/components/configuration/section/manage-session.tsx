@@ -50,12 +50,12 @@ const moduleSchema = z.object({
 type ModuleFormSchema = z.infer<typeof moduleSchema>;
 
 interface ManageSessionModalProps {
+  courseId: string;
+  selectedSession: Session | null;
   isSessionModalOpen: boolean;
   setIsSessionModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  courseId: string;
   getModulesByCourseId: () => void;
-  selectedSession: Session | null;
-  setSelectedSession: React.Dispatch<React.SetStateAction<Session | null>>;
+  setSelectedSession?: React.Dispatch<React.SetStateAction<Session | null>>;
 }
 
 export default function ManageSessionModal({
@@ -120,7 +120,7 @@ export default function ManageSessionModal({
       } else {
         await createSession(values);
       }
-      setSelectedSession(null);
+      setSelectedSession?.(null);
       setIsSessionModalOpen(false);
       getModulesByCourseId();
 

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 export default function MyLearning() {
   const [currentPage, setCurrentPage] = useState(1)
@@ -122,11 +123,12 @@ interface Course {
 }
 
 function CourseCard({ course }: { course: Course }) {
+  const router = useRouter();
   return (
-    <div className="border rounded-md overflow-hidden flex flex-col">
+    <div className="border rounded-md overflow-hidden flex flex-col" onClick={() => {router.push("/my-learning/ID")}}>
       <div className="relative">
         <Image
-          src={course.image || "/placeholder.svg"}
+          src={"/images/course/course-cover.avif"}
           alt={course.title}
           width={400}
           height={225}
