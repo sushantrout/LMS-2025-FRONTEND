@@ -49,6 +49,12 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
     });
   };
 
+  const enrollmentTheCourse = () => {
+    courseService.enroll(courseId).then(res => {
+      console.log(res.data);
+    });
+  }
+
   useEffect(() => {
     getCourseData();
     getCourseReviews();
@@ -239,7 +245,7 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                 <div className="text-3xl font-bold mb-4">
                   {/* ${course?.duration} */}
                 </div>
-                <Button className="w-full mb-3 ">Enroll Now</Button>
+                <Button className="w-full mb-3 " onClick={() => enrollmentTheCourse()}>Enroll Now</Button>
                 <Button variant="outline" className="w-full mb-6">
                   Add to Wishlist
                 </Button>

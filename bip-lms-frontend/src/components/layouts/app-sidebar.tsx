@@ -94,6 +94,25 @@ const data = {
       ],
     },
     {
+      title: "My Learning",
+      url: "/my-learning",
+      icon: BookAIcon,
+      items: [
+        {
+          title: "Genesis",
+          url: "#",
+        },
+        {
+          title: "Explorer",
+          url: "#",
+        },
+        {
+          title: "Quantum",
+          url: "#",
+        },
+      ],
+    },
+    {
       title: "Users",
       url: "/users",
       icon: UsersIcon,

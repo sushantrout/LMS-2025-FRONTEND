@@ -14,8 +14,8 @@ export default function CourseCard({
 }: {
   course: Course;
   type: "catalog" | "configuration";
-  setSelectedCourse,
-  setOpenCourseModal
+  setSelectedCourse?:any,
+  setOpenCourseModal?:any
 }) {
   return (
     <div className="flex flex-col overflow-hidden rounded-lg border bg-card text-card-foreground">
