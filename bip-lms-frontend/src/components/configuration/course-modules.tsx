@@ -193,10 +193,9 @@ export default function CourseModules({
 
                   {module.expanded && (
                     <>
-                      {module.sessions?.filter(session => session.isActive && !session.isDeleted).length > 0 ? (
+                      {module.sessions?.length > 0 ? (
                         <div className="mt-6 space-y-4">
                           {module.sessions
-                            .filter(session => session.isActive && !session.isDeleted)
                             .map((session) => (
                               <div
                                 key={session.id}
