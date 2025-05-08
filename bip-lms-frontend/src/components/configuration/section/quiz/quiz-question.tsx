@@ -1,144 +1,271 @@
-import { Button } from "@/components/ui/button";
-import { QuestionType, Option, Question } from "./manage-quiz";
-
+"use client"
+import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Badge } from "@/components/ui/badge"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import type { QuestionType, Option, Question } from "./manage-quiz"
 
 export default function QuizQuestion({
-    questions,
-    expandedIndex,
-    setExpandedIndex,
-    updateQuestion,
-    updateOption,
-    removeOption,
-    addOption,
-    addQuestion,
-  }: {
-    questions: Question[];
-    expandedIndex: number | null;
-    setExpandedIndex: (index: number) => void;
-    updateQuestion: (index: number, updated: Partial<Question>) => void;
-    updateOption: (
-      qIndex: number,
-      oIndex: number,
-      updated: Partial<Option>
-    ) => void;
-    removeOption: (qIndex: number, oIndex: number) => void;
-    addOption: (qIndex: number) => void;
-    addQuestion: () => void;
-  }) {
-    return (
-      <div className="flex flex-col gap-6">
-        {questions.map((q, qIndex) => (
-          <div key={q.id} className="border border-gray-300 rounded mb-2">
-            <div
-              className="flex items-center justify-between p-4 cursor-pointer"
+  questions,
+  expandedIndex,
+  setExpandedIndex,
+  updateQuestion,
+  updateOption,
+  removeOption,
+  addOption,
+  addQuestion,
+}: {
+  questions: Question[]
+  expandedIndex: number | null
+  setExpandedIndex: (index: number) => void
+  updateQuestion: (index: number, updated: Partial<Question>) => void
+  updateOption: (qIndex: number, oIndex: number, updated: Partial<Option>) => void
+  removeOption: (qIndex: number, oIndex: number) => void
+  addOption: (qIndex: number) => void
+  addQuestion: () => void
+}) {
+  return (
+    <div className="flex flex-col gap-6">
+      {!questions || questions.length === 0 ? (
+        <div className="text-center p-8 border border-dashed rounded-lg bg-muted/50">
+          <p className="text-muted-foreground mb-4">No questions yet. Create your first question to get started.</p>
+          <Button onClick={addQuestion}>
+            <Plus className="mr-2 h-4 w-4" /> Create First Question
+          </Button>
+        </div>
+      ) : (
+        questions.map((q, qIndex) => (
+          <Card key={q.id} className="shadow-sm transition-all duration-200 hover:shadow-md">
+            <CardHeader
+              className={`flex flex-row items-center justify-between p-4 cursor-pointer ${
+                expandedIndex === qIndex ? "border-b" : ""
+              }`}
               onClick={() => setExpandedIndex(qIndex)}
             >
-              <span className="font-medium">
-                {q.question || `Question ${qIndex + 1}`}
-              </span>
-              <span>{expandedIndex === qIndex ? "▲" : "▼"}</span>
-            </div>
-            {expandedIndex === qIndex && (
-              <div className="p-4 border-t space-y-3">
-                <label className="font-medium">Question</label>
-                <input
-                  className="w-full border px-2 py-1 rounded"
-                  type="text"
-                  placeholder="Enter your question"
-                  value={q.question}
-                  onChange={(e) =>
-                    updateQuestion(qIndex, { question: e.target.value })
-                  }
-                />
-  
-                <label className="font-medium">Type</label>
-                <select
-                  className="w-full border px-2 py-1 rounded"
-                  value={q.type}
-                  onChange={(e) =>
-                    updateQuestion(qIndex, {
-                      type: e.target.value as QuestionType,
-                      options: [],
-                    })
-                  }
-                >
-                  <option value="SINGLE_SELECT">Single Select</option>
-                  <option value="MULTI_SELECT">Multi Select</option>
-                  <option value="DESCRIPTIVE">Description</option>
-                </select>
-  
-                {q.type !== "DESCRIPTIVE" && (
-                  <div className="space-y-2">
-                    {q.options.map((opt, oIndex) => (
-                      <div key={opt.id} className="flex gap-2 items-center">
-                        <input
-                          className="flex-1 border px-2 py-1 rounded"
-                          type="text"
-                          placeholder="Option value"
-                          value={opt.value}
-                          onChange={(e) =>
-                            updateOption(qIndex, oIndex, {
-                              value: e.target.value,
-                            })
-                          }
-                        />
-                        {q.type === "SINGLE_SELECT" ? (
-                          <input
-                            type="radio"
-                            name={`single-select-${q.id}`}
-                            checked={opt.isCorrect}
-                            onChange={() => {
-                              const updatedOptions = q.options.map(
-                                (option, idx) => ({
-                                  ...option,
-                                  isCorrect: idx === oIndex,
-                                })
-                              );
-                              updateQuestion(qIndex, { options: updatedOptions });
-                            }}
-                          />
-                        ) : (
-                          <input
-                            type="checkbox"
-                            checked={opt.isCorrect}
-                            onChange={(e) =>
-                              updateOption(qIndex, oIndex, {
-                                isCorrect: e.target.checked,
-                              })
-                            }
-                          />
-                        )}
-                        <span>Correct</span>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => removeOption(qIndex, oIndex)}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    ))}
-                    <Button
-                      type="button"
-                      onClick={() => addOption(qIndex)}
-                      className="mt-2"
-                    >
-                      + Add Option
-                    </Button>
-                  </div>
+              <div className="flex items-center gap-3">
+                <Badge variant="outline" className="h-6 w-6 flex items-center justify-center p-0 rounded-full">
+                  {qIndex + 1}
+                </Badge>
+                <CardTitle className="text-base font-medium">
+                  {q.question ? q.question : `Question ${qIndex + 1}`}
+                </CardTitle>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant={getQuestionTypeBadgeVariant(q.type)} className="mr-2">
+                  {getQuestionTypeLabel(q.type)}
+                </Badge>
+                {expandedIndex === qIndex ? (
+                  <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-muted-foreground" />
                 )}
               </div>
+            </CardHeader>
+            {expandedIndex === qIndex && (
+              <CardContent className="p-4 space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor={`question-${q.id}`} className="font-medium">
+                    Question Text
+                  </Label>
+                  <Input
+                    id={`question-${q.id}`}
+                    placeholder="Enter your question"
+                    value={q.question}
+                    onChange={(e) => updateQuestion(qIndex, { question: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`type-${q.id}`} className="font-medium">
+                    Question Type
+                  </Label>
+                  <Select
+                    value={q.type}
+                    onValueChange={(value) =>
+                      updateQuestion(qIndex, {
+                        type: value as QuestionType,
+                        options: q.type !== "DESCRIPTIVE" && value === "DESCRIPTIVE" ? [] : q.options,
+                      })
+                    }
+                  >
+                    <SelectTrigger id={`type-${q.id}`}>
+                      <SelectValue placeholder="Select question type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SINGLE_SELECT">Single Select</SelectItem>
+                      <SelectItem value="MULTI_SELECT">Multi Select</SelectItem>
+                      <SelectItem value="DESCRIPTIVE">Descriptive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {q.type !== "DESCRIPTIVE" && (
+                  <div className="space-y-4 pt-2">
+                    <div className="flex items-center justify-between">
+                      <Label className="font-medium">Answer Options</Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="outline" size="sm" onClick={() => addOption(qIndex)}>
+                              <Plus className="h-4 w-4 mr-1" /> Add Option
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Add a new answer option</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+
+                    {q.options.length === 0 ? (
+                      <div className="text-center p-4 border border-dashed rounded-md bg-muted/30">
+                        <p className="text-sm text-muted-foreground">No options yet. Add your first option.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {q.options.map((opt, oIndex) => (
+                          <div
+                            key={opt.id}
+                            className="flex gap-3 items-center p-3 rounded-md border bg-card hover:bg-accent/5 transition-colors"
+                          >
+                            <div className="flex-1">
+                              <Input
+                                placeholder="Option text"
+                                value={opt.value}
+                                onChange={(e) => updateOption(qIndex, oIndex, { value: e.target.value })}
+                              />
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              {q.type === "SINGLE_SELECT" ? (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="flex items-center gap-2">
+                                        <RadioGroup
+                                          value={opt.isCorrect ? "correct" : ""}
+                                          onValueChange={(value) => {
+                                            const updatedOptions = q.options.map((option, idx) => ({
+                                              ...option,
+                                              isCorrect: idx === oIndex,
+                                            }))
+                                            updateQuestion(qIndex, { options: updatedOptions })
+                                          }}
+                                        >
+                                          <div className="flex items-center space-x-2">
+                                            <RadioGroupItem value="correct" id={`radio-${q.id}-${opt.id}`} />
+                                            <Label htmlFor={`radio-${q.id}-${opt.id}`} className="text-sm font-normal">
+                                              Correct
+                                            </Label>
+                                          </div>
+                                        </RadioGroup>
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Mark as correct answer</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              ) : (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="flex items-center gap-2">
+                                        <Checkbox
+                                          id={`checkbox-${q.id}-${opt.id}`}
+                                          checked={opt.isCorrect}
+                                          onCheckedChange={(checked) =>
+                                            updateOption(qIndex, oIndex, { isCorrect: checked as boolean })
+                                          }
+                                        />
+                                        <Label htmlFor={`checkbox-${q.id}-${opt.id}`} className="text-sm font-normal">
+                                          Correct
+                                        </Label>
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Mark as correct answer</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )}
+
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => removeOption(qIndex, oIndex)}
+                                      className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Remove this option</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {q.type === "DESCRIPTIVE" && (
+                  <div className="p-4 bg-muted/30 rounded-md">
+                    <p className="text-sm text-muted-foreground">
+                      Descriptive questions allow respondents to provide free-form text answers.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
             )}
-          </div>
-        ))}
-  
-        {/* <div>
-                <label className="font-semibold block mb-2">JSON Preview:</label>
-                <pre className="bg-gray-100 p-4 rounded text-sm overflow-x-auto">
-                  {JSON.stringify({ questions }, null, 2)}
-                </pre>
-              </div> */}
-        <Button onClick={addQuestion}>+ Add Question</Button>
-      </div>
-    );
+          </Card>
+        ))
+      )}
+
+      {questions && questions.length > 0 && (
+        <Button onClick={addQuestion} className="flex items-center gap-2 w-full sm:w-auto">
+          <Plus className="h-4 w-4" /> Add New Question
+        </Button>
+      )}
+    </div>
+  )
+}
+
+// Helper functions
+function getQuestionTypeLabel(type: QuestionType): string {
+  switch (type) {
+    case "SINGLE_SELECT":
+      return "Single Choice"
+    case "MULTI_SELECT":
+      return "Multiple Choice"
+    case "DESCRIPTIVE":
+      return "Descriptive"
+    default:
+      return type
   }
+}
+
+function getQuestionTypeBadgeVariant(type: QuestionType): "default" | "secondary" | "outline" {
+  switch (type) {
+    case "SINGLE_SELECT":
+      return "default"
+    case "MULTI_SELECT":
+      return "secondary"
+    case "DESCRIPTIVE":
+      return "outline"
+    default:
+      return "default"
+  }
+}
