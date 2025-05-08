@@ -119,6 +119,7 @@ const data = {
       title: "Users",
       url: "/users",
       icon: UsersIcon,
+      roles: ['admin'],
       items: [
         {
           title: "Genesis",
