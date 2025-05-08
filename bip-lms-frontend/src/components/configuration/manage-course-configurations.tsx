@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  BookOpen,
-  FileQuestion,
-  FileText,
-  PlusCircle,
-} from "lucide-react";
+import { BookOpen, FileQuestion, FileText, PlusCircle } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -17,6 +12,7 @@ import { moduleService } from "@/http/module-service";
 import CourseModules from "./course-modules";
 import ManageSessionModal from "./section/manage-session";
 import ManageModuleModal from "./module/manage-moule";
+import ManageQuizModal from "./section/manage-quiz";
 
 export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [course, setCourse] = useState<Course | null>(null);
@@ -25,6 +21,7 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
   const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
   const [selectedSession, setSelectedSession] = useState<Module | null>(null);
+  const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
 
   const fetchModules = useCallback(async () => {
     try {
@@ -80,18 +77,25 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
             <span className="text-primary font-medium">Add Module</span>
           </Button>
 
-          <Button variant="outline" className={commonButtonClass} onClick={() => {
+          <Button
+            variant="outline"
+            className={commonButtonClass}
+            onClick={() => {
               setSelectedSession(null);
               setIsSessionModalOpen(true);
-            }
-          }>
+            }}
+          >
             <div className={`${iconStyle} bg-blue-50 border-blue-200`}>
               <BookOpen className="h-5 w-5 text-blue-600" />
             </div>
             <span className="text-blue-600 font-medium">Add Session</span>
           </Button>
 
-          <Button variant="outline" className={commonButtonClass}>
+          <Button variant="outline" className={commonButtonClass} onClick={() => {
+              setSelectedSession(null);
+              setIsQuizModalOpen(true);
+            }}
+          >
             <div className={`${iconStyle} bg-red-50 border-red-200`}>
               <FileQuestion className="h-5 w-5 text-red-500" />
             </div>
@@ -124,7 +128,7 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
           setModules={setModules}
           getModulesByCourseId={fetchModules}
         />
-        
+
         <ManageSessionModal
           courseId={courseId}
           selectedSession={selectedSession}
@@ -132,6 +136,14 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
           setIsSessionModalOpen={setIsSessionModalOpen}
           getModulesByCourseId={fetchModules}
           setSelectedSession={setSelectedSession}
+        />
+
+        <ManageQuizModal
+          courseId={courseId}
+          selectedSession={selectedSession}
+          isQuizModalOpen={isQuizModalOpen}
+          setIsQuizModalOpen={setIsQuizModalOpen}
+          getModulesByCourseId={fetchModules}
         />
       </div>
     </div>

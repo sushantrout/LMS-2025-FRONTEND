@@ -1,4 +1,3 @@
-import { httpClient } from "./http-service";
 import { lmsService } from "./lms-service";
 
 const BASE_URL = "v1/module";
