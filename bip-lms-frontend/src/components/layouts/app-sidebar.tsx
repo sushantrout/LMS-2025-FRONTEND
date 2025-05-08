@@ -59,6 +59,7 @@ const data = {
       url: "/",
       icon: LayoutDashboard,
       isActive: true,
+      roles: ['admin' , 'student'],
       items: [
         {
           title: "History",
@@ -197,6 +198,12 @@ const data = {
   ],
 }
 
+const getAuthorizedMenu = ()=> {
+  return data.navMain.filter((item)=> !item.roles || item.roles.includes(process.env.NEXT_PUBLIC_ROLE))
+}
+
+const menus = getAuthorizedMenu();
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -204,7 +211,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={menus} />
         {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
