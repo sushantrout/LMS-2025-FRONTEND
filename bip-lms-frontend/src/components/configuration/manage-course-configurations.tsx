@@ -12,7 +12,7 @@ import { moduleService } from "@/http/module-service";
 import CourseModules from "./course-modules";
 import ManageSessionModal from "./section/manage-session";
 import ManageModuleModal from "./module/manage-moule";
-import ManageQuizModal from "./section/manage-quiz";
+import ManageQuizModal from "./section/quiz/manage-quiz";
 
 export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [course, setCourse] = useState<Course | null>(null);
