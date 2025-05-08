@@ -54,6 +54,7 @@ export default function ManageQuizModal({
   const [modules, setModules] = useState<Module[]>([]);
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
   const [selectedSession, setSelectedSession] = useState<any>(null);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -67,6 +68,7 @@ export default function ManageQuizModal({
     setSelectedModule(null);
     setSelectedSession(null);
     setQuestions([]);
+    setExpandedIndex(null);
   };
 
   const addQuestion = () => {
@@ -81,6 +83,7 @@ export default function ManageQuizModal({
         options: [],
       },
     ]);
+    setExpandedIndex(questions.length);
   };
 
   const updateQuestion = (index: number, updated: Partial<Question>) => {
@@ -173,95 +176,101 @@ export default function ManageQuizModal({
         {selectedSession && (
           <div className="flex flex-col gap-6">
             {questions.map((q, qIndex) => (
-              <div
-                key={q.id}
-                className="p-4 border border-gray-300 rounded space-y-3"
-              >
-                <label className="font-medium">Question</label>
-                <input
-                  className="w-full border px-2 py-1 rounded"
-                  type="text"
-                  placeholder="Enter your question"
-                  value={q.question}
-                  onChange={(e) =>
-                    updateQuestion(qIndex, { question: e.target.value })
-                  }
-                />
-
-                <label className="font-medium">Type</label>
-                <select
-                  className="w-full border px-2 py-1 rounded"
-                  value={q.type}
-                  onChange={(e) =>
-                    updateQuestion(qIndex, {
-                      type: e.target.value as QuestionType,
-                      options: [],
-                    })
-                  }
+              <div key={q.id} className="border border-gray-300 rounded mb-2">
+                <div
+                  className="flex items-center justify-between p-4 cursor-pointer"
+                  onClick={() => setExpandedIndex(qIndex)}
                 >
-                  <option value="SINGLE_SELECT">Single Select</option>
-                  <option value="MULTI_SELECT">Multi Select</option>
-                  <option value="DESCRIPTIVE">Description</option>
-                </select>
+                  <span className="font-medium">{q.question || `Question ${qIndex + 1}`}</span>
+                  <span>{expandedIndex === qIndex ? "▲" : "▼"}</span>
+                </div>
+                {expandedIndex === qIndex && (
+                  <div className="p-4 border-t space-y-3">
+                    <label className="font-medium">Question</label>
+                    <input
+                      className="w-full border px-2 py-1 rounded"
+                      type="text"
+                      placeholder="Enter your question"
+                      value={q.question}
+                      onChange={(e) =>
+                        updateQuestion(qIndex, { question: e.target.value })
+                      }
+                    />
 
-                {q.type !== "DESCRIPTIVE" && (
-                  <div className="space-y-2">
-                    {/* <label className="font-medium">Options</label> */}
-                    {q.options.map((opt, oIndex) => (
-                      <div key={opt.id} className="flex gap-2 items-center">
-                        <input
-                          className="flex-1 border px-2 py-1 rounded"
-                          type="text"
-                          placeholder="Option value"
-                          value={opt.value}
-                          onChange={(e) =>
-                            updateOption(qIndex, oIndex, {
-                              value: e.target.value,
-                            })
-                          }
-                        />
-                        {q.type === "SINGLE_SELECT" ? (
-                          <input
-                            type="radio"
-                            name={`single-select-${q.id}`}
-                            checked={opt.isCorrect}
-                            onChange={() => {
-                              // Set only this option as correct
-                              const updatedOptions = q.options.map((option, idx) => ({
-                                ...option,
-                                isCorrect: idx === oIndex,
-                              }));
-                              updateQuestion(qIndex, { options: updatedOptions });
-                            }}
-                          />
-                        ) : (
-                          <input
-                            type="checkbox"
-                            checked={opt.isCorrect}
-                            onChange={(e) =>
-                              updateOption(qIndex, oIndex, {
-                                isCorrect: e.target.checked,
-                              })
-                            }
-                          />
-                        )}
-                        <span>Correct</span>
+                    <label className="font-medium">Type</label>
+                    <select
+                      className="w-full border px-2 py-1 rounded"
+                      value={q.type}
+                      onChange={(e) =>
+                        updateQuestion(qIndex, {
+                          type: e.target.value as QuestionType,
+                          options: [],
+                        })
+                      }
+                    >
+                      <option value="SINGLE_SELECT">Single Select</option>
+                      <option value="MULTI_SELECT">Multi Select</option>
+                      <option value="DESCRIPTIVE">Description</option>
+                    </select>
+
+                    {q.type !== "DESCRIPTIVE" && (
+                      <div className="space-y-2">
+                        {q.options.map((opt, oIndex) => (
+                          <div key={opt.id} className="flex gap-2 items-center">
+                            <input
+                              className="flex-1 border px-2 py-1 rounded"
+                              type="text"
+                              placeholder="Option value"
+                              value={opt.value}
+                              onChange={(e) =>
+                                updateOption(qIndex, oIndex, {
+                                  value: e.target.value,
+                                })
+                              }
+                            />
+                            {q.type === "SINGLE_SELECT" ? (
+                              <input
+                                type="radio"
+                                name={`single-select-${q.id}`}
+                                checked={opt.isCorrect}
+                                onChange={() => {
+                                  const updatedOptions = q.options.map((option, idx) => ({
+                                    ...option,
+                                    isCorrect: idx === oIndex,
+                                  }));
+                                  updateQuestion(qIndex, { options: updatedOptions });
+                                }}
+                              />
+                            ) : (
+                              <input
+                                type="checkbox"
+                                checked={opt.isCorrect}
+                                onChange={(e) =>
+                                  updateOption(qIndex, oIndex, {
+                                    isCorrect: e.target.checked,
+                                  })
+                                }
+                              />
+                            )}
+                            <span>Correct</span>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => removeOption(qIndex, oIndex)}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ))}
                         <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => removeOption(qIndex, oIndex)}
+                          type="button"
+                          onClick={() => addOption(qIndex)}
+                          className="mt-2"
                         >
-                          Remove
+                          + Add Option
                         </Button>
                       </div>
-                    ))}
-                    <Button
-                      type="button"
-                      onClick={() => addOption(qIndex)}
-                      className="mt-2"
-                    >
-                      + Add Option
-                    </Button>
+                    )}
                   </div>
                 )}
               </div>
