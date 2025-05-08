@@ -13,11 +13,12 @@ import { Module } from "@/types/model/module-model";
 import { moduleService } from "@/http/module-service";
 import { questionService } from "@/http/question-service";
 import { showErrorToast, showSuccessToast } from "@/util/helpers/toast-helper";
+import QuizQuestion from "./quiz-question";
 
 // Types
-type QuestionType = "SINGLE_SELECT" | "MULTI_SELECT" | "DESCRIPTIVE";
+export type QuestionType = "SINGLE_SELECT" | "MULTI_SELECT" | "DESCRIPTIVE";
 
-interface Option {
+export interface Option {
   id: string;
   value: string;
   isCorrect: boolean;
@@ -25,7 +26,7 @@ interface Option {
   isDeleted: boolean;
 }
 
-interface Question {
+export interface Question {
   id: string;
   question: string;
   type: QuestionType;
@@ -124,12 +125,15 @@ export default function ManageQuizModal({
   };
 
   const handleSubmit = () => {
-    questionService.createQuestioner(selectedSession.id, { questions: questions }).then((res) => {
+    questionService
+      .createQuestioner(selectedSession.id, { questions: questions })
+      .then((res) => {
         showSuccessToast("Quiz created successfully");
         handleClose();
-    }).catch((err) => {
+      })
+      .catch((err) => {
         showErrorToast(err?.response?.data?.message || "Error creating quiz");
-    });
+      });
   };
 
   return (
@@ -143,15 +147,17 @@ export default function ManageQuizModal({
         <select
           className="w-full border px-2 py-1 rounded mb-4"
           value={selectedModule?.id || ""}
-          onChange={e => {
-            const mod = modules.find(m => m.id === e.target.value);
+          onChange={(e) => {
+            const mod = modules.find((m) => m.id === e.target.value);
             setSelectedModule(mod || null);
             setSelectedSession(null);
           }}
         >
           <option value="">Select Module</option>
-          {modules.map(mod => (
-            <option key={mod.id} value={mod.id}>{mod.name}</option>
+          {modules.map((mod) => (
+            <option key={mod.id} value={mod.id}>
+              {mod.name}
+            </option>
           ))}
         </select>
 
@@ -160,130 +166,34 @@ export default function ManageQuizModal({
           <select
             className="w-full border px-2 py-1 rounded mb-4"
             value={selectedSession?.id || ""}
-            onChange={e => {
-              const sess = selectedModule.sessions.find((s: any) => s.id === e.target.value);
+            onChange={(e) => {
+              const sess = selectedModule.sessions.find(
+                (s: any) => s.id === e.target.value
+              );
               setSelectedSession(sess || null);
             }}
           >
             <option value="">Select Session</option>
             {selectedModule.sessions.map((sess: any) => (
-              <option key={sess.id} value={sess.id}>{sess.name}</option>
+              <option key={sess.id} value={sess.id}>
+                {sess.name}
+              </option>
             ))}
           </select>
         )}
 
         {/* Quiz UI only if session is selected */}
         {selectedSession && (
-          <div className="flex flex-col gap-6">
-            {questions.map((q, qIndex) => (
-              <div key={q.id} className="border border-gray-300 rounded mb-2">
-                <div
-                  className="flex items-center justify-between p-4 cursor-pointer"
-                  onClick={() => setExpandedIndex(qIndex)}
-                >
-                  <span className="font-medium">{q.question || `Question ${qIndex + 1}`}</span>
-                  <span>{expandedIndex === qIndex ? "▲" : "▼"}</span>
-                </div>
-                {expandedIndex === qIndex && (
-                  <div className="p-4 border-t space-y-3">
-                    <label className="font-medium">Question</label>
-                    <input
-                      className="w-full border px-2 py-1 rounded"
-                      type="text"
-                      placeholder="Enter your question"
-                      value={q.question}
-                      onChange={(e) =>
-                        updateQuestion(qIndex, { question: e.target.value })
-                      }
-                    />
-
-                    <label className="font-medium">Type</label>
-                    <select
-                      className="w-full border px-2 py-1 rounded"
-                      value={q.type}
-                      onChange={(e) =>
-                        updateQuestion(qIndex, {
-                          type: e.target.value as QuestionType,
-                          options: [],
-                        })
-                      }
-                    >
-                      <option value="SINGLE_SELECT">Single Select</option>
-                      <option value="MULTI_SELECT">Multi Select</option>
-                      <option value="DESCRIPTIVE">Description</option>
-                    </select>
-
-                    {q.type !== "DESCRIPTIVE" && (
-                      <div className="space-y-2">
-                        {q.options.map((opt, oIndex) => (
-                          <div key={opt.id} className="flex gap-2 items-center">
-                            <input
-                              className="flex-1 border px-2 py-1 rounded"
-                              type="text"
-                              placeholder="Option value"
-                              value={opt.value}
-                              onChange={(e) =>
-                                updateOption(qIndex, oIndex, {
-                                  value: e.target.value,
-                                })
-                              }
-                            />
-                            {q.type === "SINGLE_SELECT" ? (
-                              <input
-                                type="radio"
-                                name={`single-select-${q.id}`}
-                                checked={opt.isCorrect}
-                                onChange={() => {
-                                  const updatedOptions = q.options.map((option, idx) => ({
-                                    ...option,
-                                    isCorrect: idx === oIndex,
-                                  }));
-                                  updateQuestion(qIndex, { options: updatedOptions });
-                                }}
-                              />
-                            ) : (
-                              <input
-                                type="checkbox"
-                                checked={opt.isCorrect}
-                                onChange={(e) =>
-                                  updateOption(qIndex, oIndex, {
-                                    isCorrect: e.target.checked,
-                                  })
-                                }
-                              />
-                            )}
-                            <span>Correct</span>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => removeOption(qIndex, oIndex)}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        ))}
-                        <Button
-                          type="button"
-                          onClick={() => addOption(qIndex)}
-                          className="mt-2"
-                        >
-                          + Add Option
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-
-            {/* <div>
-              <label className="font-semibold block mb-2">JSON Preview:</label>
-              <pre className="bg-gray-100 p-4 rounded text-sm overflow-x-auto">
-                {JSON.stringify({ questions }, null, 2)}
-              </pre>
-            </div> */}
-            <Button onClick={addQuestion}>+ Add Question</Button>
-          </div>
+          <QuizQuestion
+            questions={questions}
+            expandedIndex={expandedIndex}
+            setExpandedIndex={setExpandedIndex}
+            updateQuestion={updateQuestion}
+            updateOption={updateOption}
+            removeOption={removeOption}
+            addOption={addOption}
+            addQuestion={addQuestion}
+          />
         )}
 
         <DialogFooter>
@@ -300,3 +210,4 @@ export default function ManageQuizModal({
     </Dialog>
   );
 }
+
