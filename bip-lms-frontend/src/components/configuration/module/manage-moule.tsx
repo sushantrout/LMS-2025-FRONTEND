@@ -34,6 +34,7 @@ import { courseService } from "@/http/course-service";
 import { User } from "@/types/model/user-model";
 import { moduleService } from "@/http/module-service";
 import { Course } from "@/types/model/course-model";
+import { showSuccessToast } from "@/util/helpers/toast-helper";
 
 interface ManageCourseModalProps {
   setModules: React.Dispatch<React.SetStateAction<Module[]>>;
@@ -110,8 +111,10 @@ export default function ManageModuleModal({
 
     if (selectedModule?.id) {
       await moduleService.updateModule(selectedModule.id, newModule);
+      showSuccessToast("Module updated successfully");
     } else {
       await moduleService.createModule(newModule);
+      showSuccessToast("Module created successfully");
     }
 
     setIsModuleModalOpen(false);

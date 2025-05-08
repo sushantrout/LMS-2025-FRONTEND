@@ -33,6 +33,7 @@ import { Session, initialSession } from "@/types/model/session-model";
 import { moduleService } from "@/http/module-service";
 import { Module } from "@/types/model/module-model";
 import { sessionService } from "@/http/session-service";
+import { showSuccessToast } from "@/util/helpers/toast-helper";
 
 // Updated schema
 const moduleSchema = z.object({
@@ -86,7 +87,7 @@ export default function ManageSessionModal({
   // Reset form when selectedSession changes
   useEffect(() => {
     const sessionData = selectedSession ?? initialSession;
-  
+
     if (isSessionModalOpen) {
       form.reset({
         name: sessionData.name || "",
@@ -145,7 +146,8 @@ export default function ManageSessionModal({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="flex flex-wrap gap-x-4">
-              <div className="flex-1 min-w-[200px]">
+              {/* Module - 3/6 = 50% */}
+              <div className="flex-[3] min-w-[200px]">
                 <FormField
                   control={form.control}
                   name="moduleId"
@@ -154,10 +156,10 @@ export default function ManageSessionModal({
                       <FormLabel>Module</FormLabel>
                       <FormControl>
                         <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger>
+                          <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select Module" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="w-full">
                             {modules.map((module) => (
                               <SelectItem key={module.id} value={module.id}>
                                 {module.name}
@@ -172,7 +174,8 @@ export default function ManageSessionModal({
                 />
               </div>
 
-              <div className="flex-1 min-w-[200px]">
+              {/* Name - 2/6 = 33.33% */}
+              <div className="flex-[2] min-w-[200px]">
                 <FormField
                   control={form.control}
                   name="name"
@@ -188,7 +191,8 @@ export default function ManageSessionModal({
                 />
               </div>
 
-              <div className="w-[120px]">
+              {/* Sort Order - 1/6 = 16.67% */}
+              <div className="flex-[1] min-w-[100px]">
                 <FormField
                   control={form.control}
                   name="sortOrder"
@@ -209,6 +213,7 @@ export default function ManageSessionModal({
                 />
               </div>
             </div>
+
 
             <FormField
               control={form.control}
@@ -236,10 +241,10 @@ export default function ManageSessionModal({
                       <FormLabel>Mode</FormLabel>
                       <FormControl>
                         <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger>
+                          <SelectTrigger className="w-100"> {/* Adjust width here */}
                             <SelectValue placeholder="Select Mode" />
                           </SelectTrigger>
-                          <SelectContent className="w-[2800px]">
+                          <SelectContent className="w-100"> {/* Match width here */}
                             <SelectItem value="ONLINE" className="text-base py-3 px-4">
                               ONLINE
                             </SelectItem>
@@ -248,6 +253,7 @@ export default function ManageSessionModal({
                             </SelectItem>
                           </SelectContent>
                         </Select>
+
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -305,10 +311,12 @@ export default function ManageSessionModal({
 const updateSession = async (session: Session) => {
   const res = await sessionService.updateSession(session.id!, session);
   console.log("Updated session:", res);
+  showSuccessToast("Session updated successfully");
 };
 
 // Create session API logic
 const createSession = async (session: ModuleFormSchema) => {
   const res = await sessionService.createSession(session);
   console.log("Created session:", res);
+  showSuccessToast("Session created successfully");
 };

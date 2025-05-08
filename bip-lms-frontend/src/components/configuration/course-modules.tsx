@@ -10,6 +10,7 @@ import { DeleteConfirmationModal } from "@/components/ui/delete-confirmation-mod
 import { Session } from "@/types/model/session-model";
 import ManageSessionModal from "./section/manage-session";
 import { sessionService } from "@/http/session-service";
+import { showSuccessToast } from "@/util/helpers/toast-helper";
 
 interface CourseModulesProps {
   courseId: string;
@@ -39,7 +40,6 @@ export default function CourseModules({
   const getModulesWithExpansionPersistence = async () => {
     const expandedStateMap: Record<string, boolean> = {};
     modules.forEach((mod) => {
-      console.log("vbnm,."+mod);
       expandedStateMap[mod.id] = !!mod.expanded;
     });
 
@@ -86,6 +86,7 @@ export default function CourseModules({
 
         setIsSessionDeleteModalOpen(false);
         setSessionToDelete(null);
+        showSuccessToast("Session deleted successfully");
       } catch (error) {
         console.error("Error deleting session:", error);
       }
@@ -98,6 +99,7 @@ export default function CourseModules({
         await moduleService.deleteModule(moduleToDelete.id);
         await getModulesWithExpansionPersistence();
         setIsDeleteModalOpen(false);
+        showSuccessToast("Module deleted successfully");
       } catch (error) {
         console.error("Error deleting module:", error);
       }

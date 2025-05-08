@@ -125,7 +125,7 @@ export default function ManageCourseModal({
 
   return (
     <Dialog open={isCourseModalOpen} onOpenChange={setIsCourseModalOpen}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[1200px] max-h-[100vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {selectedCourse ? "Edit Course" : "Add New Course"}
@@ -163,10 +163,10 @@ export default function ManageCourseModal({
                 onValueChange={handleCategoryChange}
                 value={formData.category?.id || ""}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-120">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="w-120">
                   {courseCategories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.name}
