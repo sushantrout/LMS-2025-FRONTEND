@@ -139,6 +139,7 @@ const data = {
       title: "Configuration",
       url: "/configuration",
       icon: Settings2,
+      roles: ['admin'],
       items: [
         {
           title: "General",
