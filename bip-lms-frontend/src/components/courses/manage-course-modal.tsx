@@ -198,6 +198,17 @@ export default function ManageCourseModal({
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
               />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="name">Short Description</Label>
+              <Input
+                id="shortDescription"
+                name="shortDescription"
+                value={formData.shortDescription}
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
 
           <div className="space-y-2">

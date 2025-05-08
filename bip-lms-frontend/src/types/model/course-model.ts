@@ -16,7 +16,8 @@ export type Course = MasterData &  {
     comments?: any[],
     coverImage?: Attachment,
     instructors?: User[]
-    progress?: number
+    progress?: number,
+    shortDescription ?: string
 }
 
 export const initialCourseFormData: Course = {
