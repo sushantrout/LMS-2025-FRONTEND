@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usersService } from "@/http/user-service";
 import { DataTable } from "@/components/dashboard/data-table";
 import { User } from "@/types/model/user-model";
+import { UserDataTable } from "./user-table";
 
 interface UserListProps {
   refreshTrigger?: number;
@@ -40,11 +41,11 @@ export default function UserList({ refreshTrigger = 0, onEditUser, onDeleteUser 
       {users.length === 0 ? (
         <div className="text-center py-8">No users found</div>
       ) : (
-        <DataTable 
-          data={users} 
+        <UserDataTable
+          data={users}
           onEditUser={onEditUser}
           onDeleteUser={onDeleteUser}
-        />
+        ></UserDataTable>
       )}
     </div>
   );

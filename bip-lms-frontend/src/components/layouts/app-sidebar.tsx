@@ -78,6 +78,7 @@ const data = {
     {
       title: "Courses",
       url: "/courses",
+      roles: ['student'],
       icon: BookAIcon,
       items: [
         {
@@ -97,6 +98,7 @@ const data = {
     {
       title: "My Learning",
       url: "/my-learning",
+      roles: ['student'],
       icon: BookAIcon,
       items: [
         {
@@ -128,29 +130,6 @@ const data = {
         },
         {
           title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
           url: "#",
         },
       ],

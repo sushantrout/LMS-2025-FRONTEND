@@ -18,6 +18,8 @@ export type User = {
   applicationRole?: Role;
   profilePicture?: Attachment;
   fullName?: string;
+  role?:string;
+  status?:string;
 };
 
 // Define the validation schema based on the DTO
