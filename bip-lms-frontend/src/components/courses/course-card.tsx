@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Duration } from "./course-duration";
 import RatingStar from "../ui/rating-star";
+import { getImageSrc } from "@/util/helpers/application-data-converter-util";
 
 export default function CourseCard({
   course,
@@ -21,11 +22,7 @@ export default function CourseCard({
     <div className="flex flex-col overflow-hidden rounded-lg border bg-card text-card-foreground">
       <div className="relative">
         <img
-          src={
-            course.coverImage
-              ? `data:${course.coverImage.contentType};base64,${course.coverImage.imageInByteArray}`
-              : "/images/course/course-cover.avif"
-          }
+          src={course?.coverImage ? getImageSrc(course?.coverImage) : "/images/course/course-cover.avif"}
           alt={course.name}
           className="aspect-video w-full object-cover"
         />

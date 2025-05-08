@@ -19,6 +19,7 @@ import {
 } from "@/types/model/course-review-model";
 import ReviewList from "./review-list";
 import CourseStats from "./course-stats";
+import { getImageSrc } from "@/util/helpers/application-data-converter-util";
 
 export default function CourseDetailInfo({ courseId }: { courseId: string }) {
   const router = useRouter();
@@ -68,11 +69,7 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30 z-10" />
         <img
-          src={
-            courseOverView.coverImage
-              ? `data:${courseOverView?.coverImage?.contentType};base64,${courseOverView?.coverImage?.imageInByteArray}`
-              : "/images/course/course-cover.avif"
-          }
+          src={courseOverView?.coverImage ? getImageSrc(courseOverView?.coverImage) : "/images/course/course-cover.avif"}
           alt={courseOverView?.courseName}
           className="w-full h-[200px] md:h-[200px] object-cover"
         />
@@ -184,11 +181,12 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                     <div className="flex flex-col md:flex-row gap-6 items-start mb-6">
                       <Avatar className="h-24 w-24">
                         <AvatarImage
-                          src={
-                            instructor?.profilePicture
-                              ? `data:${instructor?.profilePicture?.contentType};base64,${instructor?.profilePicture?.imageInByteArray}`
-                              : "/images/course/course-cover.avif"
-                          }
+                          // src={
+                          //   instructor?.profilePicture
+                          //     ? `data:${instructor?.profilePicture?.contentType};base64,${instructor?.profilePicture?.imageInByteArray}`
+                          //     : "/images/course/course-cover.avif"
+                          // }
+                          src={getImageSrc(instructor?.profilePicture)}
                           alt={instructor?.fullName}
                         />
                         <AvatarFallback>

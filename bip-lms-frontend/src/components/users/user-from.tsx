@@ -68,7 +68,7 @@ const UserFormComponent: FC<FormComponentProps> = ({
             )}
           />
 
-          {/* Name */}
+          {/* First Name and Last Name */}
           <FormField
             control={userForm.control}
             name="firstName"
@@ -96,7 +96,7 @@ const UserFormComponent: FC<FormComponentProps> = ({
             )}
           />
 
-          {/* Contact Information */}
+          {/* Email and Phone Number */}
           <FormField
             control={userForm.control}
             name="email"

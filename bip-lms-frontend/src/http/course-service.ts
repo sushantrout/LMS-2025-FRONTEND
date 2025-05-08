@@ -24,5 +24,8 @@ export const courseService = {
   },
   enroll(courseId : string) {
     return lmsService.post(ENROLL_BASE_URL, {courseId});
+  },
+  getEnrolledCourse() {
+    return lmsService.get(`${ENROLL_BASE_URL}/enrolled-course`);
   }
 };

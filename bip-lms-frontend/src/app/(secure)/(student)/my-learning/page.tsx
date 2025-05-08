@@ -5,18 +5,33 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { courseService } from "@/http/course-service"
+import { Course } from "@/types/model/course-model"
+import { getImageSrc } from "@/util/helpers/application-data-converter-util"
 
-export default function MyLearning() {
-  const [currentPage, setCurrentPage] = useState(1)
+ const MyLearning = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [enrolledCourse, setEnrolledCourse] = useState<Course[]>([]);
   const coursesPerPage = 8
+
+  const getEnrolledCourse = () => {
+    courseService.getEnrolledCourse().then((res) => {
+      console.log(res?.data?.data);
+      setEnrolledCourse(res?.data?.data);
+    });
+  };
+
+  useEffect(() => {
+    getEnrolledCourse();
+  }, []);
 
   // Calculate pagination
   const indexOfLastCourse = currentPage * coursesPerPage
   const indexOfFirstCourse = indexOfLastCourse - coursesPerPage
-  const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse)
-  const totalPages = Math.ceil(courses.length / coursesPerPage)
+  const currentCourses = enrolledCourse.slice(indexOfFirstCourse, indexOfLastCourse)
+  const totalPages = Math.ceil(enrolledCourse.length / coursesPerPage)
 
   // Change page
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
@@ -105,21 +120,10 @@ export default function MyLearning() {
       </div>
 
       <div className="mt-4 text-center text-sm text-gray-500">
-        Showing {indexOfFirstCourse + 1}-{Math.min(indexOfLastCourse, courses.length)} of {courses.length} courses
+        Showing {indexOfFirstCourse + 1}-{Math.min(indexOfLastCourse, enrolledCourse.length)} of {enrolledCourse.length} courses
       </div>
     </div>
   )
-}
-
-interface Course {
-  id: number
-  title: string
-  instructor: string
-  progress: number
-  image: string
-  rating?: number
-  hasRated: boolean
-  startCourse?: boolean
 }
 
 function CourseCard({ course }: { course: Course }) {
@@ -128,8 +132,8 @@ function CourseCard({ course }: { course: Course }) {
     <div className="border rounded-md overflow-hidden flex flex-col" onClick={() => {router.push("/my-learning/ID")}}>
       <div className="relative">
         <Image
-          src={"/images/course/course-cover.avif"}
-          alt={course.title}
+          src={course?.coverImage ? getImageSrc(course.coverImage) : "/images/course/course-cover.avif"}
+          alt={course.name}
           width={400}
           height={225}
           className="w-full h-48 object-cover"
@@ -153,13 +157,12 @@ function CourseCard({ course }: { course: Course }) {
       </div>
 
       <div className="p-4 flex-1 flex flex-col">
-        <h3 className="font-medium text-lg mb-1 line-clamp-2">{course.title}</h3>
-        <p className="text-sm text-gray-600 mb-4">{course.instructor}</p>
+        <h3 className="font-medium text-lg mb-1 line-clamp-2">{course.name}</h3>
 
         <div className="mt-auto">
           <div className="flex justify-between items-center mb-1">
             <span className="text-xs text-gray-600">{course.progress}% complete</span>
-            {course.hasRated ? (
+            {course.rating ? (
               <span className="text-xs text-gray-600">Your rating</span>
             ) : (
               <span className="text-xs text-gray-600">Leave a rating</span>
@@ -184,12 +187,6 @@ function CourseCard({ course }: { course: Course }) {
               ))}
             </div>
           </div>
-
-          {course.startCourse && (
-            <Button variant="ghost" className="w-full mt-4 text-gray-700 hover:text-gray-900 justify-start px-0">
-              START COURSE
-            </Button>
-          )}
         </div>
       </div>
     </div>
@@ -197,146 +194,148 @@ function CourseCard({ course }: { course: Course }) {
 }
 
 // Expanded course data to demonstrate pagination
-const courses: Course[] = [
-  {
-    id: 1,
-    title: "Master Microservices with Spring Boot and Spring Cloud",
-    instructor: "in28Minutes Official",
-    progress: 13,
-    image: "/placeholder.svg?height=225&width=400",
-    rating: 5,
-    hasRated: true,
-  },
-  {
-    id: 2,
-    title: "Machine Learning A-Z: AI, Python & R + ChatGPT Prize [2025]",
-    instructor: "Kirill Eremenko, Hadelin de Ponteves, SuperDataScience",
-    progress: 6,
-    image: "/placeholder.svg?height=225&width=400",
-    hasRated: false,
-  },
-  {
-    id: 3,
-    title: "The Complete ServiceNow System Administrator Course",
-    instructor: "Mark Miller, Shivaram Umapathy",
-    progress: 37,
-    image: "/placeholder.svg?height=225&width=400",
-    rating: 4,
-    hasRated: true,
-  },
-  {
-    id: 4,
-    title: "The Complete Guide to Service Portal in ServiceNow",
-    instructor: "Mark Miller, Shivaram Umapathy",
-    progress: 2,
-    image: "/placeholder.svg?height=225&width=400",
-    hasRated: false,
-  },
-  {
-    id: 5,
-    title: "The Complete ServiceNow Developer Course",
-    instructor: "Mark Miller, Shivaram Umapathy",
-    progress: 0,
-    image: "/placeholder.svg?height=225&width=400",
-    hasRated: false,
-    startCourse: true,
-  },
-  {
-    id: 6,
-    title: "[NEW] Ultimate AWS Certified Cloud Practitioner CLF-C02 2025",
-    instructor: "Stephane Maarek | AWS Certified Cloud Practitioner",
-    progress: 0,
-    image: "/placeholder.svg?height=225&width=400",
-    hasRated: false,
-    startCourse: true,
-  },
-  {
-    id: 7,
-    title: "Java Programming, Lambda and more (Java 13, 12, 11, 10, 9,8)",
-    instructor: "Syed Ahmed",
-    progress: 40,
-    image: "/placeholder.svg?height=225&width=400",
-    rating: 5,
-    hasRated: true,
-  },
-  {
-    id: 8,
-    title: "Docker - A Beginner's Tutorials",
-    instructor: "Rajkumar B",
-    progress: 0,
-    image: "/placeholder.svg?height=225&width=400",
-    hasRated: false,
-    startCourse: true,
-  },
-  {
-    id: 9,
-    title: "Advanced React and Redux",
-    instructor: "Stephen Grider",
-    progress: 25,
-    image: "/placeholder.svg?height=225&width=400",
-    rating: 4,
-    hasRated: true,
-  },
-  {
-    id: 10,
-    title: "The Complete Node.js Developer Course",
-    instructor: "Andrew Mead",
-    progress: 15,
-    image: "/placeholder.svg?height=225&width=400",
-    rating: 5,
-    hasRated: true,
-  },
-  {
-    id: 11,
-    title: "Modern JavaScript From The Beginning",
-    instructor: "Brad Traversy",
-    progress: 60,
-    image: "/placeholder.svg?height=225&width=400",
-    rating: 4,
-    hasRated: true,
-  },
-  {
-    id: 12,
-    title: "Python for Data Science and Machine Learning Bootcamp",
-    instructor: "Jose Portilla",
-    progress: 10,
-    image: "/placeholder.svg?height=225&width=400",
-    hasRated: false,
-  },
-  {
-    id: 13,
-    title: "The Web Developer Bootcamp",
-    instructor: "Colt Steele",
-    progress: 75,
-    image: "/placeholder.svg?height=225&width=400",
-    rating: 5,
-    hasRated: true,
-  },
-  {
-    id: 14,
-    title: "Angular - The Complete Guide",
-    instructor: "Maximilian Schwarzmüller",
-    progress: 30,
-    image: "/placeholder.svg?height=225&width=400",
-    rating: 4,
-    hasRated: true,
-  },
-  {
-    id: 15,
-    title: "iOS 13 & Swift 5 - The Complete iOS App Development Bootcamp",
-    instructor: "Dr. Angela Yu",
-    progress: 0,
-    image: "/placeholder.svg?height=225&width=400",
-    hasRated: false,
-    startCourse: true,
-  },
-  {
-    id: 16,
-    title: "Flutter & Dart - The Complete Guide",
-    instructor: "Maximilian Schwarzmüller",
-    progress: 0,
-    image: "/placeholder.svg?height=225&width=400",
-    hasRated: false,
-    startCourse: true,
-  },
-]
+// const courses: Course[] = [
+//   {
+//     id: 1,
+//     title: "Master Microservices with Spring Boot and Spring Cloud",
+//     instructor: "in28Minutes Official",
+//     progress: 13,
+//     image: "/placeholder.svg?height=225&width=400",
+//     rating: 5,
+//     hasRated: true,
+//   },
+//   {
+//     id: 2,
+//     title: "Machine Learning A-Z: AI, Python & R + ChatGPT Prize [2025]",
+//     instructor: "Kirill Eremenko, Hadelin de Ponteves, SuperDataScience",
+//     progress: 6,
+//     image: "/placeholder.svg?height=225&width=400",
+//     hasRated: false,
+//   },
+//   {
+//     id: 3,
+//     title: "The Complete ServiceNow System Administrator Course",
+//     instructor: "Mark Miller, Shivaram Umapathy",
+//     progress: 37,
+//     image: "/placeholder.svg?height=225&width=400",
+//     rating: 4,
+//     hasRated: true,
+//   },
+//   {
+//     id: 4,
+//     title: "The Complete Guide to Service Portal in ServiceNow",
+//     instructor: "Mark Miller, Shivaram Umapathy",
+//     progress: 2,
+//     image: "/placeholder.svg?height=225&width=400",
+//     hasRated: false,
+//   },
+//   {
+//     id: 5,
+//     title: "The Complete ServiceNow Developer Course",
+//     instructor: "Mark Miller, Shivaram Umapathy",
+//     progress: 0,
+//     image: "/placeholder.svg?height=225&width=400",
+//     hasRated: false,
+//     startCourse: true,
+//   },
+//   {
+//     id: 6,
+//     title: "[NEW] Ultimate AWS Certified Cloud Practitioner CLF-C02 2025",
+//     instructor: "Stephane Maarek | AWS Certified Cloud Practitioner",
+//     progress: 0,
+//     image: "/placeholder.svg?height=225&width=400",
+//     hasRated: false,
+//     startCourse: true,
+//   },
+//   {
+//     id: 7,
+//     title: "Java Programming, Lambda and more (Java 13, 12, 11, 10, 9,8)",
+//     instructor: "Syed Ahmed",
+//     progress: 40,
+//     image: "/placeholder.svg?height=225&width=400",
+//     rating: 5,
+//     hasRated: true,
+//   },
+//   {
+//     id: 8,
+//     title: "Docker - A Beginner's Tutorials",
+//     instructor: "Rajkumar B",
+//     progress: 0,
+//     image: "/placeholder.svg?height=225&width=400",
+//     hasRated: false,
+//     startCourse: true,
+//   },
+//   {
+//     id: 9,
+//     title: "Advanced React and Redux",
+//     instructor: "Stephen Grider",
+//     progress: 25,
+//     image: "/placeholder.svg?height=225&width=400",
+//     rating: 4,
+//     hasRated: true,
+//   },
+//   {
+//     id: 10,
+//     title: "The Complete Node.js Developer Course",
+//     instructor: "Andrew Mead",
+//     progress: 15,
+//     image: "/placeholder.svg?height=225&width=400",
+//     rating: 5,
+//     hasRated: true,
+//   },
+//   {
+//     id: 11,
+//     title: "Modern JavaScript From The Beginning",
+//     instructor: "Brad Traversy",
+//     progress: 60,
+//     image: "/placeholder.svg?height=225&width=400",
+//     rating: 4,
+//     hasRated: true,
+//   },
+//   {
+//     id: 12,
+//     title: "Python for Data Science and Machine Learning Bootcamp",
+//     instructor: "Jose Portilla",
+//     progress: 10,
+//     image: "/placeholder.svg?height=225&width=400",
+//     hasRated: false,
+//   },
+//   {
+//     id: 13,
+//     title: "The Web Developer Bootcamp",
+//     instructor: "Colt Steele",
+//     progress: 75,
+//     image: "/placeholder.svg?height=225&width=400",
+//     rating: 5,
+//     hasRated: true,
+//   },
+//   {
+//     id: 14,
+//     title: "Angular - The Complete Guide",
+//     instructor: "Maximilian Schwarzmüller",
+//     progress: 30,
+//     image: "/placeholder.svg?height=225&width=400",
+//     rating: 4,
+//     hasRated: true,
+//   },
+//   {
+//     id: 15,
+//     title: "iOS 13 & Swift 5 - The Complete iOS App Development Bootcamp",
+//     instructor: "Dr. Angela Yu",
+//     progress: 0,
+//     image: "/placeholder.svg?height=225&width=400",
+//     hasRated: false,
+//     startCourse: true,
+//   },
+//   {
+//     id: 16,
+//     title: "Flutter & Dart - The Complete Guide",
+//     instructor: "Maximilian Schwarzmüller",
+//     progress: 0,
+//     image: "/placeholder.svg?height=225&width=400",
+//     hasRated: false,
+//     startCourse: true,
+//   },
+// ]
+
+export default MyLearning;

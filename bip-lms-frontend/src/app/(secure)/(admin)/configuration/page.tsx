@@ -62,6 +62,8 @@ export default function CourseCatalog() {
 }
 
 function CourseGrid({ courses, setSelectedCourse, setOpenCourseModal }: { courses: Course[], setSelectedCourse : any, setOpenCourseModal: any }) {
+  debugger;
+  console.log(courses);
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
