@@ -1,3 +1,5 @@
+import { Attachment } from "@/types/model/attachment-model";
+
 export const getTimeAgo = (date) => {
     if (!date) return '';
     const createdDate = new Date(date);
@@ -19,4 +21,10 @@ export const getTimeAgo = (date) => {
     return 'Just now';
   }
   
+
+  export const getImageSrc = (attachment?: Attachment) => {
+    if (!attachment?.imageInByteArray) return "/placeholder.svg";
+    const contentType = attachment.contentType || "image/jpeg";
+    return `data:${contentType};base64,${attachment.imageInByteArray}`;
+  };
   
