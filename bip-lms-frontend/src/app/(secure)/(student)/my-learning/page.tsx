@@ -129,7 +129,7 @@ import { getImageSrc } from "@/util/helpers/application-data-converter-util"
 function CourseCard({ course }: { course: Course }) {
   const router = useRouter();
   return (
-    <div className="border rounded-md overflow-hidden flex flex-col" onClick={() => {router.push("/my-learning/ID")}}>
+    <div className="border rounded-md overflow-hidden flex flex-col" onClick={() => {router.push("/my-learning/"+course.id)}}>
       <div className="relative">
         <Image
           src={course?.coverImage ? getImageSrc(course.coverImage) : "/images/course/course-cover.avif"}
