@@ -11,12 +11,11 @@ import { Session } from "@/types/model/session-model";
 import ManageSessionModal from "./section/manage-session";
 import { sessionService } from "@/http/session-service";
 
-
 interface CourseModulesProps {
   courseId: string;
   modules: Module[];
   setModules: React.Dispatch<React.SetStateAction<Module[]>>;
-  getModulesByCourseId: () => void;
+  getModulesByCourseId: () => Promise<void>;
   setSelectedModule: React.Dispatch<React.SetStateAction<Module | null>>;
   setIsModuleModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -36,9 +35,28 @@ export default function CourseModules({
   const [isSessionDeleteModalOpen, setIsSessionDeleteModalOpen] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<Session | null>(null);
   const [moduleIdToExpand, setModuleIdToExpand] = useState<string | null>(null);
+
+  const getModulesWithExpansionPersistence = async () => {
+    const expandedStateMap: Record<string, boolean> = {};
+    modules.forEach((mod) => {
+      console.log("vbnm,."+mod);
+      expandedStateMap[mod.id] = !!mod.expanded;
+    });
+
+    await getModulesByCourseId();
+
+    // Restore expansion
+    setModules((prevModules) =>
+      prevModules.map((mod) => ({
+        ...mod,
+        expanded: expandedStateMap[mod.id] || false,
+      }))
+    );
+  };
+
   useEffect(() => {
-    getModulesByCourseId();
-  }, [courseId, getModulesByCourseId]);
+    getModulesWithExpansionPersistence();
+  }, [courseId]);
 
   const toggleModule = useCallback(
     (id: string) => {
@@ -50,19 +68,22 @@ export default function CourseModules({
     },
     [setModules]
   );
+
   const handleDeleteSession = async () => {
     if (sessionToDelete) {
       try {
         await sessionService.deleteSession(sessionToDelete.id);
-        getModulesByCourseId();
         const moduleId = sessionToDelete.moduleId;
-        // Re-expand the module that had the deleted session
-        console.log("module Id=====>"+moduleId)
+
+        await getModulesByCourseId();
+
+        // Re-expand the module
         setModules((prevModules) =>
-          prevModules.map((module) =>
-            module.id === moduleId ? { ...module, expanded: true } : module
+          prevModules.map((mod) =>
+            mod.id === moduleId ? { ...mod, expanded: true } : mod
           )
         );
+
         setIsSessionDeleteModalOpen(false);
         setSessionToDelete(null);
       } catch (error) {
@@ -75,7 +96,7 @@ export default function CourseModules({
     if (moduleToDelete) {
       try {
         await moduleService.deleteModule(moduleToDelete.id);
-        getModulesByCourseId();
+        await getModulesWithExpansionPersistence();
         setIsDeleteModalOpen(false);
       } catch (error) {
         console.error("Error deleting module:", error);
@@ -85,20 +106,20 @@ export default function CourseModules({
 
   const handleEdit = (session: Session) => {
     setSelectedSession(session);
-    setModuleIdToExpand(session.moduleId); // Track the module ID
+    setModuleIdToExpand(session.moduleId);
     setIsSessionModalOpen(true);
   };
 
-  const handleCloseSessionModal = () => {
+  const handleCloseSessionModal = async () => {
     setSelectedSession(null);
     setIsSessionModalOpen(false);
-  
-    // Re-fetch and expand the module that was edited
-    getModulesByCourseId();
+
+    await getModulesByCourseId();
+
     if (moduleIdToExpand) {
       setModules((prevModules) =>
-        prevModules.map((module) =>
-          module.id === moduleIdToExpand ? { ...module, expanded: true } : module
+        prevModules.map((mod) =>
+          mod.id === moduleIdToExpand ? { ...mod, expanded: true } : mod
         )
       );
       setModuleIdToExpand(null);
@@ -108,7 +129,6 @@ export default function CourseModules({
   const handleDelete = (session: Session) => {
     setSessionToDelete(session);
     setIsSessionDeleteModalOpen(true);
-    console.log("Delete session clicked:", session);
   };
 
   const handleAddNote = (session: Session) => {
@@ -173,78 +193,77 @@ export default function CourseModules({
 
                   {module.expanded && (
                     <>
-                      {module.sessions?.length > 0 ? (
+                      {module.sessions?.filter(session => session.isActive && !session.isDeleted).length > 0 ? (
                         <div className="mt-6 space-y-4">
-                          {module.sessions.map((session) => (
-                            <div
-                              key={session.id}
-                              className="group flex items-center justify-between rounded-xl border border-gray-200 bg-gradient-to-tr from-white via-slate-50 to-white px-5 py-4 shadow transition-all duration-200 hover:shadow-md"
-                            >
-                              <div>
-                                <div className="text-lg font-semibold text-gray-800 group-hover:text-indigo-600 flex items-center gap-2">
-                                  <svg
-                                    className="w-5 h-5 text-indigo-400 group-hover:text-indigo-600 transition-colors"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth={1.5}
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path d="M12 8v4l3 3" />
-                                    <path d="M12 2a10 10 0 1 1-7.07 2.93A10 10 0 0 1 12 2z" />
-                                  </svg>
-                                  {session.name}
-                                </div>
-                                {session.mode && (
-                                  <div className="mt-1 inline-block rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-600">
-                                    Mode: {session.mode}
+                          {module.sessions
+                            .filter(session => session.isActive && !session.isDeleted)
+                            .map((session) => (
+                              <div
+                                key={session.id}
+                                className="group flex items-center justify-between rounded-xl border border-gray-200 bg-gradient-to-tr from-white via-slate-50 to-white px-5 py-4 shadow transition-all duration-200 hover:shadow-md"
+                              >
+                                <div>
+                                  <div className="text-lg font-semibold text-gray-800 group-hover:text-indigo-600 flex items-center gap-2">
+                                    <svg
+                                      className="w-5 h-5 text-indigo-400 group-hover:text-indigo-600 transition-colors"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth={1.5}
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path d="M12 8v4l3 3" />
+                                      <path d="M12 2a10 10 0 1 1-7.07 2.93A10 10 0 0 1 12 2z" />
+                                    </svg>
+                                    {session.name}
                                   </div>
-                                )}
-                              </div>
+                                  {session.mode && (
+                                    <div className="mt-1 inline-block rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-600">
+                                      Mode: {session.mode}
+                                    </div>
+                                  )}
+                                </div>
 
-                              <div className="flex gap-2 items-center">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-8 text-xs flex items-center gap-1"
-                                  onClick={() => handleEdit(session)}
-                                  title="Edit Session"
-                                >
-                                  <Edit className="h-4 w-4" />
-                                  Edit Session
-                                </Button>
-
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-8 text-xs text-red-500 flex items-center gap-1"
-                                  onClick={() => handleDelete(session)}
-                                  title="Delete Session"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                  Delete Session
-                                </Button>
-
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-8 text-xs text-amber-600 flex items-center gap-1"
-                                  onClick={() => handleAddNote(session)}
-                                  title="Add Note"
-                                >
-                                  <svg
-                                    className="w-4 h-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth={1.5}
-                                    viewBox="0 0 24 24"
+                                <div className="flex gap-2 items-center">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 text-xs flex items-center gap-1"
+                                    onClick={() => handleEdit(session)}
                                   >
-                                    <path d="M15 3H5a2 2 0 0 0-2 2v14l4-4h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z" />
-                                  </svg>
-                                  Add Note
-                                </Button>
+                                    <Edit className="h-4 w-4" />
+                                    Edit Session
+                                  </Button>
+
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 text-xs text-red-500 flex items-center gap-1"
+                                    onClick={() => handleDelete(session)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                    Delete Session
+                                  </Button>
+
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 text-xs text-amber-600 flex items-center gap-1"
+                                    onClick={() => handleAddNote(session)}
+                                  >
+                                    <svg
+                                      className="w-4 h-4"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth={1.5}
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path d="M15 3H5a2 2 0 0 0-2 2v14l4-4h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z" />
+                                    </svg>
+                                    Add Note
+                                  </Button>
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            ))}
                         </div>
                       ) : (
                         <div className="mt-6 flex items-center justify-center text-sm text-gray-500">
@@ -264,6 +283,7 @@ export default function CourseModules({
                         </div>
                       )}
                     </>
+
                   )}
                 </div>
               </div>
@@ -272,7 +292,6 @@ export default function CourseModules({
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
@@ -288,14 +307,13 @@ export default function CourseModules({
         description="This action cannot be undone. The session will be permanently deleted."
       />
 
-
-      {/* ✅ Session Edit Modal */}
       <ManageSessionModal
         courseId={courseId}
         selectedSession={selectedSession}
         isSessionModalOpen={isSessionModalOpen}
         setIsSessionModalOpen={handleCloseSessionModal}
         getModulesByCourseId={getModulesByCourseId}
+        setSelectedSession={setSelectedSession}
       />
     </>
   );

@@ -12,6 +12,8 @@ export type Session = MasterData & {
     moduleName?: string;
     sortOrder?: number;
     duration?: number;
+    isActive?:boolean;
+    isDeleted?:boolean
   };
 
   export const initialSession: Session = {
