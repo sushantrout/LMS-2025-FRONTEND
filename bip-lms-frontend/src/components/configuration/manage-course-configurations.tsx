@@ -139,11 +139,9 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
         />
 
         <ManageQuizModal
-          courseId={courseId}
-          selectedSession={selectedSession}
           isQuizModalOpen={isQuizModalOpen}
           setIsQuizModalOpen={setIsQuizModalOpen}
-          getModulesByCourseId={fetchModules}
+          modules ={modules}
         />
       </div>
     </div>

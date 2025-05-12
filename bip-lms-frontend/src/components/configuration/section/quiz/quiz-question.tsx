@@ -9,7 +9,9 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import type { QuestionType, Option, Question } from "./manage-quiz"
+import { Question, QuestionType } from "@/types/model/question-model"
+import { Option } from "@/types/model/option-model"
+import { Textarea } from "@/components/ui/textarea"
 
 export default function QuizQuestion({
   questions,
@@ -73,7 +75,7 @@ export default function QuizQuestion({
                   <Label htmlFor={`question-${q.id}`} className="font-medium">
                     Question Text
                   </Label>
-                  <Input
+                  <Textarea
                     id={`question-${q.id}`}
                     placeholder="Enter your question"
                     value={q.question}

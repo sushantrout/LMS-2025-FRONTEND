@@ -10,59 +10,40 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Module } from "@/types/model/module-model";
-import { moduleService } from "@/http/module-service";
 import { questionService } from "@/http/question-service";
 import { showErrorToast, showSuccessToast } from "@/util/helpers/toast-helper";
 import QuizQuestion from "./quiz-question";
-
-// Types
-export type QuestionType = "SINGLE_SELECT" | "MULTI_SELECT" | "DESCRIPTIVE";
-
-export interface Option {
-  id: string;
-  value: string;
-  isCorrect: boolean;
-  isActive: boolean;
-  isDeleted: boolean;
-}
-
-export interface Question {
-  id: string;
-  question: string;
-  type: QuestionType;
-  isActive: boolean;
-  isDeleted: boolean;
-  options: Option[];
-}
+import { Question } from "@/types/model/question-model";
+import { Option } from "@/types/model/option-model";
+import QuizModuleDropdown from "./quiz-module";
+import QuizSessionDropdown from "./quiz-session";
 
 interface ManageQuizModalProps {
   isQuizModalOpen: boolean;
   setIsQuizModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  courseId: string;
-  getModulesByCourseId: () => Promise<void>;
-  selectedSession: Module | null;
+  modules : Module[];
 }
 
 const generateId = () => Math.random().toString(36).substring(2, 10);
 
 export default function ManageQuizModal({
-  courseId,
   isQuizModalOpen,
   setIsQuizModalOpen,
-  getModulesByCourseId,
+  modules,
 }: ManageQuizModalProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [modules, setModules] = useState<Module[]>([]);
+  const [modulesArr, setModulesArr] = useState<Module[]>([]);
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
   const [selectedSession, setSelectedSession] = useState<any>(null);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    (async () => {
-      const res = await moduleService.getModuleByCourseId(courseId);
-      setModules(res?.data?.data || []);
-    })();
-  }, [getModulesByCourseId]);
+    debugger;
+    if (isQuizModalOpen) {
+        setModulesArr(modules || []);
+    }
+  }, [isQuizModalOpen]);
+  
 
   const handleClose = () => {
     setIsQuizModalOpen(false);
@@ -144,42 +125,20 @@ export default function ManageQuizModal({
         </DialogHeader>
 
         {/* Module Dropdown */}
-        <select
-          className="w-full border px-2 py-1 rounded mb-4"
-          value={selectedModule?.id || ""}
-          onChange={(e) => {
-            const mod = modules.find((m) => m.id === e.target.value);
-            setSelectedModule(mod || null);
-            setSelectedSession(null);
-          }}
-        >
-          <option value="">Select Module</option>
-          {modules.map((mod) => (
-            <option key={mod.id} value={mod.id}>
-              {mod.name}
-            </option>
-          ))}
-        </select>
+        <QuizModuleDropdown
+          selectedModule={selectedModule}
+          setSelectedModule={setSelectedModule}
+          modules={modulesArr}
+          setSelectedSession={setSelectedSession}
+        />
 
         {/* Session Dropdown */}
         {selectedModule && (
-          <select
-            className="w-full border px-2 py-1 rounded mb-4"
-            value={selectedSession?.id || ""}
-            onChange={(e) => {
-              const sess = selectedModule.sessions.find(
-                (s: any) => s.id === e.target.value
-              );
-              setSelectedSession(sess || null);
-            }}
-          >
-            <option value="">Select Session</option>
-            {selectedModule.sessions.map((sess: any) => (
-              <option key={sess.id} value={sess.id}>
-                {sess.name}
-              </option>
-            ))}
-          </select>
+          <QuizSessionDropdown
+            selectedSession={selectedSession}
+            selectedModule={selectedModule}
+            setSelectedSession={setSelectedSession}
+          />
         )}
 
         {/* Quiz UI only if session is selected */}
@@ -210,4 +169,3 @@ export default function ManageQuizModal({
     </Dialog>
   );
 }
-
