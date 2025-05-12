@@ -20,6 +20,7 @@ import {
 import ReviewList from "./review-list";
 import CourseStats from "./course-stats";
 import { getImageSrc } from "@/util/helpers/application-data-converter-util";
+import { showSuccessToast } from "@/util/helpers/toast-helper";
 
 export default function CourseDetailInfo({ courseId }: { courseId: string }) {
   const router = useRouter();
@@ -53,6 +54,7 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
   const enrollmentTheCourse = () => {
     courseService.enroll(courseId).then(res => {
       console.log(res.data);
+      showSuccessToast("You've successfully enrolled in the course!");
     });
   }
 
