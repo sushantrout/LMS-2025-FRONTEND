@@ -245,7 +245,6 @@ export function UserDataTable({
                         variant="ghost"
                         size="icon"
                         onClick={() => {
-                          debugger;
                           console.log(user);
                           return setShowUserDetails(user);
                         }}

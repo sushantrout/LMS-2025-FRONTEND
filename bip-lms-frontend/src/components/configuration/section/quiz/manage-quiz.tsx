@@ -38,7 +38,6 @@ export default function ManageQuizModal({
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    debugger;
     if (isQuizModalOpen) {
         setModulesArr(modules || []);
     }
