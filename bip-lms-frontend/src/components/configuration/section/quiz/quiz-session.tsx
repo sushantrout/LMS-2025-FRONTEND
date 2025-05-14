@@ -3,15 +3,27 @@ import { Module } from "@/types/model/module-model";
 export default function QuizSessionDropdown({
     selectedSession,
     selectedModule,
-    setSelectedSession
+    setSelectedSession,
+    disabled = false
 } : {
     selectedSession : any
-    selectedModule : Module
+    selectedModule : Module | null
     setSelectedSession : (session : any) => void
+    disabled?: boolean
 }){
+    if (!selectedModule) {
+        return (
+            <select
+                className={`w-full border px-2 py-1 rounded mb-4 opacity-50 cursor-not-allowed`}
+                disabled
+            >
+                <option value="">Select Session</option>
+            </select>
+        );
+    }
     return(
         <select
-            className="w-full border px-2 py-1 rounded mb-4"
+            className={`w-full border px-2 py-1 rounded mb-4 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             value={selectedSession?.id || ""}
             onChange={(e) => {
               const sess = selectedModule.sessions.find(
@@ -19,6 +31,7 @@ export default function QuizSessionDropdown({
               );
               setSelectedSession(sess || null);
             }}
+            disabled={disabled}
           >
             <option value="">Select Session</option>
             {selectedModule.sessions.map((sess: any) => (

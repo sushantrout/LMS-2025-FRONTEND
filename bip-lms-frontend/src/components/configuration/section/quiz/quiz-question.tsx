@@ -22,6 +22,7 @@ export default function QuizQuestion({
   removeOption,
   addOption,
   addQuestion,
+  disabled = false,
 }: {
   questions: Question[]
   expandedIndex: number | null
@@ -31,13 +32,14 @@ export default function QuizQuestion({
   removeOption: (qIndex: number, oIndex: number) => void
   addOption: (qIndex: number) => void
   addQuestion: () => void
+  disabled?: boolean
 }) {
   return (
-    <div className="flex flex-col gap-6">
+    <div className={`flex flex-col gap-6 ${disabled ? 'blur-sm pointer-events-none select-none' : ''}`}>
       {!questions || questions.length === 0 ? (
         <div className="text-center p-8 border border-dashed rounded-lg bg-muted/50">
           <p className="text-muted-foreground mb-4">No questions yet. Create your first question to get started.</p>
-          <Button onClick={addQuestion}>
+          <Button onClick={addQuestion} disabled={disabled}>
             <Plus className="mr-2 h-4 w-4" /> Create First Question
           </Button>
         </div>

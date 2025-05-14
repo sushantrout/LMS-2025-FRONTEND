@@ -118,41 +118,43 @@ export default function ManageQuizModal({
 
   return (
     <Dialog open={isQuizModalOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[1200px] max-h-[100vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create Quiz / Questionnaire</DialogTitle>
         </DialogHeader>
 
-        {/* Module Dropdown */}
-        <QuizModuleDropdown
-          selectedModule={selectedModule}
-          setSelectedModule={setSelectedModule}
-          modules={modulesArr}
-          setSelectedSession={setSelectedSession}
+        {/* Module & Session Dropdowns Side by Side */}
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <QuizModuleDropdown
+              selectedModule={selectedModule}
+              setSelectedModule={setSelectedModule}
+              modules={modulesArr}
+              setSelectedSession={setSelectedSession}
+            />
+          </div>
+          <div className="flex-1">
+            <QuizSessionDropdown
+              selectedSession={selectedSession}
+              selectedModule={selectedModule}
+              setSelectedSession={setSelectedSession}
+              disabled={!selectedModule}
+            />
+          </div>
+        </div>
+
+        {/* Quiz UI always visible, blurred if no session is selected */}
+        <QuizQuestion
+          questions={questions}
+          expandedIndex={expandedIndex}
+          setExpandedIndex={setExpandedIndex}
+          updateQuestion={updateQuestion}
+          updateOption={updateOption}
+          removeOption={removeOption}
+          addOption={addOption}
+          addQuestion={addQuestion}
+          disabled={!selectedSession}
         />
-
-        {/* Session Dropdown */}
-        {selectedModule && (
-          <QuizSessionDropdown
-            selectedSession={selectedSession}
-            selectedModule={selectedModule}
-            setSelectedSession={setSelectedSession}
-          />
-        )}
-
-        {/* Quiz UI only if session is selected */}
-        {selectedSession && (
-          <QuizQuestion
-            questions={questions}
-            expandedIndex={expandedIndex}
-            setExpandedIndex={setExpandedIndex}
-            updateQuestion={updateQuestion}
-            updateOption={updateOption}
-            removeOption={removeOption}
-            addOption={addOption}
-            addQuestion={addQuestion}
-          />
-        )}
 
         <DialogFooter>
           {selectedSession && (
