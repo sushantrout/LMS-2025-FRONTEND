@@ -1,4 +1,3 @@
-import { httpClient } from "./http-service";
 import { lmsService } from "./lms-service";
 
 const BASE_URL = "v1/sessions";
@@ -18,6 +17,9 @@ export const sessionService = {
   },
   deleteSession(id: string) {
     return lmsService.delete(`${BASE_URL}/${id}`);
+  },
+  sortSessions(data: any) {
+    return lmsService.post(`${BASE_URL}/sort`, data);
   },
 
 };

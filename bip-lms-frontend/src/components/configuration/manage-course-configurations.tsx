@@ -26,6 +26,7 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const fetchModules = useCallback(async () => {
     try {
       const response = await moduleService.getModuleByCourseId(courseId);
+      debugger;
       setModules(response.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch modules:", error);
