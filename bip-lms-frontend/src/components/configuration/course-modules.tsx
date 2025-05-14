@@ -70,8 +70,6 @@ export default function CourseModules({
   );
 
   const handleDeleteSession = async () => {
-    console.log("Modules=======>"+modules)
-    console.log("session to be deleted "+sessionToDelete);
     if (sessionToDelete) {
       try {
         await sessionService.deleteSession(sessionToDelete.id);
@@ -131,7 +129,6 @@ export default function CourseModules({
   };
 
   const handleDelete = (session: Session) => {
-    console.log("Session to delet ====="+session.id)
     setSessionToDelete(session);
     setIsSessionDeleteModalOpen(true);
   };
