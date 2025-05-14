@@ -62,7 +62,6 @@ export default function CourseCatalog() {
 }
 
 function CourseGrid({ courses, setSelectedCourse, setOpenCourseModal }: { courses: Course[], setSelectedCourse : any, setOpenCourseModal: any }) {
-  debugger;
   console.log(courses);
   return (
     <>
