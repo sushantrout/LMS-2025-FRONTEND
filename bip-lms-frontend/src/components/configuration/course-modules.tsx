@@ -47,11 +47,6 @@ export default function CourseModules({
   const sortModule = modules.find((mod) => mod.id === sortModuleId);
   const [sortedSessions, setSortedSessions] = useState<Session[]>([]);
 
-  useEffect(() => {
-    debugger
-    console.log(modules);
-    console.log(modules.map((mod) => mod.sessions));
-  }, []);
 
   const getModulesWithExpansionPersistence = async () => {
     const expandedStateMap: Record<string, boolean> = {};
