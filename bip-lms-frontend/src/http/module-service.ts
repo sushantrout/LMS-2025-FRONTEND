@@ -19,5 +19,7 @@ export const moduleService = {
   deleteModule(id: string) {
     return lmsService.delete(`${BASE_URL}/${id}`);
   },
-
+  sortModules(data: any) {
+    return lmsService.post(`${BASE_URL}/sort`, data);
+  },
 };

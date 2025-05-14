@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, FileQuestion, FileText, PlusCircle } from "lucide-react";
+import { BookOpen, FileQuestion, FileText, PlusCircle, ArrowUpDown } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import CourseModules from "./course-modules";
 import ManageSessionModal from "./section/manage-session";
 import ManageModuleModal from "./module/manage-moule";
 import ManageQuizModal from "./section/quiz/manage-quiz";
+import SortModulesModal from "./module/sort-modules-modal";
 
 export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [course, setCourse] = useState<Course | null>(null);
@@ -22,6 +23,7 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
   const [selectedSession, setSelectedSession] = useState<Module | null>(null);
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
+  const [isSortModalOpen, setIsSortModalOpen] = useState(false);
 
   const fetchModules = useCallback(async () => {
     try {
@@ -62,7 +64,7 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
       </header>
 
       <div className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
           <Button
             variant="outline"
             className={commonButtonClass}
@@ -91,7 +93,10 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
             <span className="text-blue-600 font-medium">Add Session</span>
           </Button>
 
-          <Button variant="outline" className={commonButtonClass} onClick={() => {
+          <Button
+            variant="outline"
+            className={commonButtonClass}
+            onClick={() => {
               setSelectedSession(null);
               setIsQuizModalOpen(true);
             }}
@@ -107,6 +112,17 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
               <FileText className="h-5 w-5 text-yellow-600" />
             </div>
             <span className="text-yellow-600 font-medium">Add Assignment</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            className={commonButtonClass}
+            onClick={() => setIsSortModalOpen(true)}
+          >
+            <div className={`${iconStyle} bg-purple-50 border-purple-200`}>
+              <ArrowUpDown className="h-5 w-5 text-purple-600" />
+            </div>
+            <span className="text-purple-600 font-medium">Sort Modules</span>
           </Button>
         </div>
 
@@ -142,6 +158,18 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
           isQuizModalOpen={isQuizModalOpen}
           setIsQuizModalOpen={setIsQuizModalOpen}
           modules={modules}
+        />
+
+        <SortModulesModal
+          isOpen={isSortModalOpen}
+          onClose={() => setIsSortModalOpen(false)}
+          modules={modules}
+          onSave={async (sortedModules) => {
+            setModules(sortedModules);
+            setIsSortModalOpen(false);
+            await fetchModules();
+          }}
+          courseId={courseId}
         />
       </div>
     </div>
