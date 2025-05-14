@@ -137,7 +137,7 @@ export default function SortModulesModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[1200px] max-h-[100vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Sort Modules</DialogTitle>
         </DialogHeader>
