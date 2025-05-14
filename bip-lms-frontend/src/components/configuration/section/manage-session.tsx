@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -30,12 +30,11 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Session, initialSession } from "@/types/model/session-model";
-import { moduleService } from "@/http/module-service";
-import { Module } from "@/types/model/module-model";
 import { sessionService } from "@/http/session-service";
 import { showSuccessToast } from "@/util/helpers/toast-helper";
+import { Module } from "@/types/model/module-model";
 
-// Updated schema
+// Schema
 const moduleSchema = z.object({
   name: z.string().min(1, "Session name is required"),
   sortOrder: z.coerce.number().min(1, "Sort order must be at least 1"),
@@ -51,24 +50,22 @@ const moduleSchema = z.object({
 type ModuleFormSchema = z.infer<typeof moduleSchema>;
 
 interface ManageSessionModalProps {
-  courseId: string;
   selectedSession: Session | null;
   isSessionModalOpen: boolean;
   setIsSessionModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  getModulesByCourseId: () => void;
   setSelectedSession?: React.Dispatch<React.SetStateAction<Session | null>>;
+  modules: Module[];
+  setModules?: React.Dispatch<React.SetStateAction<Module[]>>; // <-- added
 }
 
 export default function ManageSessionModal({
-  courseId,
   isSessionModalOpen,
   setIsSessionModalOpen,
-  getModulesByCourseId,
   selectedSession,
   setSelectedSession,
+  modules,
+  setModules, // <-- added
 }: ManageSessionModalProps) {
-  const [modules, setModules] = useState<Module[]>([]);
-
   const form = useForm<ModuleFormSchema>({
     resolver: zodResolver(moduleSchema),
     defaultValues: {
@@ -84,10 +81,8 @@ export default function ManageSessionModal({
     },
   });
 
-  // Reset form when selectedSession changes
   useEffect(() => {
     const sessionData = selectedSession ?? initialSession;
-
     if (isSessionModalOpen) {
       form.reset({
         name: sessionData.name || "",
@@ -103,28 +98,42 @@ export default function ManageSessionModal({
     }
   }, [selectedSession, isSessionModalOpen]);
 
-  // Fetch modules when courseId changes
-  useEffect(() => {
-    if (courseId) {
-      moduleService.getModuleByCourseId(courseId).then((res) => {
-        setModules(res.data.data);
-      });
-    }
-  }, [courseId]);
-
   const onSubmit = async (values: ModuleFormSchema) => {
-    console.log("Submitting...", values);
-
     try {
       if (selectedSession?.id) {
-        await updateSession({ ...selectedSession, ...values });
+        const updated = await updateSession({ ...selectedSession, ...values });
+        if (setModules) {
+          setModules((prevModules) =>
+            prevModules.map((mod) =>
+              mod.id === updated.moduleId
+                ? {
+                    ...mod,
+                    sessions: mod.sessions.map((sess) =>
+                      sess.id === updated.id ? updated : sess
+                    ),
+                  }
+                : mod
+            )
+          );
+        }
       } else {
-        await createSession(values);
+        const created = await createSession(values);
+        if (setModules) {
+          setModules((prevModules) =>
+            prevModules.map((mod) =>
+              mod.id === created.moduleId
+                ? {
+                    ...mod,
+                    sessions: [...(mod.sessions || []), created],
+                  }
+                : mod
+            )
+          );
+        }
       }
+
       setSelectedSession?.(null);
       setIsSessionModalOpen(false);
-      getModulesByCourseId();
-
     } catch (error) {
       console.error("Failed to save session:", error);
     }
@@ -136,7 +145,7 @@ export default function ManageSessionModal({
 
   return (
     <Dialog open={isSessionModalOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[1200px] max-h-[100vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {selectedSession?.id ? "Edit Session" : "Create Session"}
@@ -146,35 +155,35 @@ export default function ManageSessionModal({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="flex flex-wrap gap-x-4">
-              {/* Module - 3/6 = 50% */}
-              <div className="flex-[3] min-w-[200px]">
-                <FormField
-                  control={form.control}
-                  name="moduleId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Module</FormLabel>
-                      <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select Module" />
-                          </SelectTrigger>
-                          <SelectContent className="w-full">
-                            {modules.map((module) => (
-                              <SelectItem key={module.id} value={module.id}>
-                                {module.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              {!selectedSession?.id && (
+                <div className="flex-[3] min-w-[200px]">
+                  <FormField
+                    control={form.control}
+                    name="moduleId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Module</FormLabel>
+                        <FormControl>
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select Module" />
+                            </SelectTrigger>
+                            <SelectContent className="w-full">
+                              {(modules ?? []).map((module) => (
+                                <SelectItem key={module.id} value={module.id}>
+                                  {module.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
 
-              {/* Name - 2/6 = 33.33% */}
               <div className="flex-[2] min-w-[200px]">
                 <FormField
                   control={form.control}
@@ -191,7 +200,6 @@ export default function ManageSessionModal({
                 />
               </div>
 
-              {/* Sort Order - 1/6 = 16.67% */}
               <div className="flex-[1] min-w-[100px]">
                 <FormField
                   control={form.control}
@@ -213,7 +221,6 @@ export default function ManageSessionModal({
                 />
               </div>
             </div>
-
 
             <FormField
               control={form.control}
@@ -241,19 +248,14 @@ export default function ManageSessionModal({
                       <FormLabel>Mode</FormLabel>
                       <FormControl>
                         <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger className="w-100"> {/* Adjust width here */}
+                          <SelectTrigger className="w-100">
                             <SelectValue placeholder="Select Mode" />
                           </SelectTrigger>
-                          <SelectContent className="w-100"> {/* Match width here */}
-                            <SelectItem value="ONLINE" className="text-base py-3 px-4">
-                              ONLINE
-                            </SelectItem>
-                            <SelectItem value="OFFLINE" className="text-base py-3 px-4">
-                              OFFLINE
-                            </SelectItem>
+                          <SelectContent className="w-100">
+                            <SelectItem value="ONLINE">ONLINE</SelectItem>
+                            <SelectItem value="OFFLINE">OFFLINE</SelectItem>
                           </SelectContent>
                         </Select>
-
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -307,16 +309,15 @@ export default function ManageSessionModal({
   );
 }
 
-// Dummy updateSession function – implement your API logic
-const updateSession = async (session: Session) => {
+// Utility functions
+const updateSession = async (session: Session): Promise<Session> => {
   const res = await sessionService.updateSession(session.id!, session);
-  console.log("Updated session:", res);
   showSuccessToast("Session updated successfully");
+  return res.data?.data;
 };
 
-// Create session API logic
-const createSession = async (session: ModuleFormSchema) => {
+const createSession = async (session: ModuleFormSchema): Promise<Session> => {
   const res = await sessionService.createSession(session);
-  console.log("Created session:", res);
   showSuccessToast("Session created successfully");
+  return res.data?.data;
 };
