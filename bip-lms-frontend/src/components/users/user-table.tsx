@@ -408,12 +408,12 @@ export function UserDataTable({
                   </p>
                   <p>{showUserDetails.lastName || "—"}</p>
                 </div>
-                <div>
+                {/* <div>
                   <p className="text-sm font-medium text-muted-foreground">
                     Email
                   </p>
                   <p>{showUserDetails.email || "—"}</p>
-                </div>
+                </div> */}
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
                     Phone Number

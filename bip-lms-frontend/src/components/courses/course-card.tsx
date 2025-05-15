@@ -33,7 +33,7 @@ export default function CourseCard({
       <div className="flex flex-col space-y-1.5 p-4">
         <h3 className="text-xl font-semibold">{course.name}</h3>
         <p className="text-sm text-muted-foreground line-clamp-2">
-          {course.description}
+          {course.shortDescription}
         </p>
       </div>
       <div className="mt-auto p-4 pt-0">
@@ -67,7 +67,7 @@ const ActionButtons = ({
   setSelectedCourse?: (course: Course) => void;
   setOpenCourseModal?: (open: boolean) => void;
 }) => {
-  if (type === "configuration") {
+  if (type === "catalog") {
     return (
       <Link href={`/courses/${course.id}`} className="flex-1">
         <Button className="w-full">View Course</Button>
@@ -75,7 +75,7 @@ const ActionButtons = ({
     );
   }
 
-  if (type === "catalog") {
+  if (type === "configuration") {
     return (
       <>
         <Button

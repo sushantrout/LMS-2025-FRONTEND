@@ -31,7 +31,10 @@ export default function CourseCatalog() {
           <h1 className="text-3xl font-bold tracking-tight mb-2">
             Course Catalog
           </h1>
-          <Button onClick={() => {setOpenCourseModal(true)}}>Create Course</Button>
+          <Button onClick={() => {
+            setOpenCourseModal(true)
+            setSelectedCourse(null);
+            }}>Create Course</Button>
         </div>
         {/* Search and Filter */}
         <div className="flex gap-4">
@@ -67,7 +70,7 @@ function CourseGrid({ courses, setSelectedCourse, setOpenCourseModal }: { course
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
         {courses.map((course) => (
-          <CourseCard key={course.id} course={course} type="catalog"  setSelectedCourse={setSelectedCourse} setOpenCourseModal={setOpenCourseModal}/>
+          <CourseCard key={course.id} course={course} type="configuration"  setSelectedCourse={setSelectedCourse} setOpenCourseModal={setOpenCourseModal}/>
         ))}
       </div>
     </>

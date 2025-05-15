@@ -49,7 +49,7 @@ export default function CourseCatalog() {
           <TabsContent value="all">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-2">
               {courseList.map((course) => (
-                <CourseCard key={course.id} course={course} type="configuration" />
+                <CourseCard key={course.id} course={course} type="catalog" />
               ))}
             </div>
           </TabsContent>
@@ -58,14 +58,14 @@ export default function CourseCatalog() {
               {courseList
                 .filter((c) => c.rating > 4.5)
                 .map((course) => (
-                  <CourseCard key={course.id} course={course} type="configuration" />
+                  <CourseCard key={course.id} course={course} type="catalog" />
                 ))}
             </div>
           </TabsContent>
           <TabsContent value="newest">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-2">
               {courseList.slice(0, 2).map((course) => (
-                <CourseCard key={course.id} course={course} type="configuration" />
+                <CourseCard key={course.id} course={course} type="catalog" />
               ))}
             </div>
           </TabsContent>
