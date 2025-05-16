@@ -204,11 +204,11 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                           {instructor?.fullName}
                         </h3>
                         <p className="text-muted-foreground flex items-center gap-2">
-                          <Mail className="h-4 w-4" />
+                          <Mail className="h-4 w-4 text-blue-500" />
                           {instructor?.email}
                         </p>
                         <p className="text-muted-foreground flex items-center gap-2">
-                          <Phone className="h-4 w-4" />
+                          <Phone className="h-4 w-4 text-green-500" />
                           {instructor?.phoneNumber}
                         </p>
                       </div>
