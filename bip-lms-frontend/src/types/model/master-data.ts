@@ -8,4 +8,5 @@ type MasterData = {
     isActive?:boolean,
     isDeleted?:boolean,
     isDefault?:boolean,
+    studentCount?:number,
 }

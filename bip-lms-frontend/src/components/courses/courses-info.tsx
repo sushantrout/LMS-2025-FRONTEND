@@ -3,7 +3,6 @@
 import { ArrowLeft, BookAIcon, Clock, Star, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,7 +11,6 @@ import { courseService } from "@/http/course-service";
 import { CourseOverView } from "@/types/model/course-overview-model";
 import { useRouter } from "next/navigation";
 import { courseReviewService } from "@/http/course-review-service";
-import RatingStar from "../ui/rating-star";
 import {
   CourseReview,
   CourseReviewStats,
@@ -33,9 +31,17 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
     {} as CourseReviewStats
   );
 
+  const [enrollmentStatus, setEnrollmentStatus] = useState<false | null>(
+    null
+  );
+
   const getCourseData = () => {
     courseService.getCourseOverView(courseId).then((res) => {
       setCourseOverView(res?.data?.data);
+    });
+
+    courseService.getEnrollmentStatus(courseId).then((res) => {
+      setEnrollmentStatus(res?.data?.data);
     });
   };
 
@@ -95,11 +101,11 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
             </div>
             <div className="flex items-center gap-1">
               <Users className="h-5 w-5" />
-              <span>{courseOverView?.createdBy} students</span>
+              <span>{courseOverView?.studentCount} students</span>
             </div>
             <div className="flex items-center gap-1">
               <Clock className="h-5 w-5" />
-              <span>{/* duration */}</span>
+              <span>{courseOverView?.duration} Hours</span>
             </div>
           </div>
         </div>
@@ -107,7 +113,7 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
 
       {/* Course Content */}
       <div className="container px-4 py-1 font-sans text-sm">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className={enrollmentStatus ? "grid grid-cols-1 lg:grid-cols-1 gap-8" : "grid grid-cols-1 lg:grid-cols-3 gap-8"}>
           {/* Main Content */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="overview" className="w-full">
@@ -180,14 +186,9 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                 </h2>
                 {courseOverView?.instructors.map((instructor) => {
                   return (
-                    <div className="flex flex-col md:flex-row gap-6 items-start mb-6">
+                    <div className="flex flex-col md:flex-row gap-6 items-start mb-6" key={instructor?.id} >
                       <Avatar className="h-24 w-24">
                         <AvatarImage
-                          // src={
-                          //   instructor?.profilePicture
-                          //     ? `data:${instructor?.profilePicture?.contentType};base64,${instructor?.profilePicture?.imageInByteArray}`
-                          //     : "/images/course/course-cover.avif"
-                          // }
                           src={getImageSrc(instructor?.profilePicture)}
                           alt={instructor?.fullName}
                         />
@@ -205,7 +206,11 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                         <p className="text-muted-foreground">
                           {instructor?.email}
                         </p>
-                        <div className="flex items-center gap-4 my-3">
+                        {/* phoneNumber */}
+                        <p className="text-muted-foreground">
+                          {instructor?.phoneNumber}
+                        </p>
+                        {/* <div className="flex items-center gap-4 my-3">
                           <div className="flex items-center gap-1">
                             <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
                             <span>5.0</span>
@@ -218,7 +223,7 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                             <BookAIcon className="h-4 w-4" />
                             <span>{courseOverView?.createdBy} Courses</span>
                           </div>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                   );
@@ -239,13 +244,14 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
           </div>
 
           {/* Sidebar */}
+          {!enrollmentStatus &&
           <div className="lg:col-span-1">
             <Card className="sticky top-8">
               <CardContent className="p-6">
                 <div className="text-3xl font-bold mb-4">
                   {/* ${course?.duration} */}
                 </div>
-                <Button className="w-full mb-3 " onClick={() => enrollmentTheCourse()}>Enroll Now</Button>
+                <Button className="w-full mb-3 " onClick={() => enrollmentTheCourse()} >Enroll Now</Button>
                 <Button variant="outline" className="w-full mb-6">
                   Add to Wishlist
                 </Button>
@@ -322,6 +328,7 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
               </CardContent>
             </Card>
           </div>
+        }
         </div>
       </div>
     </div>

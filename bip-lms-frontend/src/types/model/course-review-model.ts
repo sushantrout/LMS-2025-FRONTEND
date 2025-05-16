@@ -1,9 +1,11 @@
+import { Course } from "./course-model";
 import { User } from "./user-model";
 
 export type CourseReview = MasterData & {
   feedback: string;
   rating: number;
   user: User;
+  course: Course;
 };
 export type CourseReviewStats = {
   totalReviews: number;

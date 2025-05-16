@@ -1,61 +1,77 @@
-"use client"
-import { useEffect, useState } from "react"
-import { X, ChevronDown, ChevronUp, Clock, CheckCircle, Circle, Play } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { courseService } from "@/http/course-service"
-import type { CourseOverView } from "@/types/model/course-overview-model"
-import type { SessionOverview } from "@/types/model/session-overview-model"
-import { questionService } from "@/http/question-service"
-import type { Question } from "../configuration/section/quiz/manage-quiz"
-import { ChevronRight, ChevronLeft, AlertCircle } from "lucide-react"
-import { Textarea } from "@/components/ui/textarea"
+"use client";
+import { useEffect, useState } from "react";
+import {
+  X,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  CheckCircle,
+  Circle,
+  Play,
+  Star,
+} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { courseService } from "@/http/course-service";
+import type { CourseOverView } from "@/types/model/course-overview-model";
+import type { SessionOverview } from "@/types/model/session-overview-model";
+import { questionService } from "@/http/question-service";
+import type { Question } from "@/types/model/question-model";
+import { ChevronRight, ChevronLeft, AlertCircle } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { CourseReview } from "@/types/model/course-review-model";
+import { courseReviewService } from "@/http/course-review-service";
 
 export default function StudentCourseView({ courseId }: { courseId: string }) {
-  const [course, setCourse] = useState<CourseOverView | null>(null)
-  const [activeTab, setActiveTab] = useState("overview")
-  const [expandedSections, setExpandedSections] = useState<string[]>([])
-  const [questions, setQuestions] = useState<Question[]>([])
-  const [selectedSession, setSelectedSession] = useState<SessionOverview | null>(null)
-  const [progress, setProgress] = useState(42) // Example progress percentage
+  const [course, setCourse] = useState<CourseOverView | null>(null);
+  const [activeTab, setActiveTab] = useState("Overview");
+  const [expandedSections, setExpandedSections] = useState<string[]>([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [selectedSession, setSelectedSession] =
+    useState<SessionOverview | null>(null);
+  const [progress, setProgress] = useState(42); // Example progress percentage
 
   useEffect(() => {
     const fetchData = async () => {
       const fetchData = async () => {
         try {
-          const response = await courseService.getCourseOverView(courseId)
-          setCourse(response.data?.data || null)
+          const response = await courseService.getCourseOverView(courseId);
+          setCourse(response.data?.data || null);
         } catch (error) {
-          console.error("Failed to fetch course:", error)
+          console.error("Failed to fetch course:", error);
         }
-      }
+      };
 
-      fetchData()
-    }
+      fetchData();
+    };
 
-    fetchData()
-  }, [courseId])
+    fetchData();
+  }, [courseId]);
 
   const getQuestionDetail = () =>
-    questionService.getQuestioner(selectedSession.sessionId).then((quiestionDetail) => {
-      console.log(quiestionDetail.data.data)
-      setQuestions(quiestionDetail?.data?.data)
-    })
+    questionService
+      .getQuestioner(selectedSession.sessionId)
+      .then((quiestionDetail) => {
+        console.log(quiestionDetail.data.data);
+        setQuestions(quiestionDetail?.data?.data);
+      });
 
   useEffect(() => {
     if (selectedSession) {
-      getQuestionDetail()
+      getQuestionDetail();
     }
-  }, [selectedSession])
+  }, [selectedSession]);
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections((prev) =>
-      prev.includes(sectionId) ? prev.filter((id) => id !== sectionId) : [...prev, sectionId],
-    )
-  }
+      prev.includes(sectionId)
+        ? prev.filter((id) => id !== sectionId)
+        : [...prev, sectionId]
+    );
+  };
 
   if (!course) {
     return (
@@ -65,7 +81,7 @@ export default function StudentCourseView({ courseId }: { courseId: string }) {
           <p className="text-gray-600">Loading your course...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -122,7 +138,11 @@ export default function StudentCourseView({ courseId }: { courseId: string }) {
 
         {/* Tabs */}
         <div className="border-b bg-white flex-grow overflow-auto">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
             <div className="sticky top-0 bg-white z-10 border-b">
               <TabsList className="h-auto bg-transparent flex w-full justify-start overflow-x-auto px-4">
                 {["Overview", "Q&A", "Comments"].map((tab) => (
@@ -177,6 +197,12 @@ export default function StudentCourseView({ courseId }: { courseId: string }) {
                 </div>
               </div>
             </TabsContent>
+
+            <TabsContent value="Comments" className="p-6 m-0">
+              <div className="max-w-2xl mx-auto">
+                <CommentForm courseId={courseId} />
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
       </div>
@@ -186,10 +212,17 @@ export default function StudentCourseView({ courseId }: { courseId: string }) {
         <div className="flex justify-between items-center p-4 border-b sticky top-0 bg-white z-10">
           <h2 className="font-semibold text-gray-800">Course content</h2>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200">
+            <Badge
+              variant="outline"
+              className="bg-indigo-50 text-indigo-700 border-indigo-200"
+            >
               {progress}% complete
             </Badge>
-            <Button variant="ghost" size="icon" className="text-gray-500 hover:bg-gray-100 md:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-gray-500 hover:bg-gray-100 md:hidden"
+            >
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -204,7 +237,10 @@ export default function StudentCourseView({ courseId }: { courseId: string }) {
               >
                 <div className="flex-1 pr-2">
                   <h3 className="text-sm font-medium text-gray-800">
-                    <span className="text-indigo-600 mr-2">Module {moduleIndex + 1}:</span> {module.moduleName}
+                    <span className="text-indigo-600 mr-2">
+                      Module {moduleIndex + 1}:
+                    </span>{" "}
+                    {module.moduleName}
                   </h3>
                   <div className="flex items-center text-xs text-gray-500 mt-1">
                     <span>{module.noOfSessions} lessons</span>
@@ -222,8 +258,9 @@ export default function StudentCourseView({ courseId }: { courseId: string }) {
               {expandedSections.includes(module.moduleId) && (
                 <div className="bg-gray-50">
                   {module.sessions.map((session, sessionIndex) => {
-                    const isSelected = selectedSession?.sessionId === session.sessionId
-                    const isCompleted = sessionIndex < 3 // Example logic for completed sessions
+                    const isSelected =
+                      selectedSession?.sessionId === session.sessionId;
+                    const isCompleted = sessionIndex < 3; // Example logic for completed sessions
 
                     return (
                       <div
@@ -262,7 +299,7 @@ export default function StudentCourseView({ courseId }: { courseId: string }) {
                           </div>
                         </div>
                       </div>
-                    )
+                    );
                   })}
                 </div>
               )}
@@ -278,90 +315,92 @@ export default function StudentCourseView({ courseId }: { courseId: string }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export function AssessmentContent({ questions }: { questions: Question[] }) {
-  const [answers, setAnswers] = useState<Record<string, string>>({})
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [submitted, setSubmitted] = useState(false)
-  const [score, setScore] = useState(0)
-  const [showResults, setShowResults] = useState(false)
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [submitted, setSubmitted] = useState(false);
+  const [score, setScore] = useState(0);
+  const [showResults, setShowResults] = useState(false);
 
-  const totalQuestions = questions.length
-  const currentQuestion = questions[currentQuestionIndex]
-  const progress = (Object.keys(answers).length / totalQuestions) * 100
+  const totalQuestions = questions.length;
+  const currentQuestion = questions[currentQuestionIndex];
+  const progress = (Object.keys(answers).length / totalQuestions) * 100;
 
   const handleSingleSelectChange = (questionId: string, optionId: string) => {
     setAnswers((prev) => ({
       ...prev,
       [questionId]: optionId,
-    }))
-  }
+    }));
+  };
 
   const handleDescriptiveChange = (questionId: string, value: string) => {
     setAnswers((prev) => ({
       ...prev,
       [questionId]: value,
-    }))
-  }
+    }));
+  };
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < totalQuestions - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1)
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
     }
-  }
+  };
 
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1)
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
     }
-  }
+  };
 
   const handleSubmit = () => {
-    let calculatedScore = 0
+    let calculatedScore = 0;
 
     // Calculate score for single select questions
     questions.forEach((question) => {
       if (question.type === "SINGLE_SELECT") {
-        const selectedOptionId = answers[question.id]
-        const selectedOption = question.options.find((option) => option.id === selectedOptionId)
+        const selectedOptionId = answers[question.id];
+        const selectedOption = question.options.find(
+          (option) => option.id === selectedOptionId
+        );
         if (selectedOption?.isCorrect) {
-          calculatedScore += 1
+          calculatedScore += 1;
         }
       }
-    })
+    });
 
-    setScore(calculatedScore)
-    setSubmitted(true)
-    setShowResults(true)
-  }
+    setScore(calculatedScore);
+    setSubmitted(true);
+    setShowResults(true);
+  };
 
   const isOptionCorrect = (questionId: string, optionId: string) => {
-    if (!submitted) return null
+    if (!submitted) return null;
 
-    const question = questions.find((q) => q.id === questionId)
-    if (!question || question.type !== "SINGLE_SELECT") return null
+    const question = questions.find((q) => q.id === questionId);
+    if (!question || question.type !== "SINGLE_SELECT") return null;
 
-    const option = question.options.find((opt) => opt.id === optionId)
-    return option?.isCorrect
-  }
+    const option = question.options.find((opt) => opt.id === optionId);
+    return option?.isCorrect;
+  };
 
   const isAnswerSelected = (questionId: string, optionId: string) => {
-    return answers[questionId] === optionId
-  }
+    return answers[questionId] === optionId;
+  };
 
   const navigateToQuestion = (index: number) => {
-    setCurrentQuestionIndex(index)
-  }
+    setCurrentQuestionIndex(index);
+  };
 
   const resetAssessment = () => {
-    setAnswers({})
-    setCurrentQuestionIndex(0)
-    setSubmitted(false)
-    setScore(0)
-    setShowResults(false)
-  }
+    setAnswers({});
+    setCurrentQuestionIndex(0);
+    setSubmitted(false);
+    setScore(0);
+    setShowResults(false);
+  };
 
   const renderQuestionIndicators = () => {
     return (
@@ -375,8 +414,8 @@ export function AssessmentContent({ questions }: { questions: Question[] }) {
                 index === currentQuestionIndex
                   ? "bg-indigo-600 text-white"
                   : answers[questions[index].id]
-                    ? "bg-gray-200 text-gray-700"
-                    : "bg-gray-100 text-gray-500"
+                  ? "bg-gray-200 text-gray-700"
+                  : "bg-gray-100 text-gray-500"
               }`}
             aria-label={`Go to question ${index + 1}`}
           >
@@ -384,12 +423,17 @@ export function AssessmentContent({ questions }: { questions: Question[] }) {
           </button>
         ))}
       </div>
-    )
-  }
+    );
+  };
 
   const renderResults = () => {
-    const singleSelectQuestions = questions.filter((q) => q.type === "SINGLE_SELECT")
-    const percentageScore = singleSelectQuestions.length > 0 ? (score / singleSelectQuestions.length) * 100 : 0
+    const singleSelectQuestions = questions.filter(
+      (q) => q.type === "SINGLE_SELECT"
+    );
+    const percentageScore =
+      singleSelectQuestions.length > 0
+        ? (score / singleSelectQuestions.length) * 100
+        : 0;
 
     return (
       <div className="space-y-8">
@@ -397,8 +441,12 @@ export function AssessmentContent({ questions }: { questions: Question[] }) {
           <h2 className="text-2xl font-bold mb-2">Assessment Complete</h2>
           <div className="inline-block rounded-lg bg-gray-100 px-4 py-2 mb-4">
             <span className="text-3xl font-bold">{score}</span>
-            <span className="text-gray-500">/{singleSelectQuestions.length}</span>
-            <p className="text-sm text-gray-600 mt-1">{Math.round(percentageScore)}% Score</p>
+            <span className="text-gray-500">
+              /{singleSelectQuestions.length}
+            </span>
+            <p className="text-sm text-gray-600 mt-1">
+              {Math.round(percentageScore)}% Score
+            </p>
           </div>
         </div>
 
@@ -413,14 +461,29 @@ export function AssessmentContent({ questions }: { questions: Question[] }) {
                     </Badge>
                     {question.type === "SINGLE_SELECT" && (
                       <Badge
-                        variant={isOptionCorrect(question.id, answers[question.id] || "") ? "outline" : "outline"}
+                        variant={
+                          isOptionCorrect(
+                            question.id,
+                            answers[question.id] || ""
+                          )
+                            ? "outline"
+                            : "outline"
+                        }
                         className={
-                          isOptionCorrect(question.id, answers[question.id] || "")
+                          isOptionCorrect(
+                            question.id,
+                            answers[question.id] || ""
+                          )
                             ? "bg-green-100 text-green-800 hover:bg-green-100 border-green-200"
                             : "bg-red-100 text-red-800 hover:bg-red-100 border-red-200"
                         }
                       >
-                        {isOptionCorrect(question.id, answers[question.id] || "") ? "Correct" : "Incorrect"}
+                        {isOptionCorrect(
+                          question.id,
+                          answers[question.id] || ""
+                        )
+                          ? "Correct"
+                          : "Incorrect"}
                       </Badge>
                     )}
                   </div>
@@ -430,8 +493,11 @@ export function AssessmentContent({ questions }: { questions: Question[] }) {
                   {question.type === "SINGLE_SELECT" ? (
                     <div className="space-y-2">
                       {question.options.map((option) => {
-                        const isCorrect = option.isCorrect
-                        const isSelected = isAnswerSelected(question.id, option.id)
+                        const isCorrect = option.isCorrect;
+                        const isSelected = isAnswerSelected(
+                          question.id,
+                          option.id
+                        );
 
                         return (
                           <div
@@ -440,15 +506,19 @@ export function AssessmentContent({ questions }: { questions: Question[] }) {
                               isCorrect
                                 ? "border-green-500 bg-green-50"
                                 : isSelected && !isCorrect
-                                  ? "border-red-500 bg-red-50"
-                                  : "border-gray-200"
+                                ? "border-red-500 bg-red-50"
+                                : "border-gray-200"
                             }`}
                           >
                             <div className="flex-grow">{option.value}</div>
-                            {isCorrect && <CheckCircle className="h-5 w-5 text-green-500" />}
-                            {isSelected && !isCorrect && <AlertCircle className="h-5 w-5 text-red-500" />}
+                            {isCorrect && (
+                              <CheckCircle className="h-5 w-5 text-green-500" />
+                            )}
+                            {isSelected && !isCorrect && (
+                              <AlertCircle className="h-5 w-5 text-red-500" />
+                            )}
                           </div>
-                        )
+                        );
                       })}
                     </div>
                   ) : (
@@ -466,16 +536,19 @@ export function AssessmentContent({ questions }: { questions: Question[] }) {
         </div>
 
         <div className="flex justify-center">
-          <Button onClick={resetAssessment} className="bg-indigo-600 hover:bg-indigo-700">
+          <Button
+            onClick={resetAssessment}
+            className="bg-indigo-600 hover:bg-indigo-700"
+          >
             Retake Assessment
           </Button>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const renderQuestion = () => {
-    if (!currentQuestion) return null
+    if (!currentQuestion) return null;
 
     return (
       <div className="space-y-6">
@@ -493,25 +566,35 @@ export function AssessmentContent({ questions }: { questions: Question[] }) {
                 : "bg-purple-50 text-purple-700 border-purple-200"
             }
           >
-            {currentQuestion.type === "SINGLE_SELECT" ? "Multiple Choice" : "Free Response"}
+            {currentQuestion.type === "SINGLE_SELECT"
+              ? "Multiple Choice"
+              : "Free Response"}
           </Badge>
         </div>
 
-        <h2 className="text-xl font-semibold mb-6">{currentQuestion.question}</h2>
+        <h2 className="text-xl font-semibold mb-6">
+          {currentQuestion.question}
+        </h2>
 
         {currentQuestion.type === "SINGLE_SELECT" ? (
           <div className="space-y-3">
             {currentQuestion.options.map((option) => (
               <div
                 key={option.id}
-                onClick={() => handleSingleSelectChange(currentQuestion.id, option.id)}
+                onClick={() =>
+                  handleSingleSelectChange(currentQuestion.id, option.id)
+                }
                 className={`flex items-center space-x-3 rounded-lg border p-4 transition-all hover:border-gray-300 hover:bg-gray-50 cursor-pointer ${
-                  isAnswerSelected(currentQuestion.id, option.id) ? "border-indigo-400 bg-indigo-50" : "border-gray-200"
+                  isAnswerSelected(currentQuestion.id, option.id)
+                    ? "border-indigo-400 bg-indigo-50"
+                    : "border-gray-200"
                 }`}
               >
                 <div
                   className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                    isAnswerSelected(currentQuestion.id, option.id) ? "border-indigo-600" : "border-gray-300"
+                    isAnswerSelected(currentQuestion.id, option.id)
+                      ? "border-indigo-600"
+                      : "border-gray-300"
                   }`}
                 >
                   {isAnswerSelected(currentQuestion.id, option.id) && (
@@ -524,14 +607,19 @@ export function AssessmentContent({ questions }: { questions: Question[] }) {
           </div>
         ) : (
           <div className="space-y-2">
-            <label htmlFor={`textarea-${currentQuestion.id}`} className="text-sm text-gray-500">
+            <label
+              htmlFor={`textarea-${currentQuestion.id}`}
+              className="text-sm text-gray-500"
+            >
               Enter your answer below
             </label>
             <Textarea
               id={`textarea-${currentQuestion.id}`}
               placeholder="Type your answer here..."
               value={answers[currentQuestion.id] || ""}
-              onChange={(e) => handleDescriptiveChange(currentQuestion.id, e.target.value)}
+              onChange={(e) =>
+                handleDescriptiveChange(currentQuestion.id, e.target.value)
+              }
               rows={6}
               className="w-full resize-none focus:ring-2 focus:ring-indigo-500/20"
             />
@@ -557,24 +645,29 @@ export function AssessmentContent({ questions }: { questions: Question[] }) {
               Submit Assessment
             </Button>
           ) : (
-            <Button onClick={handleNextQuestion} className="gap-2 bg-indigo-600 hover:bg-indigo-700">
+            <Button
+              onClick={handleNextQuestion}
+              className="gap-2 bg-indigo-600 hover:bg-indigo-700"
+            >
               Next <ChevronRight className="h-4 w-4" />
             </Button>
           )}
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   // Add imports at the top of the file
   if (!questions || questions.length === 0) {
     return (
       <Card>
         <CardContent className="p-6 text-center">
-          <p className="text-gray-500">No questions available for this lesson.</p>
+          <p className="text-gray-500">
+            No questions available for this lesson.
+          </p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -584,9 +677,12 @@ export function AssessmentContent({ questions }: { questions: Question[] }) {
           <div className="mb-6">
             <div className="flex justify-between items-center mb-2">
               <p className="text-sm text-gray-500">
-                {Object.keys(answers).length} of {totalQuestions} questions answered
+                {Object.keys(answers).length} of {totalQuestions} questions
+                answered
               </p>
-              <p className="text-sm text-gray-500">{Math.round(progress)}% complete</p>
+              <p className="text-sm text-gray-500">
+                {Math.round(progress)}% complete
+              </p>
             </div>
             <Progress value={progress} className="h-2" />
           </div>
@@ -597,11 +693,80 @@ export function AssessmentContent({ questions }: { questions: Question[] }) {
         {!showResults && (
           <div className="flex flex-col border-t mt-6 pt-4">
             <p className="text-xs text-gray-500 text-center">
-              Answer all questions to submit your assessment. Your progress is saved automatically.
+              Answer all questions to submit your assessment. Your progress is
+              saved automatically.
             </p>
           </div>
         )}
       </CardContent>
     </Card>
-  )
+  );
+}
+
+function CommentForm({ courseId }) {
+  const [comment, setComment] = useState("");
+  const [rating, setRating] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    // TODO: Call backend API to save comment and rating
+    let courseReview: CourseReview = {
+      feedback: comment,
+      rating: rating,
+      user: {
+        id: "0KME2BNDQDWXH",
+      },
+      course: {
+        id: courseId,
+      },
+    };
+
+    courseReviewService
+      .saveCourseReview(courseReview)
+      .then((response) => {
+        alert(`Submitted!\nRating: ${rating}\nComment: ${comment}`);
+        setLoading(false);
+        setComment("");
+        setRating(0);
+      })
+      .catch((error) => {
+        alert(`Error!\n${error.response.data.message}`);
+        setLoading(false);
+      });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="flex items-center gap-1 mb-2">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            onClick={() => setRating(star)}
+            className="focus:outline-none"
+          >
+            <Star
+              className={`h-6 w-6 ${
+                star <= rating
+                  ? "fill-yellow-500 text-yellow-500"
+                  : "text-gray-300"
+              }`}
+            />
+          </button>
+        ))}
+      </div>
+      <Textarea
+        placeholder="Write your comment..."
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        rows={4}
+        required
+      />
+      <Button type="submit" disabled={loading || !rating || !comment.trim()}>
+        {loading ? "Submitting..." : "Submit"}
+      </Button>
+    </form>
+  );
 }

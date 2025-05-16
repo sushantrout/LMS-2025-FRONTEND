@@ -43,5 +43,8 @@ export const courseService = {
   },
   getEnrolledCourse() {
     return lmsService.get(`${ENROLL_BASE_URL}/enrolled-course`);
+  },
+  getEnrollmentStatus(courseId : string) {
+    return lmsService.get(`${BASE_URL}/${courseId}/enroll-status`);
   }
 };
