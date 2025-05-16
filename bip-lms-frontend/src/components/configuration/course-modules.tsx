@@ -227,16 +227,15 @@ export default function CourseModules({
                   <span className="text-xl font-semibold text-gray-800">{module.name}</span>
                 </div>
                 <div className="flex gap-2">
-                  {module.sessions?.length > 1 && (
                     <Button
                       variant="outline"
                       size="sm"
                       className="text-xs h-8"
                       onClick={() => setSortModuleId(module.id)}
+                      disabled={module.sessions?.length < 2}
                   >
                     Sort Sessions
                   </Button>
-                  )}
                   <Button
                     variant="outline"
                     size="sm"
