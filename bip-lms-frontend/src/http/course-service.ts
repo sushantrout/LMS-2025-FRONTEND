@@ -4,8 +4,24 @@ const BASE_URL = "v1/course";
 const ENROLL_BASE_URL = 'v1/enrollment-course';
 
 export const courseService = {
-  getCourseList() {
-    return lmsService.get(`${BASE_URL}`);
+  getCourseList(searchKey?: string, sort?: string) {
+    let url = BASE_URL;
+    const params = new URLSearchParams();
+    
+    if (searchKey) {
+      params.append('searchKey', searchKey);
+    }
+    
+    if (sort) {
+      params.append('sort', sort);
+    }
+    
+    const queryString = params.toString();
+    if (queryString) {
+      url += `?${queryString}`;
+    }
+    
+    return lmsService.get(url);
   },
   getCourseDetail(id: string) {
     return lmsService.get(`${BASE_URL}/${id}`);
