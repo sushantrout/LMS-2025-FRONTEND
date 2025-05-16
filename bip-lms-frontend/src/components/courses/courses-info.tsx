@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, BookAIcon, Clock, Star, Users } from "lucide-react";
+import { ArrowLeft, BookAIcon, Clock, Star, Users, Mail, Phone } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -203,27 +203,14 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                         <h3 className="text-xl font-medium">
                           {instructor?.fullName}
                         </h3>
-                        <p className="text-muted-foreground">
+                        <p className="text-muted-foreground flex items-center gap-2">
+                          <Mail className="h-4 w-4" />
                           {instructor?.email}
                         </p>
-                        {/* phoneNumber */}
-                        <p className="text-muted-foreground">
+                        <p className="text-muted-foreground flex items-center gap-2">
+                          <Phone className="h-4 w-4" />
                           {instructor?.phoneNumber}
                         </p>
-                        {/* <div className="flex items-center gap-4 my-3">
-                          <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                            <span>5.0</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Users className="h-4 w-4" />
-                            <span>{courseOverView?.createdBy} Students</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <BookAIcon className="h-4 w-4" />
-                            <span>{courseOverView?.createdBy} Courses</span>
-                          </div>
-                        </div> */}
                       </div>
                     </div>
                   );
