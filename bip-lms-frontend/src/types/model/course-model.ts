@@ -28,5 +28,6 @@ export const initialCourseFormData: Course = {
     duration: "",
     lessons: "",
     pricing: null,
-    instructors: []
+    instructors: [],
+    shortDescription : ""
   }

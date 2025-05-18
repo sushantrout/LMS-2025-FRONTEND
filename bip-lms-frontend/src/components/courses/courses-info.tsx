@@ -101,11 +101,11 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
             </div>
             <div className="flex items-center gap-1">
               <Users className="h-5 w-5" />
-              <span>{courseOverView?.studentCount} students</span>
+              <span>{courseOverView?.studentCount} {courseOverView?.studentCount > 1 ? "students" : "student"}</span>
             </div>
             <div className="flex items-center gap-1">
               <Clock className="h-5 w-5" />
-              <span>{courseOverView?.duration} Hours</span>
+              <span>{courseOverView?.duration} {courseOverView?.duration > 1 ? "Hours" : "Hour"}</span>
             </div>
           </div>
         </div>

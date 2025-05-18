@@ -204,7 +204,7 @@ export default function ManageCourseModal({
               <Input
                 id="shortDescription"
                 name="shortDescription"
-                value={formData.shortDescription}
+                value={formData?.shortDescription ?? ""}
                 onChange={handleChange}
                 required
               />

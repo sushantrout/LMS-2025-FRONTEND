@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, SlidersHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Search,
+  SlidersHorizontal,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { courseService } from "@/http/course-service";
@@ -52,9 +57,13 @@ export default function CourseCatalog() {
   const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
   const indexOfLastCourse = currentPage * coursesPerPage;
   const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
-  const paginatedCourses = filteredCourses.slice(indexOfFirstCourse, indexOfLastCourse);
+  const paginatedCourses = filteredCourses.slice(
+    indexOfFirstCourse,
+    indexOfLastCourse
+  );
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-  const nextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const nextPage = () =>
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
   return (
@@ -64,10 +73,14 @@ export default function CourseCatalog() {
           <h1 className="text-3xl font-bold tracking-tight mb-2">
             Course Catalog
           </h1>
-          <Button onClick={() => {
-            setOpenCourseModal(true)
-            setSelectedCourse(null);
-            }}>Create Course</Button>
+          <Button
+            onClick={() => {
+              setOpenCourseModal(true);
+              setSelectedCourse(null);
+            }}
+          >
+            Create Course
+          </Button>
         </div>
         {/* Search and Filter */}
         <div className="flex gap-4">
@@ -103,24 +116,40 @@ export default function CourseCatalog() {
           </Select> */}
         </div>
 
-        <CourseGrid courses={paginatedCourses} setSelectedCourse={setSelectedCourse} setOpenCourseModal={setOpenCourseModal}/>
+        <CourseGrid
+          courses={paginatedCourses}
+          setSelectedCourse={setSelectedCourse}
+          setOpenCourseModal={setOpenCourseModal}
+        />
         {/* Pagination */}
         <div className="mt-8 flex justify-center">
           <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon" onClick={prevPage} disabled={currentPage === 1} className="h-8 w-8">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={prevPage}
+              disabled={currentPage === 1}
+              className="h-8 w-8"
+            >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
-              <Button
-                key={number}
-                variant={currentPage === number ? "default" : "outline"}
-                size="sm"
-                onClick={() => paginate(number)}
-                className={`h-8 w-8 ${currentPage === number ? "bg-indigo-600 hover:bg-indigo-700" : ""}`}
-              >
-                {number}
-              </Button>
-            ))}
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+              (number) => (
+                <Button
+                  key={number}
+                  variant={currentPage === number ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => paginate(number)}
+                  className={`h-8 w-8 ${
+                    currentPage === number
+                      ? "bg-indigo-600 hover:bg-indigo-700"
+                      : ""
+                  }`}
+                >
+                  {number}
+                </Button>
+              )
+            )}
             <Button
               variant="outline"
               size="icon"
@@ -133,7 +162,9 @@ export default function CourseCatalog() {
           </div>
         </div>
         <div className="mt-4 text-center text-sm text-gray-500">
-          Showing {filteredCourses.length === 0 ? 0 : indexOfFirstCourse + 1}-{Math.min(indexOfLastCourse, filteredCourses.length)} of {filteredCourses.length} courses
+          Showing {filteredCourses.length === 0 ? 0 : indexOfFirstCourse + 1}-
+          {Math.min(indexOfLastCourse, filteredCourses.length)} of{" "}
+          {filteredCourses.length} courses
         </div>
         <ManageCourseModal
           selectedCourse={selectedCourse}
@@ -146,13 +177,27 @@ export default function CourseCatalog() {
   );
 }
 
-function CourseGrid({ courses, setSelectedCourse, setOpenCourseModal }: { courses: Course[], setSelectedCourse : any, setOpenCourseModal: any }) {
+function CourseGrid({
+  courses,
+  setSelectedCourse,
+  setOpenCourseModal,
+}: {
+  courses: Course[];
+  setSelectedCourse: any;
+  setOpenCourseModal: any;
+}) {  
   console.log(courses);
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
         {courses.map((course) => (
-          <CourseCard key={course.id} course={course} type="configuration"  setSelectedCourse={setSelectedCourse} setOpenCourseModal={setOpenCourseModal}/>
+          <CourseCard
+            key={course.id}
+            course={course}
+            type="configuration"
+            setSelectedCourse={setSelectedCourse}
+            setOpenCourseModal={setOpenCourseModal}
+          />
         ))}
       </div>
     </>
