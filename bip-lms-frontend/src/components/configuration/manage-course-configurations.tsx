@@ -1,6 +1,12 @@
 "use client";
 
-import { BookOpen, FileQuestion, FileText, PlusCircle, ArrowUpDown } from "lucide-react";
+import {
+  BookOpen,
+  FileQuestion,
+  FileText,
+  PlusCircle,
+  ArrowUpDown,
+} from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -14,6 +20,7 @@ import ManageSessionModal from "./section/manage-session";
 import ManageModuleModal from "./module/manage-moule";
 import ManageQuizModal from "./section/quiz/manage-quiz";
 import SortModulesModal from "./module/sort-modules-modal";
+import EnrollmentModal from "./enrollment-modal";
 
 export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [course, setCourse] = useState<Course | null>(null);
@@ -24,6 +31,8 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
   const [selectedSession, setSelectedSession] = useState<Module | null>(null);
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
   const [isSortModalOpen, setIsSortModalOpen] = useState(false);
+  const [isEnrollmentModalOpen, setIsEnrollmentModalOpen] = useState(false);
+
 
   const fetchModules = useCallback(async () => {
     try {
@@ -107,11 +116,11 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
             <span className="text-red-500 font-medium">Add Quiz</span>
           </Button>
 
-          <Button variant="outline" className={commonButtonClass}>
+          <Button variant="outline" className={commonButtonClass} onClick={() => setIsEnrollmentModalOpen(true)}>
             <div className={`${iconStyle} bg-yellow-50 border-yellow-200`}>
               <FileText className="h-5 w-5 text-yellow-600" />
             </div>
-            <span className="text-yellow-600 font-medium">Add Assignment</span>
+            <span className="text-yellow-600 font-medium">Enrollment</span>
           </Button>
 
           <Button
@@ -172,6 +181,12 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
           courseId={courseId}
         />
       </div>
+
+      <EnrollmentModal 
+        isOpen={isEnrollmentModalOpen}
+        onClose={() => setIsEnrollmentModalOpen(false)}
+        courseId={courseId}
+      />
     </div>
   );
 }

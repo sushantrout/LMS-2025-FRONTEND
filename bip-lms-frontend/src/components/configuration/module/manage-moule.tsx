@@ -34,7 +34,7 @@ import { courseService } from "@/http/course-service";
 import { User } from "@/types/model/user-model";
 import { moduleService } from "@/http/module-service";
 import { Course } from "@/types/model/course-model";
-import { showSuccessToast } from "@/util/helpers/toast-helper";
+import { showErrorToast, showSuccessToast } from "@/util/helpers/toast-helper";
 
 interface ManageCourseModalProps {
   setModules: React.Dispatch<React.SetStateAction<Module[]>>;
@@ -108,6 +108,11 @@ export default function ManageModuleModal({
       trainer: values.trainer ? { id: values.trainer } : undefined,
       id: selectedModule?.id || initialModule.id,
     };
+
+    if(selectedModule?.trainer?.id){
+      showErrorToast("Select Instructor for this module");
+      return;
+    }
 
     if (selectedModule?.id) {
       await moduleService.updateModule(selectedModule.id, newModule);
