@@ -232,7 +232,7 @@ export function UserDataTable({
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <div className="font-medium">{user.fullName}</div>
+                        <div className="font-medium">{user.firstName} {user.lastName}</div>
                         <div className="text-sm text-muted-foreground">
                           {user.email}
                         </div>
@@ -418,7 +418,7 @@ export function UserDataTable({
                   <p className="text-sm font-medium text-muted-foreground">
                     Phone Number
                   </p>
-                  <p>{showUserDetails.phoneNumber || "—"}</p>
+                  <p>{showUserDetails.mobileNumber || "—"}</p>
                 </div>
               </div>
             </div>

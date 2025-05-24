@@ -4,8 +4,6 @@ import * as React from "react"
 import {
   AudioWaveform,
   BookAIcon,
-  BookOpen,
-  Bot,
   Command,
   Frame,
   GalleryVerticalEnd,
@@ -13,12 +11,10 @@ import {
   Map,
   PieChart,
   Settings2,
-  SquareTerminal,
   UsersIcon,
 } from "lucide-react"
 
 import { NavMain } from "@/components/layouts/nav-main"
-import { NavProjects } from "@/components/layouts/nav-projects"
 import { NavUser } from "@/components/layouts/nav-user"
 import { TeamSwitcher } from "@/components/layouts/team-switcher"
 import {
@@ -28,8 +24,8 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { useAuthProviderContext } from "@/contexts/auth-provider"
 
-// This is sample data.
 const data = {
   user: {
     name: "shadcn",
@@ -38,7 +34,7 @@ const data = {
   },
   teams: [
     {
-      name: "Acme Inc",
+      name: "Bipros",
       logo: GalleryVerticalEnd,
       plan: "Enterprise",
     },
@@ -59,7 +55,7 @@ const data = {
       url: "/",
       icon: LayoutDashboard,
       isActive: true,
-      roles: ['admin' , 'student'],
+      roles: ['Super Admin' , 'student'],
       items: [
         {
           title: "History",
@@ -119,7 +115,7 @@ const data = {
       title: "Users",
       url: "/users",
       icon: UsersIcon,
-      roles: ['admin'],
+      roles: ['Super Admin'],
       items: [
         {
           title: "Genesis",
@@ -139,7 +135,7 @@ const data = {
       title: "Configuration",
       url: "/configuration",
       icon: Settings2,
-      roles: ['admin'],
+      roles: ['Super Admin'],
       items: [
         {
           title: "General",
@@ -179,13 +175,29 @@ const data = {
   ],
 }
 
-const getAuthorizedMenu = ()=> {
-  return data.navMain.filter((item)=> !item.roles || item.roles.includes(process.env.NEXT_PUBLIC_ROLE))
-}
+// const getAuthorizedMenu = ()=> {
+//   debugger;
 
-const menus = getAuthorizedMenu();
+//   return data.navMain.filter((item)=> !item.roles || item.roles.includes(process.env.NEXT_PUBLIC_ROLE))
+// }
+
+// const menus = getAuthorizedMenu();
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+
+  const {principal} = useAuthProviderContext();
+
+  if (!principal || !principal.role?.roleName) {
+    return null;
+  }
+
+  const userRole = principal.role.roleName;
+  const isAdminstrator = principal.profile.isAdministrator;
+
+  const menus = data.navMain.filter((item) => {
+    return !item.roles || item.roles.includes(userRole);  
+  });
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>

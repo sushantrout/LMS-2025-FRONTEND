@@ -247,19 +247,19 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Duration</span>
                     <span className="font-medium">
-                      {/* {courseOverView?.duration} */}
+                      {courseOverView?.duration}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Lessons</span>
+                    <span className="text-muted-foreground">Modules</span>
                     <span className="font-medium">
-                      {/* {courseOverView?.lessons} */}
+                      {courseOverView?.modules?.length}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Level</span>
+                    <span className="text-muted-foreground">Sessions</span>
                     <span className="font-medium">
-                      {/* {courseOverView?.maxRating} */}
+                      {courseOverView?.modules?.flatMap(m => m.sessions).length}
                     </span>
                   </div>
                   <div className="flex justify-between">

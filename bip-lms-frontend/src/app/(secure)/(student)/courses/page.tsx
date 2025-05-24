@@ -37,7 +37,7 @@ export default function CourseCatalog() {
         sortParam = "rating,DESC"
         break
       default:
-        sortParam = undefined
+        sortParam = "name"
     }
 
     getCourses(debouncedSearchQuery, sortParam)

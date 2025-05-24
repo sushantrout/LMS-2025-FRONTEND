@@ -15,7 +15,7 @@ export type Course = MasterData &  {
     pricing?: any,
     comments?: any[],
     coverImage?: Attachment,
-    instructors?: User[]
+    instructors?: User[],
     progress?: number,
     shortDescription ?: string
 }

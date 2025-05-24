@@ -4,7 +4,7 @@ const BASE_URL = "v1/application-users";
 
 export const usersService = {
   getApplcationUsersList() {
-    return lmsService.get(`${BASE_URL}`);
+    return lmsService.get(`${BASE_URL}?sort=email`);
   },
   getApplicationUser(id: string) {
     return lmsService.get(`${BASE_URL}/${id}`);

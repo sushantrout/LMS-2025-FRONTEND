@@ -68,14 +68,15 @@ export default function ManageCourseModal({
       "formData",
       new Blob([JSON.stringify(formData)], { type: "application/json" })
     );
-
+    
     try {
       let response;
       if (selectedCourse) {
-        response = await courseService.updateCourse(
+        /* response = await courseService.updateCourse(
           selectedCourse.id,
           multipartForm
-        );
+        ); */
+        response = await courseService.createCourse(multipartForm);
         showSuccessToast("Course updated successfully!");
         setCourses((prev) =>
           prev.map((course) =>
@@ -180,7 +181,7 @@ export default function ManageCourseModal({
               <MultiSelect
                 options={instructors}
                 values={formData.instructors}
-                optionLabel="fullName"
+                optionLabel="username"
                 optionValue="id"
                 placeholder="Select instructors"
                 onChange={(values) =>

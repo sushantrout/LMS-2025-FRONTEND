@@ -109,10 +109,6 @@ export default function ManageModuleModal({
       id: selectedModule?.id || initialModule.id,
     };
 
-    if(selectedModule?.trainer?.id){
-      showErrorToast("Select Instructor for this module");
-      return;
-    }
 
     if (selectedModule?.id) {
       await moduleService.updateModule(selectedModule.id, newModule);

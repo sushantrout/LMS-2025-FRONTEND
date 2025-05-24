@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -37,7 +37,7 @@ export default function UsersPage() {
     roleService
       .getApplicationRoles()
       .then((response) => {
-        setRoles(response.data?.data || []);
+        setRoles(response.data?.data?.data || []);
       })
       .catch((error) => {
         showErrorToast("Error fetching roles");
@@ -55,6 +55,7 @@ export default function UsersPage() {
 
   const handleEditUser = async (userId: string) => {
     try {
+      debugger;
       const response = await usersService.getApplicationUser(userId);
       const userData = response.data?.data;
       if (userData) {

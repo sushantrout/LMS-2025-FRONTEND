@@ -26,7 +26,9 @@ export function MultiSelect<T>({
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    setSelected(values);
+    if (JSON.stringify(values) !== JSON.stringify(selected)) {
+      setSelected(values);
+    }
   }, [values]);
 
   const getLabel = (item: T) => String(item[optionLabel]);

@@ -6,6 +6,7 @@ import {
   FileText,
   PlusCircle,
   ArrowUpDown,
+  UserRoundCog,
 } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 
@@ -118,7 +119,7 @@ export default function ManageCoursePage({ courseId }: { courseId: string }) {
 
           <Button variant="outline" className={commonButtonClass} onClick={() => setIsEnrollmentModalOpen(true)}>
             <div className={`${iconStyle} bg-yellow-50 border-yellow-200`}>
-              <FileText className="h-5 w-5 text-yellow-600" />
+              <UserRoundCog className="h-5 w-5 text-yellow-600" />
             </div>
             <span className="text-yellow-600 font-medium">Enrollment</span>
           </Button>

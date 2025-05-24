@@ -1,1 +1,3 @@
-export type Role = MasterData;
+export type Role = MasterData & {
+    roleName: string;
+};

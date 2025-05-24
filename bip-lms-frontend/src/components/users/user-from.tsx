@@ -211,7 +211,7 @@ const UserFormComponent: FC<FormComponentProps> = ({
                   <SelectContent>
                     {roles.map((role) => (
                       <SelectItem key={role.id} value={role.id}>
-                        {role.name}
+                        {role.roleName}
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -1,20 +1,31 @@
-"use client"
+"use client";
 
-import { Search, ChevronDown, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { courseService } from "@/http/course-service"
-import { Course } from "@/types/model/course-model"
-import { getImageSrc } from "@/util/helpers/application-data-converter-util"
+import {
+  Search,
+  ChevronDown,
+  MoreVertical,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { courseService } from "@/http/course-service";
+import { Course } from "@/types/model/course-model";
+import { getImageSrc } from "@/util/helpers/application-data-converter-util";
 
- const MyLearning = () => {
+const MyLearning = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [enrolledCourse, setEnrolledCourse] = useState<Course[]>([]);
-  const coursesPerPage = 8
+  const coursesPerPage = 8;
 
   const getEnrolledCourse = () => {
     courseService.getEnrolledCourse().then((res) => {
@@ -28,21 +39,27 @@ import { getImageSrc } from "@/util/helpers/application-data-converter-util"
   }, []);
 
   // Calculate pagination
-  const indexOfLastCourse = currentPage * coursesPerPage
-  const indexOfFirstCourse = indexOfLastCourse - coursesPerPage
-  const currentCourses = enrolledCourse.slice(indexOfFirstCourse, indexOfLastCourse)
-  const totalPages = Math.ceil(enrolledCourse.length / coursesPerPage)
+  const indexOfLastCourse = currentPage * coursesPerPage;
+  const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
+  const currentCourses = null;
+  if (enrolledCourse) {
+    enrolledCourse.slice(indexOfFirstCourse, indexOfLastCourse);
+  }
+  const totalPages = Array.isArray(enrolledCourse)
+    ? Math.ceil(enrolledCourse.length / coursesPerPage)
+    : 0;
 
   // Change page
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
-  const nextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-  const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1))
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  const nextPage = () =>
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
   return (
     <div className="container mx-auto px-4">
-       <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight mb-2">My Learning</h1>
-        </div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight mb-2">My Learning</h1>
+      </div>
       {/* <div className="mb-8">
         <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -86,15 +103,22 @@ import { getImageSrc } from "@/util/helpers/application-data-converter-util"
       </div> */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {currentCourses.map((course) => (
-          <CourseCard key={course.id} course={course} />
-        ))}
+        {currentCourses &&
+          currentCourses.map((course) => (
+            <CourseCard key={course.id} course={course} />
+          ))}
       </div>
 
       {/* Pagination */}
       <div className="mt-8 flex justify-center">
         <div className="flex items-center gap-1">
-          <Button variant="outline" size="icon" onClick={prevPage} disabled={currentPage === 1} className="h-8 w-8">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={prevPage}
+            disabled={currentPage === 1}
+            className="h-8 w-8"
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
@@ -104,7 +128,11 @@ import { getImageSrc } from "@/util/helpers/application-data-converter-util"
               variant={currentPage === number ? "default" : "outline"}
               size="sm"
               onClick={() => paginate(number)}
-              className={`h-8 w-8 ${currentPage === number ? "bg-purple-600 hover:bg-purple-700" : ""}`}
+              className={`h-8 w-8 ${
+                currentPage === number
+                  ? "bg-purple-600 hover:bg-purple-700"
+                  : ""
+              }`}
             >
               {number}
             </Button>
@@ -123,19 +151,36 @@ import { getImageSrc } from "@/util/helpers/application-data-converter-util"
       </div>
 
       <div className="mt-4 text-center text-sm text-gray-500">
-        Showing {indexOfFirstCourse + 1}-{Math.min(indexOfLastCourse, enrolledCourse.length)} of {enrolledCourse.length} courses
+        {Array.isArray(enrolledCourse) && enrolledCourse.length > 0 ? (
+          <>
+            Showing {indexOfFirstCourse + 1}-
+            {Math.min(indexOfLastCourse, enrolledCourse.length)} of{" "}
+            {enrolledCourse.length} courses
+          </>
+        ) : (
+          <>No courses to show</>
+        )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 function CourseCard({ course }: { course: Course }) {
   const router = useRouter();
   return (
-    <div className="border rounded-md overflow-hidden flex flex-col" onClick={() => {router.push("/my-learning/"+course.id)}}>
+    <div
+      className="border rounded-md overflow-hidden flex flex-col"
+      onClick={() => {
+        router.push("/my-learning/" + course.id);
+      }}
+    >
       <div className="relative">
         <Image
-          src={course?.coverImage ? getImageSrc(course.coverImage) : "/images/course/course-cover.avif"}
+          src={
+            course?.coverImage
+              ? getImageSrc(course.coverImage)
+              : "/images/course/course-cover.avif"
+          }
           alt={course.name}
           width={400}
           height={225}
@@ -164,7 +209,9 @@ function CourseCard({ course }: { course: Course }) {
 
         <div className="mt-auto">
           <div className="flex justify-between items-center mb-1">
-            <span className="text-xs text-gray-600">{course.progress}% complete</span>
+            <span className="text-xs text-gray-600">
+              {course.progress}% complete
+            </span>
             {course.rating ? (
               <span className="text-xs text-gray-600">Your rating</span>
             ) : (
@@ -174,14 +221,21 @@ function CourseCard({ course }: { course: Course }) {
 
           <div className="flex justify-between items-center">
             <div className="w-full bg-gray-200 rounded-full h-1.5">
-              <div className="bg-orange-500 h-1.5 rounded-full" style={{ width: `${course.progress}%` }}></div>
+              <div
+                className="bg-orange-500 h-1.5 rounded-full"
+                style={{ width: `${course.progress}%` }}
+              ></div>
             </div>
 
             <div className="ml-4 flex">
               {[1, 2, 3, 4, 5].map((star) => (
                 <svg
                   key={star}
-                  className={`w-4 h-4 ${course.rating && star <= course.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300 fill-gray-300"}`}
+                  className={`w-4 h-4 ${
+                    course.rating && star <= course.rating
+                      ? "text-yellow-400 fill-yellow-400"
+                      : "text-gray-300 fill-gray-300"
+                  }`}
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                 >
@@ -193,7 +247,7 @@ function CourseCard({ course }: { course: Course }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // Expanded course data to demonstrate pagination

@@ -15,6 +15,8 @@ export const courseService = {
 
     if (sort) {
       params.append("sort", sort);
+    } else {
+      params.append("sort", "name");
     }
 
     const queryString = params.toString();
@@ -28,6 +30,7 @@ export const courseService = {
     return lmsService.get(`${BASE_URL}/${id}`);
   },
   createCourse(data: any) {
+    debugger;
     return lmsService.post(`${BASE_URL}/save-with-attachment`, data);
   },
   updateCourse(id: string, data: any) {

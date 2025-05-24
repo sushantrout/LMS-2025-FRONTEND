@@ -90,7 +90,7 @@ export default function EnrollmentModal({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[50px]">Select</TableHead>
+                <TableHead className="w-[50px]">#</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Phone</TableHead>

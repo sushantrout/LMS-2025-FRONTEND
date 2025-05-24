@@ -1,6 +1,6 @@
 import { GlobalKeys } from "@/types/constants/global-keys";
 import { getCookie } from "@/util/helpers/cookie-helper";
-import axios, { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import axios, {AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 
 type Data = any;
 export const axiosInstance = axios.create();
@@ -28,10 +28,11 @@ export const httpClient = {
   },
 };
 
-/* axiosInstance.interceptors.request.use((config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+
+ axiosInstance.interceptors.request.use((config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
   const token = getCookie(GlobalKeys.AUTH_COOKIE_NAME);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
-}); */
+}); 
