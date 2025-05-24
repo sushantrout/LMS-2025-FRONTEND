@@ -25,6 +25,7 @@ export const getTimeAgo = (date) => {
   export const getImageSrc = (attachment?: Attachment) => {
     if (!attachment?.imageInByteArray) return "/placeholder.svg";
     const contentType = attachment.contentType || "image/jpeg";
+    console.log("attachment", attachment);
     return `data:${contentType};base64,${attachment.imageInByteArray}`;
   };
   

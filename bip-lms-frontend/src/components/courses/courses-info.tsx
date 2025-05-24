@@ -207,10 +207,10 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                           <Mail className="h-4 w-4 text-blue-500" />
                           {instructor?.email}
                         </p>
-                        <p className="text-muted-foreground flex items-center gap-2">
+                        {instructor?.phoneNumber && <p className="text-muted-foreground flex items-center gap-2">
                           <Phone className="h-4 w-4 text-green-500" />
                           {instructor?.phoneNumber}
-                        </p>
+                        </p>}
                       </div>
                     </div>
                   );

@@ -37,17 +37,7 @@ const data = {
       name: "Bipros",
       logo: GalleryVerticalEnd,
       plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
+    }
   ],
   navMain: [
     {
@@ -112,26 +102,6 @@ const data = {
       ],
     },
     {
-      title: "Users",
-      url: "/users",
-      icon: UsersIcon,
-      roles: ['Super Admin'],
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
       title: "Configuration",
       url: "/configuration",
       icon: Settings2,
@@ -157,21 +127,7 @@ const data = {
     },
   ],
   projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
+    
   ],
 }
 
@@ -192,10 +148,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }
 
   const userRole = principal.role.roleName;
-  const isAdminstrator = principal.profile.isAdministrator;
 
   const menus = data.navMain.filter((item) => {
-    return !item.roles || item.roles.includes(userRole);  
+    return !item.roles || item.roles.map(r => r.toUpperCase()).includes((userRole || '').toUpperCase());  
   });
 
   return (

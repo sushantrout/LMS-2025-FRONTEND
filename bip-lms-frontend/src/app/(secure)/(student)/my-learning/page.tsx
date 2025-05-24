@@ -25,11 +25,9 @@ import { getImageSrc } from "@/util/helpers/application-data-converter-util";
 const MyLearning = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [enrolledCourse, setEnrolledCourse] = useState<Course[]>([]);
-  const coursesPerPage = 8;
 
   const getEnrolledCourse = () => {
     courseService.getEnrolledCourse().then((res) => {
-      console.log(res?.data?.data);
       setEnrolledCourse(res?.data?.data);
     });
   };
@@ -37,23 +35,6 @@ const MyLearning = () => {
   useEffect(() => {
     getEnrolledCourse();
   }, []);
-
-  // Calculate pagination
-  const indexOfLastCourse = currentPage * coursesPerPage;
-  const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
-  const currentCourses = null;
-  if (enrolledCourse) {
-    enrolledCourse.slice(indexOfFirstCourse, indexOfLastCourse);
-  }
-  const totalPages = Array.isArray(enrolledCourse)
-    ? Math.ceil(enrolledCourse.length / coursesPerPage)
-    : 0;
-
-  // Change page
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-  const nextPage = () =>
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
   return (
     <div className="container mx-auto px-4">
@@ -103,14 +84,14 @@ const MyLearning = () => {
       </div> */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {currentCourses &&
-          currentCourses.map((course) => (
+        {enrolledCourse &&
+          enrolledCourse.map((course) => (
             <CourseCard key={course.id} course={course} />
           ))}
       </div>
 
       {/* Pagination */}
-      <div className="mt-8 flex justify-center">
+      {/* <div className="mt-8 flex justify-center">
         <div className="flex items-center gap-1">
           <Button
             variant="outline"
@@ -160,7 +141,7 @@ const MyLearning = () => {
         ) : (
           <>No courses to show</>
         )}
-      </div>
+      </div> */}
     </div>
   );
 };
