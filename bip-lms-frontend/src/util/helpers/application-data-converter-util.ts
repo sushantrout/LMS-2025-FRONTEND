@@ -1,3 +1,4 @@
+import { ServiceApiPath } from "@/types/constants/service-api-path";
 import { Attachment } from "@/types/model/attachment-model";
 
 export const getTimeAgo = (date) => {
@@ -28,4 +29,13 @@ export const getTimeAgo = (date) => {
     console.log("attachment", attachment);
     return `data:${contentType};base64,${attachment.imageInByteArray}`;
   };
+
+  export const getImageSrcForProfile = (user?: any) => {
+    if(user?.id) {
+      console.log("user", `${ServiceApiPath.IDENTITY}/api/user/${user.id}`);
+      return `${ServiceApiPath.IDENTITY}/api/user/${user.id}`;
+    } else {
+      return "";
+    }
+  }
   

@@ -17,8 +17,9 @@ import {
 } from "@/types/model/course-review-model";
 import ReviewList from "./review-list";
 import CourseStats from "./course-stats";
-import { getImageSrc } from "@/util/helpers/application-data-converter-util";
+import { getImageSrc, getImageSrcForProfile } from "@/util/helpers/application-data-converter-util";
 import { showSuccessToast } from "@/util/helpers/toast-helper";
+import Image from "next/image";
 
 export default function CourseDetailInfo({ courseId }: { courseId: string }) {
   const router = useRouter();
@@ -185,15 +186,16 @@ export default function CourseDetailInfo({ courseId }: { courseId: string }) {
                   Meet Your Instructor
                 </h2>
                 {courseOverView?.instructors.map((instructor) => {
+                  debugger
                   return (
                     <div className="flex flex-col md:flex-row gap-6 items-start mb-6" key={instructor?.id} >
                       <Avatar className="h-24 w-24">
-                        <AvatarImage
-                          src={getImageSrc(instructor?.profilePicture)}
+                        <Image
+                          src={`/api/user/${instructor?.id}`}
                           alt={instructor?.fullName}
                         />
                         <AvatarFallback>
-                          {courseOverView?.courseName
+                          {instructor?.fullName
                             ?.split(" ")
                             .map((n) => n[0])
                             .join("")}

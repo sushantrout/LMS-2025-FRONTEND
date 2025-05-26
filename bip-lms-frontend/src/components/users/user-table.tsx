@@ -48,7 +48,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getImageSrc } from "@/util/helpers/application-data-converter-util";
+import { getImageSrc, getImageSrcForProfile } from "@/util/helpers/application-data-converter-util";
 
 interface DataTableProps {
   data: User[];
@@ -224,7 +224,7 @@ export function UserDataTable({
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
                         <AvatarImage
-                          src={getImageSrc(user?.profilePicture)}
+                          src={getImageSrcForProfile(user)}
                           alt={user.fullName}
                         />
                         <AvatarFallback className="bg-primary/10 text-primary">
@@ -379,7 +379,7 @@ export function UserDataTable({
               <div className="flex flex-col items-center gap-4">
                 <Avatar className="h-20 w-20">
                   <AvatarImage
-                    src={getImageSrc(showUserDetails?.profilePicture)}
+                    src={getImageSrcForProfile(showUserDetails?.profilePicture)}
                     alt={showUserDetails.fullName}
                   />
                   <AvatarFallback className="text-xl bg-primary/10 text-primary">
