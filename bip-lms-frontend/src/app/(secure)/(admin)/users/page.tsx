@@ -55,7 +55,6 @@ export default function UsersPage() {
 
   const handleEditUser = async (userId: string) => {
     try {
-      debugger;
       const response = await usersService.getApplicationUser(userId);
       const userData = response.data?.data;
       if (userData) {

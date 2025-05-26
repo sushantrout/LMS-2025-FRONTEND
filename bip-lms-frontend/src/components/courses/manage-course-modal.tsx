@@ -32,6 +32,7 @@ interface ManageCourseModalProps {
   selectedCourse: Course | null;
   isCourseModalOpen: boolean;
   setIsCourseModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  getCourses: () => void;
 }
 
 export default function ManageCourseModal({
@@ -39,6 +40,7 @@ export default function ManageCourseModal({
   selectedCourse,
   isCourseModalOpen,
   setIsCourseModalOpen,
+  getCourses
 }: ManageCourseModalProps) {
   const [formData, setFormData] = useState<Course>(initialCourseFormData);
   const [file, setFile] = useState<File | null>(null);
@@ -78,15 +80,17 @@ export default function ManageCourseModal({
         ); */
         response = await courseService.createCourse(multipartForm);
         showSuccessToast("Course updated successfully!");
-        setCourses((prev) =>
+        getCourses(); // Refresh the course list after update
+        /* setCourses((prev) =>
           prev.map((course) =>
             course.id === selectedCourse.id ? response.data.data : course
           )
-        );
+        ); */
       } else {
         response = await courseService.createCourse(multipartForm);
         showSuccessToast("Course created successfully!");
-        setCourses((prev) => [response.data.data, ...prev]);
+        /* setCourses((prev) => [response.data.data, ...prev]); */
+        getCourses(); // Refresh the course list after creation
       }
 
       setFormData(initialCourseFormData);

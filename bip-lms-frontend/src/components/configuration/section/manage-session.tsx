@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import QuillEditor from "@/components/editor/quill/quill-editor";
@@ -97,6 +97,11 @@ export default function ManageSessionModal({
       });
     }
   }, [selectedSession, isSessionModalOpen]);
+
+  const mode = useWatch({
+  control: form.control,
+  name: "mode",
+  })
 
   const onSubmit = async (values: ModuleFormSchema) => {
     try {
@@ -263,7 +268,7 @@ export default function ManageSessionModal({
                 />
               </div>
 
-              <div className="flex-1 min-w-[200px]">
+              {mode === "OFFLINE" && <div className="flex-1 min-w-[200px]">
                 <FormField
                   control={form.control}
                   name="location"
@@ -277,22 +282,25 @@ export default function ManageSessionModal({
                     </FormItem>
                   )}
                 />
-              </div>
+              </div>}
+              {mode === "ONLINE" && <div className="flex-1 min-w-[200px]">
+                <FormField
+                  control={form.control}
+                  name="link"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Link</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Session Link" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>}
             </div>
 
-            <FormField
-              control={form.control}
-              name="link"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Link</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Session Link" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={handleClose}>

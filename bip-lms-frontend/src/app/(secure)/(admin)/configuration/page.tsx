@@ -171,6 +171,7 @@ export default function CourseCatalog() {
           isCourseModalOpen={openCourseModal}
           setIsCourseModalOpen={setOpenCourseModal}
           setCourses={setCourses}
+          getCourses={getCourses}
         />
       </main>
     </div>

@@ -131,13 +131,6 @@ const data = {
   ],
 }
 
-// const getAuthorizedMenu = ()=> {
-//   debugger;
-
-//   return data.navMain.filter((item)=> !item.roles || item.roles.includes(process.env.NEXT_PUBLIC_ROLE))
-// }
-
-// const menus = getAuthorizedMenu();
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
@@ -160,10 +153,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={menus} />
-        {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={principal} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

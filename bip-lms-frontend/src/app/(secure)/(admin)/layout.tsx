@@ -5,8 +5,8 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-    if(process.env.NEXT_PUBLIC_ROLE !== 'admin') {
+    /* if(process.env.NEXT_PUBLIC_ROLE !== 'admin') {
         return <>Not Authorized</>
-    }
+    } */
   return <>{children}</>;
 }
