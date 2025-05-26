@@ -187,7 +187,9 @@ function CourseCard({ course }: { course: Course }) {
 
       <div className="p-4 flex-1 flex flex-col">
         <h3 className="font-medium text-lg mb-1 line-clamp-2">{course.name}</h3>
-
+        <p className="text-sm text-muted-foreground line-clamp-2">
+          {course.shortDescription}
+        </p>
         <div className="mt-auto">
           <div className="flex justify-between items-center mb-1">
             <span className="text-xs text-gray-600">
