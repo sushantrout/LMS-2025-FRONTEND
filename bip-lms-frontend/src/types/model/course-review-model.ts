@@ -4,7 +4,7 @@ import { User } from "./user-model";
 export type CourseReview = MasterData & {
   feedback: string;
   rating: number;
-  user: User;
+  user?: User;
   course: Course;
 };
 export type CourseReviewStats = {

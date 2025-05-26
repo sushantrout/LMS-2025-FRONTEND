@@ -198,7 +198,7 @@ function CourseCard({ course }: { course: Course }) {
             {course.rating ? (
               <span className="text-xs text-gray-600">Your rating</span>
             ) : (
-              <span className="text-xs text-gray-600">Leave a rating</span>
+              <span className="text-xs text-gray-600">Rating</span>
             )}
           </div>
 

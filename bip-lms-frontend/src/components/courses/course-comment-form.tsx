@@ -17,9 +17,6 @@ export default function CommentForm({ courseId }) {
       let courseReview: CourseReview     = {
         feedback: comment,
         rating: rating,
-        user: {
-          id: "0KME2BNDQDWXH",
-        },
         course: {
           id: courseId,
         },
