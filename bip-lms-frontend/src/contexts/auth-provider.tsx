@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { clientId } = useClientIdProvider();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [principal, setPrincipal] = useState({});
+  const [theme, setTheme] = useState({});
   const [logo, setLogo] = useState(null);
   const [userLogo, setUserLogo] = useState(null);
   const [organizationName, setOrganizationName] = useState("");
@@ -86,6 +87,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (error) {
         console.error("Error initializing Keycloak:", error);
       }
+
+
+
     };
     if (!keycloak && clientId) {
       authenticateByKeycloak();

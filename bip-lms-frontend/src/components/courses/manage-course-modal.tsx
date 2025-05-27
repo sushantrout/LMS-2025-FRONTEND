@@ -11,7 +11,7 @@ import {
 import { MultiSelect } from "../ui/multi-select";
 import QuillEditor from "../editor/quill/quill-editor";
 import { Button } from "../ui/button";
-import { courseCategoryService } from "@/http/course-catagory-service";
+import { courseCategoryService } from "@/http/course-category-service";
 import { Category } from "@/types/model/category-model";
 import { User } from "@/types/model/user-model";
 import { Course, initialCourseFormData } from "@/types/model/course-model";

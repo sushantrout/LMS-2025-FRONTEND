@@ -10,7 +10,8 @@ export const courseCategoryService = {
     return lmsService.get(`${BASE_URL}/detail/${id}`);
   },
   createCourseCategory(data: any) {
-    return lmsService.post(`${BASE_URL}/create`, data);
+    debugger;
+    return lmsService.post(`${BASE_URL}`, data);
   },
   updateCourseCategory(id: string, data: any) {
     return lmsService.put(`${BASE_URL}/update/${id}`, data);
